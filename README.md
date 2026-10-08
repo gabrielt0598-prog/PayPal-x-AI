@@ -12,8 +12,16 @@ Built for the PayPal × AI hackathon. Localhost demo; deployment comes later.
 
 ```bash
 npm install
-cp .env.example .env.local   # every key is optional — see below
-npm run dev                  # http://localhost:3000
+npm run dev                  # creates .env on first run, then serves http://localhost:3000
+```
+
+Paste your API keys into **`.env`** (created from `.env.example` on first run, or
+with `npm run setup:env`). `.env` is git-ignored, and the setup script refuses to
+run if it ever isn't, so pushing the repo never publishes your keys. Every key is
+optional — see below. Restart `npm run dev` after editing `.env`.
+
+```bash
+git check-ignore -v .env     # sanity check: prints the .gitignore rule that hides it
 ```
 
 With no keys at all, everything runs on deterministic mock data and a rule-based
