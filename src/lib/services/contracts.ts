@@ -74,12 +74,20 @@ export interface MemoryService {
 // ---------- Kernel: cloud browser actions on merchant sites ----------
 
 export interface BrowserCancellationResult {
-  status: "completed" | "simulated" | "needs_login" | "failed";
+  /**
+   * "awaiting_confirmation": the browser reached the merchant's final cancel step and stopped BEFORE the
+   * irreversible click (human-in-the-loop). The user finishes it via liveViewUrl.
+   */
+  status: "completed" | "simulated" | "needs_login" | "failed" | "awaiting_confirmation";
   /** Kernel live-view URL so the user can watch / take over the browser session. */
   liveViewUrl?: string;
   /** Human-readable step log, e.g. ["Opened netflix.com/account", "Clicked Cancel Membership"]. */
   steps: string[];
   mode: ServiceMode;
+  /** Page the browser ended on (live mode). */
+  finalUrl?: string;
+  /** Short human-readable explanation when status is failed / needs_login / awaiting_confirmation. */
+  message?: string;
 }
 
 export interface KernelService {
@@ -104,6 +112,8 @@ export interface ZapierResult {
   mode: ServiceMode;
   status?: number;
   error?: string;
+  /** True when an identical alert was already delivered within the dedupe window and this call was skipped. */
+  deduped?: boolean;
 }
 
 export interface ZapierService {
@@ -118,5 +128,14 @@ export interface PayPalService {
   getBalance(): Promise<number>;
   listRecurring(): Promise<RecurringPayment[]>;
   /** Cancels a PayPal-billed subscription via the Subscriptions API (mock: updates the store). */
-  cancelSubscription(recurringId: string, reason: string): Promise<{ ok: boolean; error?: string }>;
+  cancelSubscription(
+    recurringId: string,
+    reason: string,
+  ): Promise<{
+    ok: boolean;
+    error?: string;
+    /** Where the cancellation actually happened: PayPal's API, or only the local demo store. */
+    channel?: "paypal_api" | "local_store";
+    note?: string;
+  }>;
 }
