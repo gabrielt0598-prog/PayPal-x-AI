@@ -31,11 +31,37 @@ export interface IntentResult {
   mode: ServiceMode;
 }
 
+/** A piece of text the agent was allowed to rely on: a retrieved evidence document ("ev_3") or a tool result ("tool_2"). */
+export interface SourceDoc {
+  id: string;
+  title?: string;
+  text: string;
+  /** Always available to every claim, cited or not (e.g. what the user typed themselves). */
+  shared?: boolean;
+}
+
 export interface GuardrailInput {
   /** The agent's draft reply shown to the user. */
   reply: string;
   /** Every figure the agent was allowed to use: tool outputs + state snapshot + remembered facts, serialised. */
   groundTruth: string;
+  /**
+   * Citable sources (evidence documents + tool results). Claims citing `[ev_n]` / `[tool_n]` are checked against exactly those
+   * sources; uncited claims are checked against all of them. When omitted, `groundTruth` is the single source.
+   */
+  sources?: SourceDoc[];
+  /** Merchant / plan / category names; a claim naming one must find it in its sources (deterministic claim check). */
+  entities?: string[];
+}
+
+/** One factual sentence of the reply and how well its cited evidence supports it. */
+export interface ClaimCheck {
+  text: string;
+  /** Probability (0..1) that every figure, date, merchant and fact in the claim is supported by its evidence. */
+  supported: number;
+  /** Evidence / tool ids the claim cited, e.g. ["ev_3"]. */
+  citations: string[];
+  verdict: "supported" | "unsupported";
 }
 
 export interface GuardrailResult {
@@ -44,8 +70,12 @@ export interface GuardrailResult {
   unsupportedFigures: string[];
   /** Transaction ids in the reply that do not exist. */
   unknownTransactionIds: string[];
-  /** Jev's probability that the reply asserts something not in groundTruth (live mode only). */
+  /** Live mode: 1 - the lowest claim support probability (how likely the reply asserts something unsupported). */
   hallucinationProbability?: number;
+  /** Claim-level citation check (additive). Empty when the reply made no factual claims. */
+  claims: ClaimCheck[];
+  /** The support threshold the claims were judged against (JEV_CLAIM_THRESHOLD). */
+  claimThreshold: number;
   mode: ServiceMode;
 }
 
@@ -88,6 +118,16 @@ export interface BrowserCancellationResult {
   finalUrl?: string;
   /** Short human-readable explanation when status is failed / needs_login / awaiting_confirmation. */
   message?: string;
+  /** Kernel replay (video) URL of the cancellation run (live mode). */
+  replayUrl?: string;
+  /** Small JPEG of the merchant's "cancelled" page, as a data: URL. */
+  screenshotDataUrl?: string;
+  /** Confirmation number shown by the merchant's "cancelled" page. */
+  confirmationNumber?: string;
+  /** Page showing the end state: the sandbox merchant page (local path, or PUBLIC_BASE_URL absolute URL). */
+  previewUrl?: string;
+  /** What the browser acted on: the fake sandbox merchant (default) or the real merchant site. */
+  target?: "sandbox" | "real";
 }
 
 export interface KernelService {

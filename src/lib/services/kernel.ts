@@ -1,24 +1,34 @@
-// Kernel (onkernel.com) cloud browsers for merchant-site subscription cancellations.
+// Kernel (onkernel.com) cloud browsers for subscription cancellations.
 //
-// live = KERNEL_API_KEY set -> create a cloud browser that loads the saved profile KERNEL_PROFILE_NAME
-//        (persisted logins, save_changes=true), run Playwright inside the browser VM to open the merchant's
-//        account / cancellation page, and STOP before the final irreversible confirm click.
-//        The user finishes (or takes over) through the returned liveViewUrl.
-// mock = no key -> status "simulated" with a realistic step log.
+// Targets (env KERNEL_TARGET):
+//   sandbox (default) = the demo subscriptions are FAKE, so Kernel cancels them on our own look-alike "sandbox
+//        merchant" pages (merchant-sites.ts). One Playwright script runs in the Kernel VM: load the page (via
+//        page.setContent(html) embedded in the script, or page.goto(PUBLIC_BASE_URL/demo-merchant/<id>) when a
+//        public tunnel URL is configured), click Cancel membership -> Continue to cancel -> Confirm cancellation,
+//        read the confirmation number and take a JPEG screenshot. A Kernel replay (video) records the run.
+//        Status "completed" only when the merchant's cancelled text was found.
+//   real = old behaviour for real merchant sites: browser with the saved profile KERNEL_PROFILE_NAME, opens the
+//        account page, clicks at most ONE non-final entry point and STOPS before the irreversible final click
+//        ("awaiting_confirmation"); the user finishes through liveViewUrl. Never auto-confirms.
+// mock = no KERNEL_API_KEY -> status "simulated" with a realistic step log and a previewUrl to the local sandbox page.
 //
 // SDK calls used (@onkernel/sdk 0.121.0):
 //   new Kernel({ apiKey, timeout, maxRetries })
-//   client.browsers.create({ profile: { name, save_changes }, stealth, timeout_seconds, start_url })
-//        -> { session_id, browser_live_view_url, ... }
+//   client.browsers.create({ stealth, headless, timeout_seconds, profile? }) -> { session_id, browser_live_view_url }
+//   client.browsers.replays.start(session_id) -> { replay_id, replay_view_url? }
 //   client.browsers.playwright.execute(session_id, { code, timeout_sec }) -> { success, result, error, stdout }
+//   client.browsers.replays.stop(replay_id, { id_or_name: session_id }) -> void
+//   client.browsers.replays.list(session_id) -> [{ replay_id, replay_view_url?, ... }]
 //   client.browsers.deleteByID(session_id)
 //
-// Human-in-the-loop: a browser that reaches the final confirm step or hits a login wall is deliberately left
-// running (inactivity timeout KEEP_ALIVE_S) so the user can take over from the live view. Failed runs are deleted.
+// Cleanup: sandbox browsers are deleted after a short grace period (KERNEL_CLEANUP_GRACE_S, default 90s) so the
+// live view / replay stays watchable; the inactivity timeout (grace + 60s) reaps them even if the process dies.
+// Real-target runs that need a human (login wall / final confirm) are left open for KEEP_ALIVE_S.
 
 import Kernel from "@onkernel/sdk";
 import type { RecurringPayment } from "../types";
 import type { BrowserCancellationResult, KernelService, ServiceMode } from "./contracts";
+import { CANCEL_FLOW_SOURCE, confirmationNumber, merchantPath, renderMerchantPage } from "./merchant-sites";
 
 const KEEP_ALIVE_S = 300;
 const NAV_TIMEOUT_S = 75;
@@ -44,12 +54,47 @@ function errMsg(err: unknown) {
   return err instanceof Error ? `${err.name}: ${err.message}` : String(err);
 }
 
+export function kernelTarget(): "sandbox" | "real" {
+  return process.env.KERNEL_TARGET?.trim().toLowerCase() === "real" ? "real" : "sandbox";
+}
+
+/** Base URL of a publicly reachable deployment/tunnel (optional); the sandbox page is then opened by URL. */
+function publicBaseUrl(): string | undefined {
+  const v = process.env.PUBLIC_BASE_URL?.trim().replace(/\/+$/, "");
+  return v && /^https?:\/\//i.test(v) ? v : undefined;
+}
+
 function simulated(sub: RecurringPayment, why?: string): BrowserCancellationResult {
+  if (kernelTarget() === "real") return simulatedReal(sub, why);
+  const base = publicBaseUrl();
+  const previewUrl = `${base ?? ""}${merchantPath(sub.id, "cancelled")}`;
+  return {
+    status: "simulated",
+    mode: "mock",
+    target: "sandbox",
+    previewUrl,
+    confirmationNumber: confirmationNumber(sub),
+    steps: [
+      why ?? "Kernel is in mock mode (no KERNEL_API_KEY); no cloud browser was started",
+      "Launched cloud browser (simulated)",
+      `Opened the sandbox ${sub.merchant} account page (simulated)`,
+      `Found ${sub.plan} (${sub.merchant}) membership`,
+      'Clicked "Cancel membership", then "Continue to cancel" past the retention offer (simulated)',
+      'Clicked "Confirm cancellation" (simulated)',
+      `Sandbox merchant shows "Your membership is cancelled" (confirmation ${confirmationNumber(sub)}, simulated)`,
+      `Cancellation of ${sub.merchant} recorded locally`,
+    ],
+  };
+}
+
+function simulatedReal(sub: RecurringPayment, why?: string): BrowserCancellationResult {
   const url = MERCHANT_URLS[sub.merchant];
   const host = url ? new URL(url).host : `${sub.merchant.toLowerCase().replace(/[^a-z0-9]+/g, "")}.com`;
   return {
     status: "simulated",
     mode: "mock",
+    target: "real",
+    previewUrl: merchantPath(sub.id, "cancelled"),
     steps: [
       why ?? "Kernel is in mock mode (no KERNEL_API_KEY); nothing was cancelled on the merchant site",
       "Launched cloud browser with saved profile (simulated)",
@@ -115,14 +160,12 @@ interface ScriptResult {
   notes?: string[];
 }
 
-export const kernel: KernelService = {
-  async cancelOnMerchantSite(sub): Promise<BrowserCancellationResult> {
-    const apiKey = process.env.KERNEL_API_KEY?.trim();
-    if (!apiKey) return simulated(sub);
-
+/** KERNEL_TARGET=real: real merchant site, saved profile, stops before the final irreversible click. */
+async function cancelOnRealMerchant(sub: RecurringPayment, apiKey: string): Promise<BrowserCancellationResult> {
+  {
     const target = MERCHANT_URLS[sub.merchant];
     if (!target) {
-      return { status: "failed", mode: "live", steps: [`No known cancellation page for ${sub.merchant}`], message: `No cancellation page is configured for ${sub.merchant}` };
+      return { status: "failed", mode: "live", target: "real", steps: [`No known cancellation page for ${sub.merchant}`], message: `No cancellation page is configured for ${sub.merchant}` };
     }
 
     const profileName = process.env.KERNEL_PROFILE_NAME?.trim() || "pfm-demo";
@@ -146,7 +189,7 @@ export const kernel: KernelService = {
       const exec = await client.browsers.playwright.execute(sessionId, { code: buildScript(target), timeout_sec: NAV_TIMEOUT_S });
       if (!exec.success) {
         steps.push(`Browser automation failed: ${(exec.error ?? "unknown error").slice(0, 200)}`);
-        return { status: "failed", mode: "live", liveViewUrl, steps, message: "The cloud browser could not complete the navigation" };
+        return { status: "failed", mode: "live", target: "real", liveViewUrl, steps, message: "The cloud browser could not complete the navigation" };
       }
 
       const r = (exec.result ?? {}) as ScriptResult;
@@ -157,6 +200,7 @@ export const kernel: KernelService = {
         return {
           status: "needs_login",
           mode: "live",
+          target: "real",
           liveViewUrl,
           steps,
           ...(r.finalUrl ? { finalUrl: r.finalUrl } : {}),
@@ -172,6 +216,7 @@ export const kernel: KernelService = {
       return {
         status: "awaiting_confirmation",
         mode: "live",
+        target: "real",
         liveViewUrl,
         steps,
         ...(r.finalUrl ? { finalUrl: r.finalUrl } : {}),
@@ -180,7 +225,7 @@ export const kernel: KernelService = {
     } catch (err) {
       console.error("[kernel] cancellation run failed:", errMsg(err));
       steps.push("Kernel request failed; see server logs");
-      return { status: "failed", mode: "live", steps, message: "Kernel could not run the cancellation" };
+      return { status: "failed", mode: "live", target: "real", steps, message: "Kernel could not run the cancellation" };
     } finally {
       // Clean up unless the user needs the browser (login / final confirm). Inactivity timeout reaps the rest.
       if (sessionId && !keepAlive) {
@@ -191,5 +236,136 @@ export const kernel: KernelService = {
         }
       }
     }
+  }
+}
+
+interface FlowResult {
+  confirmation?: string;
+  finalText?: string;
+  screenshot?: string;
+  steps?: string[];
+  finalUrl?: string;
+  title?: string;
+}
+
+const PAUSE_MS = 1000;
+const EXEC_TIMEOUT_S = 90;
+
+function graceSeconds(): number {
+  const n = Number(process.env.KERNEL_CLEANUP_GRACE_S);
+  return Number.isFinite(n) && n >= 0 ? Math.min(n, 600) : 90;
+}
+
+/** Delete the browser now, or after the grace period (timer is unref'd; the inactivity timeout is the backstop). */
+function scheduleDelete(client: Kernel, sessionId: string, graceS: number) {
+  const del = async () => {
+    try {
+      await client.browsers.deleteByID(sessionId);
+    } catch (err) {
+      console.error("[kernel] browser cleanup failed:", errMsg(err));
+    }
+  };
+  if (graceS <= 0) return del();
+  const t = setTimeout(() => void del(), graceS * 1000);
+  t.unref?.();
+}
+
+/** KERNEL_TARGET=sandbox: drive the fake merchant site end to end and really click through to "cancelled". */
+async function cancelOnSandboxMerchant(sub: RecurringPayment, apiKey: string): Promise<BrowserCancellationResult> {
+  const steps: string[] = [];
+  const base = publicBaseUrl();
+  const pageUrl = base ? `${base}${merchantPath(sub.id)}` : undefined;
+  const previewUrl = `${base ?? ""}${merchantPath(sub.id, "cancelled")}`;
+  const graceS = graceSeconds();
+  const client = new Kernel({ apiKey, timeout: 45_000, maxRetries: 1 });
+  let sessionId: string | undefined;
+  let replayId: string | undefined;
+  let liveViewUrl: string | undefined;
+  let replayUrl: string | undefined;
+
+  try {
+    // Profile is optional for sandbox merchants: only attach it when KERNEL_PROFILE_NAME is explicitly set.
+    const profileName = process.env.KERNEL_PROFILE_NAME?.trim();
+    const browser = await client.browsers.create({
+      stealth: true,
+      headless: false,
+      timeout_seconds: graceS + 120,
+      ...(profileName ? { profile: { name: profileName, save_changes: false } } : {}),
+    });
+    sessionId = browser.session_id;
+    liveViewUrl = browser.browser_live_view_url;
+    steps.push(`Launched Kernel cloud browser (stealth)${profileName ? ` with profile "${profileName}"` : ""}`);
+
+    try {
+      const rep = await client.browsers.replays.start(sessionId);
+      replayId = rep.replay_id;
+      replayUrl = rep.replay_view_url;
+      steps.push("Started Kernel replay recording");
+    } catch (err) {
+      console.error("[kernel] replay start failed:", errMsg(err));
+      steps.push("Replay recording unavailable (continuing without it)");
+    }
+
+    // ONE execute call: Playwright `page` is in scope; the flow function comes from merchant-sites.ts.
+    const opts = pageUrl ? { url: pageUrl, pauseMs: PAUSE_MS } : { html: renderMerchantPage(sub, "account", { inline: true }), pauseMs: PAUSE_MS };
+    const code = `${CANCEL_FLOW_SOURCE}\nreturn await runCancelFlow(page, ${JSON.stringify(opts)});`;
+    const exec = await client.browsers.playwright.execute(sessionId, { code, timeout_sec: EXEC_TIMEOUT_S }, { timeout: (EXEC_TIMEOUT_S + 15) * 1000 });
+
+    const r = (exec.success ? (exec.result ?? {}) : {}) as FlowResult;
+    if (r.steps?.length) steps.push(...r.steps);
+    const found = exec.success && /membership is cancelled/i.test(r.finalText ?? "");
+    if (!exec.success) steps.push(`Browser automation failed: ${(exec.error ?? "unknown error").slice(0, 200)}`);
+    else if (!found) steps.push("The merchant never showed the cancelled confirmation");
+    return await finish(found);
+
+    async function finish(ok: boolean): Promise<BrowserCancellationResult> {
+      if (sessionId && replayId) {
+        try {
+          await client.browsers.replays.stop(replayId, { id_or_name: sessionId });
+          if (!replayUrl) {
+            const list = await client.browsers.replays.list(sessionId);
+            replayUrl = list.find((x) => x.replay_id === replayId)?.replay_view_url;
+          }
+          steps.push(replayUrl ? "Saved Kernel replay" : "Stopped replay recording");
+        } catch (err) {
+          console.error("[kernel] replay stop/list failed:", errMsg(err));
+        }
+      }
+      return {
+        status: ok ? "completed" : "failed",
+        mode: "live",
+        target: "sandbox",
+        steps,
+        previewUrl,
+        ...(liveViewUrl ? { liveViewUrl } : {}),
+        ...(replayUrl ? { replayUrl } : {}),
+        ...(r.finalUrl ? { finalUrl: r.finalUrl } : {}),
+        ...(ok && r.confirmation ? { confirmationNumber: r.confirmation } : {}),
+        ...(ok && r.screenshot ? { screenshotDataUrl: `data:image/jpeg;base64,${r.screenshot}` } : {}),
+        ...(ok ? {} : { message: "The sandbox merchant did not confirm the cancellation" }),
+      };
+    }
+  } catch (err) {
+    console.error("[kernel] sandbox cancellation failed:", errMsg(err));
+    steps.push("Kernel request failed; see server logs");
+    return {
+      status: "failed",
+      mode: "live",
+      target: "sandbox",
+      steps,
+      previewUrl,
+      ...(liveViewUrl ? { liveViewUrl } : {}),
+      message: "Kernel could not run the cancellation",
+    };
+  } finally {
+    if (sessionId) await scheduleDelete(client, sessionId, graceS);
+  }
+}
+
+export const kernel: KernelService = {
+  async cancelOnMerchantSite(sub): Promise<BrowserCancellationResult> {
+    const apiKey = process.env.KERNEL_API_KEY?.trim();
+    if (!apiKey) return simulated(sub);
+    return kernelTarget() === "real" ? cancelOnRealMerchant(sub, apiKey) : cancelOnSandboxMerchant(sub, apiKey);
   },
 };

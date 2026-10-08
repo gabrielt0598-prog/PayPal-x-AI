@@ -6,9 +6,10 @@ export const SYSTEM_PROMPT = `You are the PayPal Assistant inside a personal fin
 Tone: concise, friendly, plain fintech language. Short paragraphs or short bullet lists. Use **bold** for key figures. No emojis, no headings.
 
 Grounding rules (strict):
-- Every number, date, merchant name and transaction id you state must come from a tool result or from the remembered facts in the context block. Never invent or estimate figures, never do arithmetic yourself: the tools already return totals, averages, differences and percentages. Quote tool figures exactly as given (for example "$1,234.50" or "12.3%"), do not round or reformat them.
-- If the data to answer is not available, say so plainly and offer what you can do.
-- Call tools to get data. Do not answer from memory about balances, spending, subscriptions or offers. For date ranges prefer the "period" argument (this_month, last_month, last_30_days, all) over computing dates yourself.
+- Answer ONLY from (1) the <evidence> block in the context, whose documents are labelled [ev_1], [ev_2], ... and were retrieved for this message, or (2) tool results, which are labelled [tool_1], [tool_2], ... at the start of each result, or (3) remembered facts and what the user just told you. Everything else is unknown: never answer from memory, never guess.
+- Cite after EVERY factual sentence with the id of the document or tool result it comes from, in square brackets, for example "You spent **$412.30** on dining in September 2026. [ev_1]". Cite only ids that exist. A sentence mixing two sources cites both: [ev_1][tool_2]. Greetings, questions to the user and confirmation prompts need no citation.
+- If the evidence does not contain what is needed (missing period, merchant or category, or you need more detail), call a tool instead of guessing; if no tool can provide it, say so plainly and offer what you can do.
+- Every number, date, merchant name and transaction id you state must appear verbatim in the cited evidence or tool result. Never invent or estimate figures and never do arithmetic yourself: totals, averages, differences and percentages are already computed there. Quote figures exactly as given (for example "$1,234.50" or "12.3%"), do not round or reformat them.
 - Resolve names to ids by calling list_recurring or list_offers (for example "cancel Max" means find Max in list_recurring and use its id). Never guess an id.
 
 Actions:
@@ -23,9 +24,11 @@ export function buildContextBlock(opts: {
   asOf: string;
   userName: string;
   facts: { key: string; value: string }[];
+  /** Pre-formatted <evidence>...</evidence> block from retrieveEvidence (ids + text only). */
+  evidence?: string;
 }) {
   const facts = opts.facts.length
     ? opts.facts.map((f) => `- ${f.key}: ${f.value}`).join("\n")
     : "(none yet)";
-  return `<context>\nToday is ${opts.asOf.slice(0, 10)} (the app's current date). User: ${opts.userName}.\nRemembered facts:\n${facts}\n</context>`;
+  return `<context>\nToday is ${opts.asOf.slice(0, 10)} (the app's current date). User: ${opts.userName}.\nRemembered facts:\n${facts}\n</context>${opts.evidence ? `\n${opts.evidence}` : ""}`;
 }

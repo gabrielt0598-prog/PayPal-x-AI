@@ -22,11 +22,14 @@ import {
 import { applyOffer, cancelRecurring, getState, recategorize } from "@/lib/store";
 import { jev, kernel, memory, paypal } from "@/lib/services";
 import { CATEGORIES, type Category, type RecurringPayment, type Transaction } from "@/lib/types";
+import type { IntentResult } from "@/lib/services/contracts";
 import type { AgentAction } from "./types";
 
 export interface ToolContext {
   sessionId: string;
   latestUserMessage: string;
+  /** Intent Jev already produced alongside evidence reranking (saves a second Jev call in the rule-based agent). */
+  intent?: IntentResult;
   actions: AgentAction[];
   /** Every tool result from this turn (used as guardrail ground truth + safe fallback reply). */
   results: { tool: string; input: unknown; output: ToolOutput }[];
@@ -528,6 +531,8 @@ async function cancelSubscription(input: Record<string, unknown>, ctx: ToolConte
   let mode: "live" | "mock" = "mock";
   let liveViewUrl: string | undefined;
   let steps: string[] | undefined;
+  let kernelExtra: { replayUrl?: string; screenshotDataUrl?: string; confirmationNumber?: string; previewUrl?: string; target?: "sandbox" | "real" } = {};
+  let kernelLive = false;
   let done = false;
   let detail = "";
   if (channel === "paypal_subscriptions_api") {
@@ -541,6 +546,14 @@ async function cancelSubscription(input: Record<string, unknown>, ctx: ToolConte
     mode = r.mode;
     liveViewUrl = r.liveViewUrl;
     steps = r.steps;
+    kernelLive = r.status === "completed";
+    kernelExtra = {
+      ...(r.replayUrl ? { replayUrl: r.replayUrl } : {}),
+      ...(r.screenshotDataUrl ? { screenshotDataUrl: r.screenshotDataUrl } : {}),
+      ...(r.confirmationNumber ? { confirmationNumber: r.confirmationNumber } : {}),
+      ...(r.previewUrl ? { previewUrl: r.previewUrl } : {}),
+      ...(r.target ? { target: r.target } : {}),
+    };
     done = r.status === "completed" || r.status === "simulated";
     detail = done ? "" : `Browser automation ended with status ${r.status}`;
     if (done) {
@@ -554,9 +567,12 @@ async function cancelSubscription(input: Record<string, unknown>, ctx: ToolConte
   pendingCancels.delete(ctx.sessionId);
   if (!done) return { summary: `Could not cancel ${sub.merchant}: ${detail || "unknown error"}. Nothing was changed.`, status: "failed", mode, ...(liveViewUrl ? { liveViewUrl } : {}), ...(steps ? { steps } : {}) };
 
-  ctx.actions.push({ type: "subscription_cancelled", ...base, mode, liveViewUrl, steps });
+  ctx.actions.push({ type: "subscription_cancelled", ...base, mode, liveViewUrl, steps, ...kernelExtra });
+  const kernelNote = channel === "kernel_browser"
+    ? ` ${kernelLive ? `Cancelled via Kernel cloud browser on the ${kernelExtra.target === "real" ? "merchant" : "sandbox merchant"} site${kernelExtra.confirmationNumber ? `, confirmation #${kernelExtra.confirmationNumber}` : ""}.` : "Simulated: no Kernel browser ran (KERNEL_API_KEY is not set)."}`
+    : "";
   return {
-    summary: `${sub.merchant} (${sub.plan}) is cancelled${mockNote(mode)}. Saves ${formatUSD(monthly)}/mo (${formatUSD(annual)}/yr).`,
+    summary: `${sub.merchant} (${sub.plan}) is cancelled${mockNote(mode)}. Saves ${formatUSD(monthly)}/mo (${formatUSD(annual)}/yr).${kernelNote}`,
     status: "cancelled",
     monthlySaving: formatUSD(monthly),
     annualSaving: formatUSD(annual),

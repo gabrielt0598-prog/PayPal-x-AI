@@ -26,18 +26,20 @@ function parseSalary(m: string) {
   return Number.isFinite(v) && v > 0 ? v : undefined;
 }
 
-const join = (outs: ToolOutput[]) => outs.map((o) => o.summary).join("\n\n");
 
 export async function mockAgent(ctx: ToolContext): Promise<string> {
   const m = ctx.latestUserMessage;
   const lower = m.toLowerCase();
   const call = (name: string, input: unknown = {}) => executeTool(name, input, ctx);
-  const hint = await jev.classifyIntent(m).catch(() => undefined);
+  // Cite the tool result the way the live model does ("[tool_2]"), so the UI chips and the claim check work in mock mode too.
+  const cite = (o: ToolOutput) => `${o.summary} [tool_${ctx.results.findIndex((r) => r.output === o) + 1}]`;
+  // Retrieval already asked Jev for the intent in the same call as the evidence ranking; only ask again if it did not.
+  const hint = ctx.intent ?? (await jev.classifyIntent(m).catch(() => undefined));
 
   // 1. Follow-up to a pending cancellation preview.
   const pending = pendingCancels.get(ctx.sessionId);
   if (pending) {
-    if (isConfirmation(m)) return (await call("cancel_subscription", { recurring_id: pending, confirmed: true })).summary;
+    if (isConfirmation(m)) return cite(await call("cancel_subscription", { recurring_id: pending, confirmed: true }));
     if (/\b(keep|no|nope|don't|never ?mind)\b/i.test(m)) {
       pendingCancels.delete(ctx.sessionId);
       return "No problem, I'll keep that subscription active. Nothing was changed.";
@@ -51,7 +53,7 @@ export async function mockAgent(ctx: ToolContext): Promise<string> {
     const target = items.find((i) => lower.includes(i.merchant.toLowerCase()) || lower.includes(i.id.replace(/^(sub|bill|var)_/, "")));
     if (target) {
       const r = await call("cancel_subscription", { recurring_id: target.id, confirmed: false });
-      return r.status === "needs_confirmation" ? `${r.summary}\n\nReply **yes** to confirm or **keep it** to leave it as is.` : r.summary;
+      return r.status === "needs_confirmation" ? `${cite(r)}\n\nReply **yes** to confirm or **keep it** to leave it as is.` : cite(r);
     }
     return `Which one should I cancel? Your active subscriptions are: ${items.filter((i) => i.id.startsWith("sub_")).map((i) => i.merchant).join(", ")}.`;
   }
@@ -64,14 +66,14 @@ export async function mockAgent(ctx: ToolContext): Promise<string> {
     if (wantsApply && best) {
       const list = offers.offers as { offerId: string; transactionId: string | null }[];
       const pick = list.find((o) => lower.includes(o.offerId.split("_")[1] ?? "~")) ?? list.find((o) => o.offerId === best);
-      return (await call("apply_offer", { offer_id: pick?.offerId ?? best, transaction_id: pick?.transactionId ?? undefined })).summary;
+      return cite(await call("apply_offer", { offer_id: pick?.offerId ?? best, transaction_id: pick?.transactionId ?? undefined }));
     }
-    return offers.summary as string;
+    return cite(offers);
   }
 
   // 4. Categorize.
   if (/categori[sz]|re-?label|recategori/i.test(lower) || hint?.intent === "categorize") {
-    return (await call("categorize_transactions", {})).summary;
+    return cite(await call("categorize_transactions", {}));
   }
 
   // 5. Remember a fact (salary).
@@ -80,17 +82,17 @@ export async function mockAgent(ctx: ToolContext): Promise<string> {
     const monthly = /month|\/mo\b/i.test(lower);
     const fact = await call("remember_fact", { key: "salary", value: `$${salary.toLocaleString("en-US")} per ${monthly ? "month" : "year"}` });
     const spend = await call("spending_summary", { granularity: "month", period: "last_month" });
-    return `${fact.summary}\n\n${spend.summary}`;
+    return `${cite(fact)}\n\n${cite(spend)}`;
   }
   const rememberMatch = lower.match(/remember (?:that )?(?:my )?([a-z ]{2,30}?) (?:is|=) (.+)/);
-  if (rememberMatch) return (await call("remember_fact", { key: rememberMatch[1].trim().replace(/\s+/g, "_"), value: rememberMatch[2].trim() })).summary;
+  if (rememberMatch) return cite(await call("remember_fact", { key: rememberMatch[1].trim().replace(/\s+/g, "_"), value: rememberMatch[2].trim() }));
   const forgetMatch = lower.match(/forget (?:my )?([a-z ]{2,30})/);
-  if (forgetMatch) return (await call("forget_fact", { key: forgetMatch[1].trim().replace(/\s+/g, "_") })).summary;
+  if (forgetMatch) return cite(await call("forget_fact", { key: forgetMatch[1].trim().replace(/\s+/g, "_") }));
 
   // 6. Subscriptions / recurring.
   if (/subscri|unused|not using|recurring|bills?\b|overlap/i.test(lower)) {
     const kind = /bills?\b/i.test(lower) ? undefined : "subscription";
-    return (await call("list_recurring", { kind })).summary;
+    return cite(await call("list_recurring", { kind }));
   }
 
   // 7. Spending questions.
@@ -98,17 +100,17 @@ export async function mockAgent(ctx: ToolContext): Promise<string> {
     const category = CATEGORY_ALIASES.find(([re]) => re.test(lower))?.[1];
     const period = /last month|previous month/.test(lower) ? "last_month" : /30 days|past month/.test(lower) ? "last_30_days" : /all|ever|overall/.test(lower) ? "all" : "this_month";
     const granularity = /\b(daily|per day|each day)\b/.test(lower) ? "day" : /\b(year|yearly|annual)\b/.test(lower) ? "year" : "month";
-    return (await call("spending_summary", { granularity, period, ...(category ? { category } : {}) })).summary;
+    return cite(await call("spending_summary", { granularity, period, ...(category ? { category } : {}) }));
   }
 
   // 8. Recent transactions.
   if (/transaction|purchase|recent/i.test(lower)) {
     const r = await call("query_transactions", { limit: 8 });
     const rows = (r.transactions as { id: string; date: string; merchant: string; amount: string }[]).map((t) => `- ${t.date} ${t.merchant}: ${t.amount} (${t.id})`);
-    return `${r.summary}\n${rows.join("\n")}`;
+    return `${cite(r)}\n${rows.join("\n")}`;
   }
 
   // 9. Default: account overview + what I can do.
   const o = await call("get_account_overview");
-  return `${join([o])}\n\nI can answer spending questions, find unused subscriptions, cancel them, apply PayPal offers, categorize transactions and remember facts like your salary.`;
+  return `${cite(o)}\n\nI can answer spending questions, find unused subscriptions, cancel them, apply PayPal offers, categorize transactions and remember facts like your salary.`;
 }

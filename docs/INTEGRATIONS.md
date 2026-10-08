@@ -11,7 +11,7 @@ cp .env.example .env.local   # then fill in what you have
 | TypeSafe Jev | `TYPESAFE_API_KEY`, `JEV_HALLUCINATION_THRESHOLD` (0.3) | rules for categorise/intent; deterministic guardrail only |
 | PayPal | `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_ENVIRONMENT`, `PAYPAL_USE_MOCK` | in-memory store seeded from `mock-data.ts` |
 | Zapier | `ZAPIER_WEBHOOK_URL` | logs, returns `delivered: false` |
-| Kernel | `KERNEL_API_KEY`, `KERNEL_PROFILE_NAME` | simulated step log |
+| Kernel | `KERNEL_API_KEY`, `KERNEL_TARGET` (sandbox), `PUBLIC_BASE_URL`, `KERNEL_PROFILE_NAME` | simulated step log + link to the local sandbox page |
 | Memory | none | always local: `.data/memory.json` |
 | Claude | `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` | handled by the assistant module |
 
@@ -65,19 +65,30 @@ curl -s -X POST localhost:3000/api/demo/simulate-spend -H 'content-type: applica
 
 Reset the demo balance with `curl -X DELETE localhost:3000/api/state`.
 
-## Kernel (`kernel.ts`)
+## Kernel (`kernel.ts`, `merchant-sites.ts`)
 
 Cloud browsers for cancelling subscriptions that have no PayPal API (Netflix, Max, YouTube Premium, Claude Pro, Mobbin, Figma, iCloud+, Adobe, Planet Fitness).
 
-1. Get an API key at onkernel.com, set `KERNEL_API_KEY`.
-2. Create a persistent profile and log in once: with the Kernel CLI/dashboard, start a browser with `profile: { name: "pfm-demo", save_changes: true }`, open its live view, sign in to each merchant, then end the session so logins are saved. Set `KERNEL_PROFILE_NAME` to that name.
-3. Live: creates a stealth browser with that profile, runs Playwright inside the VM to open the merchant's account page (`MERCHANT_URLS` in `kernel.ts`, best-effort URLs), and:
-   - login wall detected -> `needs_login` (browser kept open so you can sign in via `liveViewUrl`);
-   - otherwise clicks at most one non-final "cancel/manage" entry and **stops before the final confirm** -> `awaiting_confirmation` with `liveViewUrl` for the human to finish. It never reports `completed` unless it truly confirmed (currently it never auto-confirms);
-   - failures delete the browser; kept-open browsers are reaped by a 5-minute inactivity timeout.
-4. Mock: `status: "simulated"` with a realistic step log. The store marks the subscription cancelled for `simulated`/`completed`.
+### Targets (`KERNEL_TARGET`)
+
+- **`sandbox` (default)**: the demo subscriptions are fake, and automating real merchant sites would be pointless (nothing to cancel) and against their terms of service. So Kernel cancels them on our own look-alike **sandbox merchant** pages (`merchant-sites.ts`, also served at `/demo-merchant/<recurringId>?step=account|cancel|confirm|cancelled`). Each page carries a "Sandbox merchant · PayPal × AI demo, not the real X site" banner and uses text names only.
+- **`real`**: the original path. Saved profile `KERNEL_PROFILE_NAME`, real merchant URLs (`MERCHANT_URLS`, best effort). It clicks at most one non-final "cancel/manage" entry and **stops before the final irreversible click** (`awaiting_confirmation`, human finishes via `liveViewUrl`); login wall -> `needs_login`. It never auto-confirms.
+
+### Sandbox run (live: `KERNEL_API_KEY` set)
+
+1. `browsers.create` (stealth; profile attached only if `KERNEL_PROFILE_NAME` is set), then `browsers.replays.start` records a video.
+2. ONE `browsers.playwright.execute` script (`CANCEL_FLOW_SOURCE`): loads the sandbox page, then really clicks **Cancel membership -> Continue to cancel -> Confirm cancellation** with Playwright locators (about 1s pauses so live view / replay are watchable), waits for "Your membership is cancelled. You'll keep access until <date>.", reads the confirmation number and takes a small JPEG screenshot.
+   - No `PUBLIC_BASE_URL`: the HTML is generated server-side and injected with `page.setContent(html)` (Kernel's cloud browser cannot reach `localhost`).
+   - `PUBLIC_BASE_URL` set (e.g. `ngrok http 3000` / `cloudflared tunnel --url http://localhost:3000`): the browser does `page.goto(PUBLIC_BASE_URL + /demo-merchant/<id>)` so the address bar shows a real URL.
+3. `replays.stop` + `replays.list` give `replayUrl`; `liveViewUrl` is kept. The browser is deleted after `KERNEL_CLEANUP_GRACE_S` (default 90s) so the links stay watchable; the inactivity timeout (grace + 120s) is the backstop. Never leaks browsers.
+4. Result: `status: "completed"` only if the cancelled text was found, else `failed`. Extra fields: `replayUrl`, `screenshotDataUrl`, `confirmationNumber`, `previewUrl`, `target`. The chat card shows "Cancelled by Kernel" with the screenshot, confirmation, "Watch replay", "Live view" and "Open sandbox page".
+
+### Mock (no `KERNEL_API_KEY`)
+
+`status: "simulated"` with a realistic step log and `previewUrl` = local `/demo-merchant/<id>?step=cancelled` (the UI labels it "Simulated (add KERNEL_API_KEY to run in a real Kernel browser)"). The store marks the subscription cancelled for `simulated`/`completed`.
 
 ```bash
+# open the fake merchant by hand: http://localhost:3000/demo-merchant/sub_netflix
 curl -s -X POST localhost:3000/api/kernel/cancel -H 'content-type: application/json' -d '{"recurringId":"sub_netflix"}'
 ```
 

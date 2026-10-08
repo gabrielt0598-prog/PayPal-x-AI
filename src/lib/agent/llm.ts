@@ -52,10 +52,11 @@ export async function runLoop(messages: Anthropic.MessageParam[], ctx: ToolConte
     const results: Anthropic.ToolResultBlockParam[] = [];
     for (const u of uses) {
       const out = await executeTool(u.name, u.input, ctx);
+      // executeTool appended this result to ctx.results, so its position is the citable id ("[tool_2]").
       results.push({
         type: "tool_result",
         tool_use_id: u.id,
-        content: JSON.stringify(out),
+        content: `[tool_${ctx.results.length}] ${JSON.stringify(out)}`,
         ...(typeof out.error === "string" ? { is_error: true } : {}),
       });
     }

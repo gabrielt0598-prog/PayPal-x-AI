@@ -8,6 +8,8 @@ const Body = z.object({ recurringId: z.string().trim().min(1).max(100) });
 // POST /api/kernel/cancel { recurringId } -> { result: BrowserCancellationResult, cancelledInStore, recurring }
 // Runs the merchant-site cancellation in a Kernel cloud browser. The subscription is marked cancelled in the
 // store only when the result is "completed" or "simulated" (never while a human still has to confirm).
+// result also carries replayUrl, screenshotDataUrl (JPEG data: URL), confirmationNumber, previewUrl and
+// target ("sandbox" = fake merchant page, the default; "real" = KERNEL_TARGET=real, stops before the final click).
 export async function POST(req: Request) {
   const body = await parseBody(req, Body);
   if ("response" in body) return body.response;
