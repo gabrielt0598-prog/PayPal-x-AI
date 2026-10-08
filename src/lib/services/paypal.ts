@@ -195,13 +195,13 @@ export const paypal: PayPalService = {
         const { result } = await new TransactionSearchController(sdk()).searchBalances({ currencyCode: "USD" });
         const b = result.balances?.find((x) => x.primary) ?? result.balances?.find((x) => x.currency === "USD") ?? result.balances?.[0];
         const v = money(b?.availableBalance ?? b?.totalBalance);
-        if (Number.isFinite(v)) return v;
+        if (Number.isFinite(v)) return { balance: v, mode: "live" };
       } catch (err) {
         // Sandbox apps often lack the balances scope; the store balance is the fallback.
         console.error("[paypal] getBalance failed, falling back to store:", describe(err));
       }
     }
-    return getState().userProfile.paypalBalance;
+    return { balance: getState().userProfile.paypalBalance, mode: "mock" };
   },
 
   async listRecurring() {

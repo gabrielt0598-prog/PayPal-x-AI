@@ -165,7 +165,8 @@ export interface ZapierService {
 export interface PayPalService {
   mode(): ServiceMode;
   listTransactions(range?: { from?: string; to?: string }): Promise<Transaction[]>;
-  getBalance(): Promise<number>;
+  /** `mode` is "mock" whenever the live call failed and the store balance was used instead. */
+  getBalance(): Promise<{ balance: number; mode: ServiceMode }>;
   listRecurring(): Promise<RecurringPayment[]>;
   /** Cancels a PayPal-billed subscription via the Subscriptions API (mock: updates the store). */
   cancelSubscription(

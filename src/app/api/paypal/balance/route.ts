@@ -6,7 +6,8 @@ import { paypal } from "@/lib/services/paypal";
 export async function GET() {
   await connection();
   try {
-    return Response.json({ balance: await paypal.getBalance(), currency: "USD", mode: paypal.mode() });
+    const { balance, mode } = await paypal.getBalance();
+    return Response.json({ balance, currency: "USD", mode });
   } catch {
     return jsonError(502, "Could not load balance");
   }
