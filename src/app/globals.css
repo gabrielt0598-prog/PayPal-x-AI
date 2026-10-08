@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens — Fey-inspired dark theme with Revolut Business structure.
+ * Near-black canvas, layered charcoal surfaces, hairline borders, muted labels,
+ * green/red for money in/out, PayPal blue as the single accent.
+ */
+:root {
+  --bg: #08080a;
+  --surface: #0f0f12;
+  --surface-2: #151519;
+  --surface-3: #1c1c21;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.12);
+  --text: #ededf0;
+  --text-muted: #8b8b94;
+  --text-faint: #5c5c66;
+  --accent: #3d8bff; /* PayPal blue, lifted for dark backgrounds */
+  --accent-strong: #0070e0;
+  --positive: #3ecf8e;
+  --positive-bg: rgba(62, 207, 142, 0.12);
+  --negative: #f2685c;
+  --negative-bg: rgba(242, 104, 92, 0.12);
+  --warning: #f5a524;
+  --warning-bg: rgba(245, 165, 36, 0.12);
+  --radius: 14px;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-faint: var(--text-faint);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-positive: var(--positive);
+  --color-positive-bg: var(--positive-bg);
+  --color-negative: var(--negative);
+  --color-negative-bg: var(--negative-bg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --radius-card: var(--radius);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "tnum" 1, "cv11" 1;
+}
+
+/* Tabular figures everywhere money is shown. */
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: rgba(61, 139, 255, 0.35);
+}

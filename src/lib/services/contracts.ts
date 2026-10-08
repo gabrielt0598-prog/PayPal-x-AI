@@ -1,0 +1,122 @@
+// Integration contracts. Each partner service implements one of these
+// interfaces in its own file under src/lib/services/, with a real-API mode
+// (when its env key is set) and a local fallback mode (when it isn't).
+// The agent and API routes depend only on these interfaces.
+
+import type { Category, RecurringPayment, Transaction } from "../types";
+
+/** Which path served a call — surfaced in the UI so the demo is honest about mocks. */
+export type ServiceMode = "live" | "mock";
+
+// ---------- TypeSafe Jev: typed guardrails & decisions ----------
+
+export interface CategorizeResult {
+  category: Category;
+  /** Calibrated probability from Jev, or 1/0.5 heuristics in mock mode. */
+  confidence: number;
+  mode: ServiceMode;
+}
+
+export type Intent =
+  | "question"
+  | "cancel_subscription"
+  | "apply_offer"
+  | "categorize"
+  | "remember_fact"
+  | "other";
+
+export interface IntentResult {
+  intent: Intent;
+  confidence: number;
+  mode: ServiceMode;
+}
+
+export interface GuardrailInput {
+  /** The agent's draft reply shown to the user. */
+  reply: string;
+  /** Every figure the agent was allowed to use: tool outputs + state snapshot + remembered facts, serialised. */
+  groundTruth: string;
+}
+
+export interface GuardrailResult {
+  verdict: "pass" | "block";
+  /** Dollar amounts / percentages in the reply that do not appear in groundTruth. */
+  unsupportedFigures: string[];
+  /** Transaction ids in the reply that do not exist. */
+  unknownTransactionIds: string[];
+  /** Jev's probability that the reply asserts something not in groundTruth (live mode only). */
+  hallucinationProbability?: number;
+  mode: ServiceMode;
+}
+
+export interface JevService {
+  categorizeTransaction(t: Pick<Transaction, "merchant" | "description" | "amount">): Promise<CategorizeResult>;
+  classifyIntent(message: string): Promise<IntentResult>;
+  verifyReply(input: GuardrailInput): Promise<GuardrailResult>;
+}
+
+// ---------- Memory: persistent agent facts (local store) ----------
+
+export interface MemoryFact {
+  key: string; // "monthly_salary", "savings_goal"
+  value: string;
+  /** Who set it: the user typed it in chat, or it was inferred and confirmed. */
+  source: "user" | "agent";
+  updatedAt: string;
+}
+
+export interface MemoryService {
+  list(sessionId: string): Promise<MemoryFact[]>;
+  remember(sessionId: string, key: string, value: string, source?: MemoryFact["source"]): Promise<MemoryFact>;
+  forget(sessionId: string, key: string): Promise<boolean>;
+}
+
+// ---------- Kernel: cloud browser actions on merchant sites ----------
+
+export interface BrowserCancellationResult {
+  status: "completed" | "simulated" | "needs_login" | "failed";
+  /** Kernel live-view URL so the user can watch / take over the browser session. */
+  liveViewUrl?: string;
+  /** Human-readable step log, e.g. ["Opened netflix.com/account", "Clicked Cancel Membership"]. */
+  steps: string[];
+  mode: ServiceMode;
+}
+
+export interface KernelService {
+  cancelOnMerchantSite(sub: RecurringPayment): Promise<BrowserCancellationResult>;
+}
+
+// ---------- Zapier: background notifications ----------
+
+export interface LowBalanceAlert {
+  userId: string;
+  userName: string;
+  balance: number;
+  threshold: number;
+  reloadAmount: number;
+  fundingSource: string;
+  triggeredBy?: { merchant: string; amount: number; transactionId: string };
+  occurredAt: string;
+}
+
+export interface ZapierResult {
+  delivered: boolean;
+  mode: ServiceMode;
+  status?: number;
+  error?: string;
+}
+
+export interface ZapierService {
+  sendLowBalanceAlert(alert: LowBalanceAlert): Promise<ZapierResult>;
+}
+
+// ---------- PayPal (APIMatic SDK): source of truth for money ----------
+
+export interface PayPalService {
+  mode(): ServiceMode;
+  listTransactions(range?: { from?: string; to?: string }): Promise<Transaction[]>;
+  getBalance(): Promise<number>;
+  listRecurring(): Promise<RecurringPayment[]>;
+  /** Cancels a PayPal-billed subscription via the Subscriptions API (mock: updates the store). */
+  cancelSubscription(recurringId: string, reason: string): Promise<{ ok: boolean; error?: string }>;
+}

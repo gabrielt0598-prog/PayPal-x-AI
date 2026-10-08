@@ -1,0 +1,35 @@
+{
+  "name": "paypal-x-ai-pfm",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.132.0",
+    "@onkernel/sdk": "^0.121.0",
+    "@paypal/paypal-server-sdk": "^2.5.0",
+    "@typesafe-ai/sdk": "^0.6.0",
+    "ag-charts-community": "^14.2.0",
+    "ag-charts-react": "^14.2.0",
+    "ag-grid-community": "^36.2.0",
+    "ag-grid-react": "^36.2.0",
+    "next": "16.4.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
