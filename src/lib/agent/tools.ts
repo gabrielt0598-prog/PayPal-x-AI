@@ -438,7 +438,8 @@ function overlaps(subs: RecurringPayment[]) {
     return members.length > 1
       ? {
           group,
-          services: members.map((m) => `${m.merchant} (${m.id})`),
+          services: members.map((m) => m.merchant),
+          recurringIds: members.map((m) => m.id),
           combinedMonthlyCost: formatUSD(r2(members.reduce((a, m) => a + monthlyCost(m), 0))),
         }
       : null;

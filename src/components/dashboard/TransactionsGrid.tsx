@@ -2,13 +2,23 @@
 
 import { useMemo, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { AllCommunityModule, ModuleRegistry, themeQuartz, type ColDef, type ICellRendererParams } from "ag-grid-community";
+import { AllCommunityModule, ModuleRegistry, themeQuartz, type ColDef, type GridApi, type ICellRendererParams } from "ag-grid-community";
 import { Search } from "lucide-react";
 import { useFinance } from "@/components/state/AppProviders";
 import { formatUSD } from "@/lib/finance";
 import type { Category, Transaction } from "@/lib/types";
 import { Avatar, Card, CardHeader, Chip, Skeleton, cx } from "./ui";
 import { METHOD_LABEL } from "./utils";
+
+/** Drop secondary columns as the card narrows so Amount never scrolls out of view. */
+function fitColumns(e: { api: GridApi; clientWidth?: number }) {
+  const width = e.clientWidth ?? 0;
+  if (!width) return;
+  e.api.setColumnsVisible(["balanceAfter"], width >= 900);
+  e.api.setColumnsVisible(["method"], width >= 760);
+  e.api.setColumnsVisible(["status"], width >= 620);
+  e.api.setColumnsVisible(["category"], width >= 500);
+}
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -94,7 +104,7 @@ export function TransactionsGrid() {
       {
         field: "date",
         headerName: "Date",
-        width: 120,
+        width: 100,
         sort: "desc",
         valueFormatter: (p) => (p.value ? dateFmt.format(new Date(p.value as string)) : ""),
         cellRenderer: (p: ICellRendererParams<Transaction>) => (
@@ -104,20 +114,20 @@ export function TransactionsGrid() {
           </div>
         ),
       },
-      { field: "merchant", headerName: "Merchant", flex: 2, minWidth: 220, cellRenderer: MerchantCell, getQuickFilterText: (p) => `${p.data?.merchant} ${p.data?.description}` },
-      { field: "category", headerName: "Category", width: 150, cellRenderer: CategoryCell },
+      { field: "merchant", headerName: "Merchant", flex: 1, minWidth: 200, cellRenderer: MerchantCell, getQuickFilterText: (p) => `${p.data?.merchant} ${p.data?.description}` },
+      { field: "category", headerName: "Category", width: 140, cellRenderer: CategoryCell },
       {
         field: "method",
         headerName: "Method",
-        width: 150,
+        width: 130,
         valueFormatter: (p) => (p.value === "paypal_debit_card" ? `Card ••${last4}` : METHOD_LABEL[p.value as keyof typeof METHOD_LABEL] ?? String(p.value)),
         cellClass: "text-muted",
       },
-      { field: "status", headerName: "Status", width: 120, cellRenderer: StatusCell },
+      { field: "status", headerName: "Status", width: 110, cellRenderer: StatusCell },
       {
         field: "amount",
         headerName: "Amount",
-        width: 130,
+        width: 115,
         type: "rightAligned",
         valueFormatter: (p) => `${(p.value as number) > 0 ? "+" : ""}${formatUSD(p.value as number).replace("-", "−")}`,
         cellClass: (p) => cx("num font-medium", (p.value as number) > 0 ? "text-positive" : "text-text"),
@@ -125,7 +135,7 @@ export function TransactionsGrid() {
       {
         field: "balanceAfter",
         headerName: "Balance after",
-        width: 140,
+        width: 125,
         type: "rightAligned",
         valueFormatter: (p) => formatUSD(p.value as number),
         cellClass: "num text-muted",
@@ -176,8 +186,8 @@ export function TransactionsGrid() {
           ))}
         </div>
       ) : (
-        <div className="h-[560px] w-full overflow-x-auto">
-          <div className="h-full min-w-[860px]">
+        <div className="h-[560px] w-full">
+          <div className="h-full">
             <AgGridReact<Transaction>
               theme={gridTheme}
               rowData={filtered}
@@ -188,6 +198,8 @@ export function TransactionsGrid() {
               animateRows
               suppressCellFocus
               overlayNoRowsTemplate="No matching transactions"
+              onGridSizeChanged={fitColumns}
+              onFirstDataRendered={fitColumns}
             />
           </div>
         </div>

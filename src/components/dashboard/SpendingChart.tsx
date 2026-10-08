@@ -2,12 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { AgCharts } from "ag-charts-react";
-import type { AgChartOptions } from "ag-charts-community";
+import { AllCommunityModule, ModuleRegistry, type AgChartOptions } from "ag-charts-community";
 import { useFinance } from "@/components/state/AppProviders";
 import { formatUSD, projectAnnual, spendByDay, spendByMonth } from "@/lib/finance";
 import type { FinanceState } from "@/lib/types";
 import { Card, CardHeader, Segmented, Skeleton } from "./ui";
 import { compactUSD, dateOnly, shortDate } from "./utils";
+
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 type View = "day" | "month" | "year";
 
