@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PayPal × AI — Personal Finance
 
-## Getting Started
+A closed-loop personal finance dashboard for someone who lives entirely on their
+**PayPal balance and PayPal Debit Card**. A dark, Fey-inspired SaaS dashboard
+(AG Grid + AG Charts) with an AI assistant in a slide-over panel (⌘K) that can
+answer questions about spending, categorise transactions, cancel subscriptions
+and apply PayPal offers — without ever inventing a number.
 
-First, run the development server:
+Built for the PayPal × AI hackathon. Localhost demo; deployment comes later.
+
+## Quick start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # every key is optional — see below
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+With no keys at all, everything runs on deterministic mock data and a rule-based
+assistant, so the demo works for $0. Add keys one at a time to switch each
+integration to live mode; the dashboard's integrations widget shows which are live.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Concern | Choice |
+|---|---|
+| App | Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4 |
+| Transactions grid, recurring grid | AG Grid Community (`ag-grid-react`) |
+| Daily / monthly / yearly charts | AG Charts Community (`ag-charts-react`) |
+| Assistant | Claude via `@anthropic-ai/sdk` — default `claude-haiku-5-5` (`ANTHROPIC_MODEL`) |
+| Guardrails & categorisation | TypeSafe Jev via `@typesafe-ai/sdk` + deterministic figure checks |
+| Money data | APIMatic-generated PayPal Server SDK (`@paypal/paypal-server-sdk`) |
+| Merchant-site cancellations | Kernel cloud browsers (`@onkernel/sdk`) |
+| Low-balance alerts | Zapier Catch Hook webhook |
+| Agent memory | Local JSON store (`.data/`, git-ignored) |
 
-## Learn More
+## Partner integrations
 
-To learn more about Next.js, take a look at the following resources:
+| Partner | Role in the product | Env vars | Code |
+|---|---|---|---|
+| **TypeSafe Jev** | Verifies every assistant reply against tool data before it's shown (blocks invented figures/transactions); classifies intents; categorises transactions | `TYPESAFE_API_KEY`, `JEV_HALLUCINATION_THRESHOLD` | `src/lib/services/jev.ts` |
+| **APIMatic / PayPal** | Source of truth for transactions, balance and PayPal-billed subscriptions (Transaction Search + Subscriptions controllers) | `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_ENVIRONMENT`, `PAYPAL_USE_MOCK` | `src/lib/services/paypal.ts` |
+| **Kernel** | Runs a cloud browser with a saved profile to cancel subscriptions on merchant sites that aren't billed through PayPal (Netflix, Max, …) | `KERNEL_API_KEY`, `KERNEL_PROFILE_NAME` | `src/lib/services/kernel.ts` |
+| **Zapier** | Fires an external notification when the balance drops below the auto-reload threshold | `ZAPIER_WEBHOOK_URL` | `src/lib/services/zapier.ts` |
+| **Claude** | The assistant: tool-using agent over the user's data | `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` | `src/lib/agent/` |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Detailed setup for each: [`docs/INTEGRATIONS.md`](docs/INTEGRATIONS.md).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### PayPal SDK context plugin
 
-## Deploy on Vercel
+PayPal ships skills that teach Claude Code how to use the APIMatic SDK. Install
+them on your machine with:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npx context-plugins install https://github.com/paypaldev/server-sdk-context-plugin-preview
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project layout
+
+```
+src/
+  app/
+    page.tsx                 dashboard page
+    api/state                GET snapshot / DELETE reset (demo store)
+    api/agent                POST chat → Claude tool loop → Jev guardrail
+    api/{paypal,jev,kernel,zapier,memory,demo,integrations}/…
+  components/
+    shell/                   sidebar, top bar, mobile dock
+    dashboard/               balance, KPIs, charts, AG Grid tables, offers
+    assistant/               ⌘K slide-over assistant
+    state/AppProviders.tsx   shared client state (finance snapshot + panel)
+  lib/
+    types.ts                 domain types shared by UI, agent and services
+    mock-data.ts             userProfile, transactions, subscriptions, offers
+    finance.ts               pure aggregations (daily/monthly/yearly, categories…)
+    store.ts                 in-memory server state + actions
+    services/                contracts.ts + one adapter per partner
+    agent/                   prompt, tools, loop, no-key fallback
+```
+
+## Mock data
+
+`src/lib/mock-data.ts` deterministically generates three months
+(8 Jul – 7 Oct 2026) for Jordan Lee ($75,000/yr, biweekly direct deposit into
+PayPal): rent, utilities, pay-per-ride transit, 14 subscriptions (Claude Pro,
+Netflix, Disney+, Max, Spotify, YouTube Premium, Mobbin, Notion, Figma,
+1Password, iCloud+, Duolingo, Lightroom, Planet Fitness), everyday card spend,
+PayPal offers and an auto-reload. Every transaction carries a reconciled running
+balance, so the assistant and the guardrail can check numbers exactly.
