@@ -57,7 +57,10 @@ export function paypalMode(): ServiceMode {
 /** Lazy singleton APIMatic client (OAuth2 client-credentials; the SDK fetches and refreshes tokens itself). */
 function sdk(): Client {
   g.__paypalClient ??= new Client({
-    timeout: 20_000,
+    timeout: 20_000, // ms per attempt; the generated default is 0 (no timeout)
+    // Generated retry defaults disable retrying (maxNumberOfRetries 0, maximumRetryWaitTime 0). Retry the
+    // read-only GETs (Transaction Search, listSubscriptions) on 408/429/5xx; POST cancel stays unretried.
+    httpClientOptions: { retryConfig: { maxNumberOfRetries: 2, maximumRetryWaitTime: 10 } },
     environment: process.env.PAYPAL_ENVIRONMENT?.trim().toLowerCase() === "production" ? Environment.Production : Environment.Sandbox,
     clientCredentialsAuthCredentials: {
       oAuthClientId: process.env.PAYPAL_CLIENT_ID!.trim(),
