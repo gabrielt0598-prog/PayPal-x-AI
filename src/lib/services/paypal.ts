@@ -38,6 +38,11 @@ import { categorizeByRules } from "./categorize-rules";
 
 const DAY = 86_400_000;
 const WINDOW_DAYS = 31;
+
+/** PAYPAL_CLIENT_SECRET, or PAYPAL_SECRET as used by PayPal's hackathon boilerplate. */
+function clientSecret() {
+  return (process.env.PAYPAL_CLIENT_SECRET ?? process.env.PAYPAL_SECRET)?.trim() || undefined;
+}
 const MAX_WINDOWS = 6;
 const MAX_PAGES = 5;
 const PAGE_SIZE = 100;
@@ -45,7 +50,7 @@ const PAGE_SIZE = 100;
 const g = globalThis as typeof globalThis & { __paypalClient?: Client };
 
 export function paypalMode(): ServiceMode {
-  const hasCreds = Boolean(process.env.PAYPAL_CLIENT_ID?.trim() && process.env.PAYPAL_CLIENT_SECRET?.trim());
+  const hasCreds = Boolean(process.env.PAYPAL_CLIENT_ID?.trim() && clientSecret());
   return process.env.PAYPAL_USE_MOCK?.trim().toLowerCase() === "false" && hasCreds ? "live" : "mock";
 }
 
@@ -56,7 +61,7 @@ function sdk(): Client {
     environment: process.env.PAYPAL_ENVIRONMENT?.trim().toLowerCase() === "production" ? Environment.Production : Environment.Sandbox,
     clientCredentialsAuthCredentials: {
       oAuthClientId: process.env.PAYPAL_CLIENT_ID!.trim(),
-      oAuthClientSecret: process.env.PAYPAL_CLIENT_SECRET!.trim(),
+      oAuthClientSecret: clientSecret()!,
     },
   });
   return g.__paypalClient;
