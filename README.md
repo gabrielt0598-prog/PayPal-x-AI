@@ -1,10 +1,17 @@
 # PayPal × AI — Personal Finance
 
-A closed-loop personal finance dashboard for someone who lives entirely on their
-**PayPal balance and PayPal Debit Card**. A dark, Fey-inspired SaaS dashboard
-(AG Grid + AG Charts) with an AI assistant in a slide-over panel (⌘K) that can
-answer questions about spending, categorise transactions, cancel subscriptions
-and apply PayPal offers — without ever inventing a number.
+A closed-loop personal finance app for someone who lives entirely on their
+**PayPal balance and PayPal Debit Card**. A dark, Revolut-Business-inspired UI
+(the "Clean" design in [`design/`](design/README.md)) with a docked side panel
+and a **PayPal AI** drawer (⌘K) that sits next to the page. Ask about
+spending, categorise transactions, cancel subscriptions and apply PayPal offers
+while the page you're looking at stays visible — without the assistant ever
+inventing a number.
+
+Pages: Home, Transactions, Recurring, Essentials, Offers, Rewards, Insights and
+Account. Essentials (reorders through a PayPal Store Sync merchant) and Rewards
+(PayPal Rewards points) use sample catalogs and points, because neither has a
+public API; their payments still post to the PayPal balance ledger.
 
 Built for the PayPal × AI hackathon. Localhost demo; deployment comes later.
 
@@ -33,8 +40,7 @@ integration to live mode; the dashboard's integrations widget shows which are li
 | Concern | Choice |
 |---|---|
 | App | Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4 |
-| Transactions grid, recurring grid | AG Grid Community (`ag-grid-react`) |
-| Daily / monthly / yearly charts | AG Charts Community (`ag-charts-react`) |
+| UI | Clean design system: Tailwind tokens + SVG charts (`src/components/clean/`) |
 | Assistant | Claude via `@anthropic-ai/sdk` — default `claude-haiku-5-5` (`ANTHROPIC_MODEL`) |
 | Guardrails & categorisation | TypeSafe Jev via `@typesafe-ai/sdk` + deterministic figure checks |
 | Money data | APIMatic-generated PayPal Server SDK (`@paypal/paypal-server-sdk`) |
@@ -68,14 +74,14 @@ npx context-plugins install https://github.com/paypaldev/server-sdk-context-plug
 ```
 src/
   app/
-    page.tsx                 dashboard page
+    page.tsx                 the app (CleanApp)
     api/state                GET snapshot / DELETE reset (demo store)
     api/agent                POST chat → Claude tool loop → Jev guardrail
     api/{paypal,jev,kernel,zapier,memory,demo,integrations}/…
+    api/demo/move-money      Add money / Transfer / rewards cash-out / Store Sync reorder
   components/
-    shell/                   sidebar, top bar, mobile dock
-    dashboard/               balance, KPIs, charts, AG Grid tables, offers
-    assistant/               ⌘K slide-over assistant
+    clean/                   Clean design: side panel, pages, charts, UI primitives
+    assistant/               PayPal AI drawer (⌘K), citations, action cards
     state/AppProviders.tsx   shared client state (finance snapshot + panel)
   lib/
     types.ts                 domain types shared by UI, agent and services

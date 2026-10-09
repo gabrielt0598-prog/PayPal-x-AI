@@ -1,14 +1,5 @@
-import { Assistant } from "@/components/assistant/Assistant";
-import { Dashboard } from "@/components/dashboard/Dashboard";
-import { AppShell } from "@/components/shell";
+import { CleanApp } from "@/components/clean/CleanApp";
 
 export default function Home() {
-  return (
-    <>
-      <AppShell>
-        <Dashboard />
-      </AppShell>
-      <Assistant />
-    </>
-  );
+  return <CleanApp />;
 }

@@ -113,3 +113,26 @@ export function recategorize(transactionId: string, category: Category): Result<
   t.category = category;
   return { ok: true, value: t };
 }
+
+export type MoneyMove = "add" | "transfer" | "rewards" | "purchase";
+
+/**
+ * Demo helper behind the balance card's Add money / Transfer buttons, rewards
+ * redemption and Store Sync reorders. Posts one ledger entry and moves the balance.
+ */
+export function moveMoney(kind: MoneyMove, amount: number, merchant?: string) {
+  const state = getState();
+  const bank = state.userProfile.linkedBank;
+  const abs = r2(Math.abs(amount));
+  const entry: Record<MoneyMove, Omit<Transaction, "id" | "balanceAfter" | "date" | "status">> = {
+    add: { merchant: bank, description: "Add money from bank", amount: abs, category: "Transfers", method: "bank_transfer" },
+    transfer: { merchant: bank, description: "Transfer to bank", amount: -abs, category: "Transfers", method: "bank_transfer" },
+    rewards: { merchant: "PayPal Rewards", description: "Rewards points redeemed as cash back", amount: abs, category: "Cashback", method: "paypal_offer" },
+    purchase: { merchant: merchant ?? "Store Sync merchant", description: "Reorder via PayPal Store Sync", amount: -abs, category: "Shopping", method: "paypal_balance" },
+  };
+  return post(state, {
+    ...entry[kind],
+    date: new Date(Date.parse(state.asOf) + 60_000 * state.transactions.length).toISOString(),
+    status: kind === "purchase" ? "pending" : "completed",
+  });
+}

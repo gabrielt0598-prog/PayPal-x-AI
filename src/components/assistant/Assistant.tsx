@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowUp, Brain, ChevronDown, ShieldCheck, ShieldAlert, Sparkles, X } from "lucide-react";
+import { ArrowUp, Brain, ChartLine, ChevronDown, Gift, Repeat, ShieldCheck, ShieldAlert, Sparkles, SquarePen, Tags, X, type LucideIcon } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import type { AgentResponse } from "@/lib/agent/types";
 import type { MemoryFact } from "@/lib/services/contracts";
@@ -16,13 +16,13 @@ interface UIMessage {
   error?: boolean;
 }
 
-const SUGGESTIONS = [
-  "How much did I spend on dining last month?",
-  "Which subscriptions am I not using?",
-  "Cancel my Max subscription",
-  "Apply my best offer",
-  "My salary is $75,000 a year",
-  "Categorize my recent transactions",
+const SUGGESTIONS: [LucideIcon, string][] = [
+  [ChartLine, "How much did I spend on dining last month?"],
+  [Repeat, "Which subscriptions am I not using?"],
+  [X, "Cancel my Max subscription"],
+  [Gift, "Apply my best offer"],
+  [Tags, "Categorize my recent transactions"],
+  [Brain, "My salary is $75,000 a year"],
 ];
 
 function getSessionId() {
@@ -40,9 +40,14 @@ function getSessionId() {
 
 const uid = () => Math.random().toString(36).slice(2);
 
+/**
+ * PayPal AI drawer. Docked between the side panel and the page on wide screens
+ * (the page stays visible and usable), full screen on phones. Talks to POST
+ * /api/agent: Claude with tools over the PayPal data, every reply checked by Jev.
+ */
 export function Assistant() {
   const { open, closeAssistant, toggleAssistant, pendingPrompt, clearPendingPrompt } = useAssistantUI();
-  const { refresh } = useFinance();
+  const { refresh, state } = useFinance();
   const [messages, setMessages] = useState<UIMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -106,14 +111,14 @@ export function Assistant() {
     return () => window.removeEventListener("keydown", onKey);
   }, [toggleAssistant, closeAssistant, open, showMemory]);
 
-  // Focus the input when the panel opens.
+  // Focus the input when the drawer opens.
   useEffect(() => {
     if (!open) return;
     const t = setTimeout(() => inputRef.current?.focus(), 60);
     return () => clearTimeout(t);
   }, [open]);
 
-  // Auto-send a prompt queued by the dashboard (Cancel / Apply buttons).
+  // Auto-send a prompt queued by the page (Cancel / Apply / Ask about this buttons).
   useEffect(() => {
     if (pendingPrompt === null) {
       lastPending.current = null;
@@ -129,127 +134,152 @@ export function Assistant() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, loading]);
 
+  if (!open) return null;
+
   const lastAssistantId = [...messages].reverse().find((m) => m.role === "assistant")?.id;
   const salary = memory.find((f) => /salary/i.test(f.key));
+  const title = messages.find((m) => m.role === "user")?.content ?? "PayPal AI";
+  const firstName = state?.userProfile.name.split(" ")[0] ?? "there";
 
   return (
-    <div className={`fixed inset-0 z-50 ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
-      <div
-        onClick={closeAssistant}
-        className={`absolute inset-0 bg-black/50 backdrop-blur-[2px] transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0"}`}
-      />
-      <aside
-        role="dialog"
-        aria-label="Assistant"
-        className={`absolute inset-y-0 right-0 flex w-full flex-col border-l border-border-strong bg-surface shadow-2xl shadow-black/60 transition-transform duration-300 ease-out sm:w-[440px] ${open ? "translate-x-0" : "translate-x-full"}`}
-      >
-        <header className="relative flex items-center gap-2 border-b border-border px-4 py-3">
-          <Sparkles size={16} className="text-accent" />
-          <h2 className="text-[15px] font-semibold text-text">Assistant</h2>
-          {mode && (
-            <span
-              title={mode.llm === "live" ? "Live Claude model" : "Rule-based demo mode (no API key)"}
-              className={`rounded-full border px-2 py-0.5 text-[11px] ${mode.llm === "live" ? "border-positive/30 bg-positive-bg text-positive" : "border-warning/30 bg-warning-bg text-warning"}`}
-            >
-              {mode.llm === "live" ? "live" : "mock"} · {mode.model}
-            </span>
-          )}
-          <div className="ml-auto flex items-center gap-1.5">
-            <button
-              onClick={() => setShowMemory((v) => !v)}
-              className="flex max-w-[170px] items-center gap-1 rounded-full border border-border-strong bg-surface-2 px-2.5 py-1 text-[11px] text-muted transition hover:text-text"
-              aria-expanded={showMemory}
-            >
-              <Brain size={12} className="shrink-0" />
-              <span className="truncate">{salary ? `Remembers: salary ${salary.value}` : memory.length ? `Remembers ${memory.length}` : "Memory"}</span>
-            </button>
-            <button onClick={closeAssistant} aria-label="Close assistant" className="rounded-lg p-1.5 text-muted transition hover:bg-surface-3 hover:text-text">
-              <X size={16} />
-            </button>
-          </div>
-          {showMemory && (
-            <div className="absolute right-4 top-full z-10 mt-1 w-72 rounded-xl border border-border-strong bg-surface-2 p-3 shadow-xl">
-              <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-faint">Remembered this session</div>
-              {memory.length ? (
-                <ul className="space-y-1.5 text-[13px]">
-                  {memory.map((f) => (
-                    <li key={f.key} className="flex justify-between gap-3">
-                      <span className="text-muted">{f.key}</span>
-                      <span className="text-right text-text">{f.value}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-[13px] text-muted">Nothing yet. Tell me your salary or a savings goal.</p>
-              )}
-            </div>
-          )}
-        </header>
-
-        <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
-          {messages.length === 0 && (
-            <div className="pt-6">
-              <p className="text-[18px] font-semibold text-text">What can I help with?</p>
-              <p className="mt-1 text-[13px] text-muted">Ask about your spending, subscriptions and offers, or tell me to act on them.</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {SUGGESTIONS.map((s) => (
-                  <button key={s} onClick={() => void send(s)} className="rounded-full border border-border-strong bg-surface-2 px-3 py-1.5 text-left text-[12.5px] text-muted transition hover:border-accent/50 hover:text-text">
-                    {s}
-                  </button>
+    <aside
+      aria-label="PayPal AI"
+      className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-surface lg:static lg:z-auto lg:my-3 lg:ml-3 lg:w-[380px] lg:shrink-0 lg:rounded-[20px] lg:border lg:border-border-strong"
+    >
+      <header className="relative flex items-center gap-0.5 border-b border-border py-2.5 pl-4 pr-2">
+        <span className="mr-2 flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-bg text-accent">
+          <Sparkles size={13} />
+        </span>
+        <h2 className="min-w-0 flex-1 truncate text-sm font-semibold">{title}</h2>
+        {mode && (
+          <span
+            title={mode.llm === "live" ? `Live Claude model · ${mode.model}` : "Rule-based demo mode (no API key)"}
+            className={`mr-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${mode.llm === "live" ? "bg-positive-bg text-positive" : "bg-warning-bg text-warning"}`}
+          >
+            {mode.llm === "live" ? "live" : "mock"}
+          </span>
+        )}
+        <button
+          type="button"
+          onClick={() => setShowMemory((v) => !v)}
+          aria-expanded={showMemory}
+          aria-label="Memory"
+          title={salary ? `Remembers: salary ${salary.value}` : memory.length ? `Remembers ${memory.length}` : "Memory"}
+          className="flex size-8 items-center justify-center rounded-lg text-muted hover:bg-white/[0.06] hover:text-text"
+        >
+          <Brain size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setMessages([]);
+            setInput("");
+          }}
+          aria-label="New chat"
+          title="New chat"
+          className="flex size-8 items-center justify-center rounded-lg text-muted hover:bg-white/[0.06] hover:text-text"
+        >
+          <SquarePen size={16} />
+        </button>
+        <button type="button" onClick={closeAssistant} aria-label="Close PayPal AI" title="Close" className="flex size-8 items-center justify-center rounded-lg text-muted hover:bg-white/[0.06] hover:text-text">
+          <X size={16} />
+        </button>
+        {showMemory && (
+          <div className="absolute right-3 top-full z-10 mt-1 w-72 rounded-xl border border-border-strong bg-surface-2 p-3 shadow-xl">
+            <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-faint">Remembered this session</div>
+            {memory.length ? (
+              <ul className="space-y-1.5 text-[13px]">
+                {memory.map((f) => (
+                  <li key={f.key} className="flex justify-between gap-3">
+                    <span className="text-muted">{f.key}</span>
+                    <span className="text-right text-text">{f.value}</span>
+                  </li>
                 ))}
-              </div>
-            </div>
-          )}
-
-          {messages.map((m) =>
-            m.role === "user" ? (
-              <div key={m.id} className="flex justify-end">
-                <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-accent-strong px-3.5 py-2 text-[14px] text-white">{m.content}</div>
-              </div>
+              </ul>
             ) : (
-              <AssistantMessage key={m.id} message={m} canAnswer={m.id === lastAssistantId && !loading} onSend={(t) => void send(t)} />
-            ),
-          )}
+              <p className="text-[13px] text-muted">Nothing yet. Tell me your salary or a savings goal.</p>
+            )}
+          </div>
+        )}
+      </header>
 
-          {loading && (
-            <div className="flex w-fit items-center gap-1 rounded-2xl rounded-bl-md border border-border bg-surface-2 px-3.5 py-3" aria-label="Assistant is typing">
-              {[0, 150, 300].map((d) => (
-                <span key={d} className="size-1.5 animate-bounce rounded-full bg-muted" style={{ animationDelay: `${d}ms` }} />
+      <div ref={scrollRef} aria-live="polite" className="flex flex-1 flex-col gap-[18px] overflow-y-auto p-4">
+        {messages.length === 0 && (
+          <>
+            <div className="flex flex-col gap-1.5">
+              <p className="text-lg font-semibold">Hi {firstName}, what can I help with?</p>
+              <p className="text-[13px] leading-normal text-muted">I can see your PayPal account and Memory. Every figure is checked by TypeSafe Jev before you see it.</p>
+            </div>
+            <div className="flex flex-col gap-2">
+              {SUGGESTIONS.map(([Icon, s]) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => void send(s)}
+                  className="flex min-h-12 items-center gap-2.5 rounded-xl border border-border px-2.5 py-2 text-left text-[13px] leading-snug transition hover:border-border-strong hover:bg-white/[0.03]"
+                >
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-accent-bg text-accent">
+                    <Icon size={16} />
+                  </span>
+                  {s}
+                </button>
               ))}
             </div>
-          )}
-        </div>
+          </>
+        )}
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            void send(input);
-          }}
-          className="border-t border-border p-3"
-        >
-          <div className="flex items-end gap-2 rounded-xl border border-border-strong bg-surface-2 px-3 py-2 focus-within:border-accent/60">
-            <textarea
-              ref={inputRef}
-              value={input}
-              rows={1}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  void send(input);
-                }
-              }}
-              placeholder="Ask anything about your money…"
-              className="max-h-32 min-h-6 flex-1 resize-none bg-transparent text-[14px] text-text outline-none placeholder:text-faint"
-            />
-            <button type="submit" disabled={!input.trim() || loading} aria-label="Send" className="rounded-lg bg-accent p-1.5 text-white transition hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-40">
-              <ArrowUp size={16} />
-            </button>
+        {messages.map((m) =>
+          m.role === "user" ? (
+            <div key={m.id} className="flex justify-end">
+              <div className="max-w-[min(85%,36em)] whitespace-pre-wrap rounded-[16px_16px_4px_16px] bg-surface-3 px-3.5 py-2 text-sm leading-normal">{m.content}</div>
+            </div>
+          ) : (
+            <AssistantMessage key={m.id} message={m} canAnswer={m.id === lastAssistantId && !loading} onSend={(t) => void send(t)} />
+          ),
+        )}
+
+        {loading && (
+          <div className="flex w-fit items-center gap-1 rounded-2xl bg-surface-2 px-3.5 py-3" aria-label="PayPal AI is typing">
+            {[0, 150, 300].map((d) => (
+              <span key={d} className="size-1.5 animate-bounce rounded-full bg-muted" style={{ animationDelay: `${d}ms` }} />
+            ))}
           </div>
-          <p className="mt-1.5 text-center text-[11px] text-faint">⌘K to toggle · Esc to close</p>
-        </form>
-      </aside>
-    </div>
+        )}
+      </div>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void send(input);
+        }}
+        className="p-3 pt-0"
+      >
+        <div className="flex items-end gap-2 rounded-[14px] border border-border-strong bg-surface-2 py-1.5 pl-3.5 pr-1.5 focus-within:border-accent/60">
+          <label htmlFor="ai-input" className="sr-only">
+            Message PayPal AI
+          </label>
+          <textarea
+            id="ai-input"
+            ref={inputRef}
+            value={input}
+            rows={1}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                void send(input);
+              }
+            }}
+            placeholder="Ask about this page or your money…"
+            className="max-h-32 min-h-8 flex-1 resize-none bg-transparent py-1.5 text-sm text-text outline-none placeholder:text-faint"
+          />
+          <button type="submit" disabled={!input.trim() || loading} aria-label="Send" className="flex size-8 items-center justify-center rounded-full bg-white text-[#0a0a0a] transition disabled:cursor-not-allowed disabled:opacity-40">
+            <ArrowUp size={16} />
+          </button>
+        </div>
+        <p className="mt-1.5 text-center text-[11px] text-faint">⌘K to toggle · Esc to close</p>
+      </form>
+    </aside>
   );
 }
 
@@ -302,7 +332,7 @@ function AssistantMessage({ message: m, canAnswer, onSend }: { message: UIMessag
 
   return (
     <div className="space-y-2">
-      <div className={`rounded-2xl rounded-bl-md border px-3.5 py-2.5 ${m.error ? "border-negative/30 bg-negative-bg" : "border-border bg-surface-2"}`}>
+      <div className={`max-w-[36em] text-sm leading-relaxed ${m.error ? "rounded-2xl bg-negative-bg px-3.5 py-2.5" : ""}`}>
         <Markdown text={m.content} cite={response ? cite : undefined} />
       </div>
       {shown && (

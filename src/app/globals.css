@@ -1,29 +1,33 @@
 @import "tailwindcss";
 
 /*
- * Design tokens — Fey-inspired dark theme with Revolut Business structure.
- * Near-black canvas, layered charcoal surfaces, hairline borders, muted labels,
- * green/red for money in/out, PayPal blue as the single accent.
+ * Design tokens — the "Clean" theme (design/clean/ProtoClean.dc.html).
+ * Revolut-Business-inspired: charcoal canvas, near-black borderless cards,
+ * section headings outside cards, white primary buttons, PayPal blue accent.
  */
 :root {
-  --bg: #08080a;
-  --surface: #0f0f12;
-  --surface-2: #151519;
-  --surface-3: #1c1c21;
+  --bg: #17181b;
+  --surface: #0a0a0a; /* cards */
+  --surface-2: #1d1e22;
+  --surface-3: #26272c;
   --border: rgba(255, 255, 255, 0.06);
   --border-strong: rgba(255, 255, 255, 0.12);
-  --text: #ededf0;
-  --text-muted: #8b8b94;
-  --text-faint: #5c5c66;
-  --accent: #3d8bff; /* PayPal blue, lifted for dark backgrounds */
+  --text: #ededed;
+  --text-muted: #a1a1a1;
+  --text-faint: #8a8a8a;
+  --accent: #52a8ff;
   --accent-strong: #0070e0;
-  --positive: #3ecf8e;
-  --positive-bg: rgba(62, 207, 142, 0.12);
-  --negative: #f2685c;
-  --negative-bg: rgba(242, 104, 92, 0.12);
-  --warning: #f5a524;
-  --warning-bg: rgba(245, 165, 36, 0.12);
-  --radius: 14px;
+  --accent-bg: rgba(0, 112, 224, 0.16);
+  --positive: #5fcf95;
+  --positive-bg: rgba(64, 153, 107, 0.18);
+  --negative: #ff7a7a;
+  --negative-bg: rgba(214, 81, 81, 0.16);
+  --warning: #f2b84b;
+  --warning-bg: rgba(195, 128, 4, 0.16);
+  --chart: #3d8bff;
+  --nav-on: rgba(255, 255, 255, 0.08);
+  --radius: 10px;
+  --radius-card: 20px;
   color-scheme: dark;
 }
 
@@ -39,14 +43,17 @@
   --color-faint: var(--text-faint);
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
+  --color-accent-bg: var(--accent-bg);
   --color-positive: var(--positive);
   --color-positive-bg: var(--positive-bg);
   --color-negative: var(--negative);
   --color-negative-bg: var(--negative-bg);
   --color-warning: var(--warning);
   --color-warning-bg: var(--warning-bg);
-  --radius-card: var(--radius);
-  --font-sans: var(--font-geist-sans);
+  --color-chart: var(--chart);
+  --color-nav-on: var(--nav-on);
+  --radius-card: var(--radius-card);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -57,13 +64,21 @@ body {
 }
 
 body {
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  font-feature-settings: "tnum" 1, "cv11" 1;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Tabular figures everywhere money is shown. */
 .num {
   font-variant-numeric: tabular-nums;
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 ::selection {
