@@ -97,10 +97,14 @@ src/
 
 ## Mock data
 
-`src/lib/mock-data.ts` deterministically generates three months
-(8 Jul – 7 Oct 2026) for Jordan Lee ($75,000/yr, biweekly direct deposit into
-PayPal): rent, utilities, pay-per-ride transit, 14 subscriptions (Claude Pro,
-Netflix, Disney+, Max, Spotify, YouTube Premium, Mobbin, Notion, Figma,
-1Password, iCloud+, Duolingo, Lightroom, Planet Fitness), everyday card spend,
-PayPal offers and an auto-reload. Every transaction carries a reconciled running
-balance, so the assistant and the guardrail can check numbers exactly.
+`src/lib/mock-data.ts` deterministically generates 1 Jan – 7 Oct 2026 for Jordan
+Lee ($75,000/yr, biweekly Acme Inc. payroll into PayPal), matching the Clean
+design in `design/clean`: the same recent transactions (Uniqlo, Starbucks,
+DoorDash, Target, Uber, Parkside Apartments rent, Spotify, PG&E, Whole Foods,
+Lilia, an unrecognised "SQ *BLUE BOTTLE" charge to review), the same bills
+(Parkside Apartments, PG&E, Recology) and subscriptions (Disney+, Max, Duolingo,
+Adobe, Claude Pro, Figma, Planet Fitness, YouTube Premium, Netflix, Spotify), the
+same PayPal Offers (one pending, one earned), and monthly category totals that
+match the design's Insights page. Every transaction carries a reconciled running
+balance (closing at $2,033.90), so the assistant and the guardrail can check
+numbers exactly.

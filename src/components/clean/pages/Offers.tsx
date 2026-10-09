@@ -37,6 +37,7 @@ export function OffersPage() {
     const credit = new Map(state.transactions.filter((t) => t.category === "Cashback").map((t) => [t.description, t]));
     const earnedOn = (o: Offer) => state.transactions.find((t) => t.id === o.appliedToTransactionId);
     const earnedAmt = (o: Offer) => credit.get(`Cash back — ${o.title}`)?.amount ?? 0;
+    const creditOn = (o: Offer) => credit.get(`Cash back — ${o.title}`)?.date;
     const count = (k: Kind) => state.offers.filter((o) => kind(o) === k).length;
     return {
       matches,
@@ -44,6 +45,7 @@ export function OffersPage() {
       ordered,
       earnedOn,
       earnedAmt,
+      creditOn,
       count,
       best: ordered.find((o) => matches.get(o.id)),
       pending: state.offers.reduce((a, o) => a + (o.status === "pending" ? (o.pendingCashback ?? 0) : 0), 0),
@@ -94,10 +96,10 @@ export function OffersPage() {
           <div className="flex min-w-0 flex-1 flex-col gap-2">
             <span className="text-[11px] font-semibold tracking-[0.08em] text-[#7fb8ff]">✦ BEST MATCH FOR YOU</span>
             <h2 className="text-[34px] font-semibold leading-tight">
-              {shortTitle(d.best)} at {d.best.merchant}
+              {shortTitle(d.best).split(" on ")[0]} at {d.best.merchant}
             </h2>
             <p className="text-sm leading-normal text-[#b8cdf5]">
-              Matches your {money(-bm.transaction.amount)} purchase on {shortDate(bm.transaction.date)}. Add it now and get {money(bm.cashback)} back, through {shortDate(d.best.validUntil)}.
+              {d.best.matchNote ? `${d.best.matchNote.replace(/^Matched because y/, "Y")} ` : ""}Add it now to get {money(bm.cashback)} back on your {shortDate(bm.transaction.date)} purchase, through {shortDate(d.best.validUntil)}.
             </p>
             <div className="flex flex-wrap gap-2 pt-1.5">
               <button type="button" onClick={() => apply(d.best!)} className="h-10 rounded-full bg-white px-[18px] text-sm font-medium text-[#0a1f4d]">
@@ -145,7 +147,7 @@ export function OffersPage() {
                 </button>
                 <OfferButton kind={k} matched={!!m} label={o.title} onAdd={() => (m ? apply(o) : k === "Added" ? setOpen(o) : setAdded(o, true))} />
               </div>
-              <OfferLine offer={o} kind={k} match={m ?? null} earned={on} amount={d.earnedAmt(o)} />
+              <OfferLine offer={o} kind={k} match={m ?? null} earned={on} amount={d.earnedAmt(o)} creditOn={d.creditOn(o)} />
             </article>
           );
         })}
@@ -189,11 +191,12 @@ function OfferButton({ kind, matched, label, onAdd }: { kind: Kind; matched: boo
   );
 }
 
-function OfferLine({ offer: o, kind, match, earned, amount }: { offer: Offer; kind: Kind; match: { transaction: Transaction; cashback: number } | null; earned?: Transaction; amount: number }) {
+function OfferLine({ offer: o, kind, match, earned, amount, creditOn }: { offer: Offer; kind: Kind; match: { transaction: Transaction; cashback: number } | null; earned?: Transaction; amount: number; creditOn?: string }) {
   if (kind === "Earned")
     return (
       <span className="text-xs font-medium text-positive">
         ✓ {money(amount)} earned{earned ? ` on your ${shortDate(earned.date)} purchase` : ""}
+        {creditOn ? ` · added ${shortDate(creditOn)}` : ""}
       </span>
     );
   if (kind === "Pending")
@@ -207,7 +210,7 @@ function OfferLine({ offer: o, kind, match, earned, amount }: { offer: Offer; ki
   if (match)
     return (
       <span className="text-xs font-medium text-muted">
-        Matched to your {money(-match.transaction.amount)} purchase on {shortDate(match.transaction.date)} · earns {money(match.cashback)}
+        {o.matchNote ?? `Matched to your ${money(-match.transaction.amount)} purchase on ${shortDate(match.transaction.date)}.`} Earns {money(match.cashback)}.
       </span>
     );
   if (kind === "Added") return <span className="text-xs font-medium text-accent">Added · pay with PayPal at {o.merchant} by {shortDate(o.validUntil)} to earn it</span>;

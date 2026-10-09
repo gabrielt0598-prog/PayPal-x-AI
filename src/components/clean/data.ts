@@ -1,7 +1,7 @@
 // Derived numbers for the Clean pages. Pure helpers over FinanceState.
 
 import { categoryBreakdown, isIncome, isSpend, periodTotals, r2 } from "@/lib/finance";
-import type { Category, FinanceState, Transaction } from "@/lib/types";
+import type { FinanceState, Transaction } from "@/lib/types";
 
 export const asOfDate = (s: FinanceState) => s.asOf.slice(0, 10);
 export const ymOf = (iso: string) => iso.slice(0, 7);
@@ -53,22 +53,15 @@ export function dataMonths(s: FinanceState) {
 
 export const CAT_COLORS = ["#3d8bff", "#e8833a", "#22a06b", "#a46ee8", "#d4a72c", "#e5577a", "#8a8f98"];
 
-/** Top 6 categories + Other for a month, with change vs the previous month. */
+/** Spending categories for a month, with change vs the previous month. */
 export function monthCategories(s: FinanceState, ym: string) {
   const { from, to } = monthBounds(ym);
   const p = monthBounds(prevYm(ym));
   const cur = categoryBreakdown(s.transactions, from, to);
   const prev = new Map(categoryBreakdown(s.transactions, p.from, p.to).map((c) => [c.category, c.spend]));
-  const top = cur.slice(0, 6);
-  const rest = cur.slice(6);
-  const rows: { name: Category | "Other"; spend: number; prev: number | undefined }[] = top.map((c) => ({ name: c.category, spend: c.spend, prev: prev.get(c.category) }));
-  if (rest.length) {
-    rows.push({
-      name: "Other",
-      spend: r2(rest.reduce((a, c) => a + c.spend, 0)),
-      prev: prev.size ? r2(rest.reduce((a, c) => a + (prev.get(c.category) ?? 0), 0)) : undefined,
-    });
-  }
+  // Every spending category, largest first, with "Other" kept last (as on the Clean design).
+  const ordered = [...cur.filter((c) => c.category !== "Other"), ...cur.filter((c) => c.category === "Other")];
+  const rows = ordered.map((c) => ({ name: c.category, spend: c.spend, prev: prev.get(c.category) }));
   const total = r2(rows.reduce((a, r) => a + r.spend, 0));
   return { rows, total, hasPrev: prev.size > 0 };
 }

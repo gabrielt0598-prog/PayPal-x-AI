@@ -84,16 +84,13 @@ function errMsg(err: unknown): string {
 
 const CATEGORY_HINTS: Record<Category, string> = {
   Income: "Money in from an employer or payroll",
-  Housing: "Rent or mortgage",
-  Utilities: "Electric, gas, internet, phone bills",
-  Transportation: "Transit, rideshare, fuel, parking",
-  Groceries: "Supermarkets and grocery stores",
+  "Essential bills": "Rent, electric & gas, trash and other household bills",
   Dining: "Restaurants, cafes, coffee, food delivery",
+  Groceries: "Supermarkets and grocery stores",
   Shopping: "Retail, online shopping, clothing, home goods",
-  Entertainment: "Streaming, music, games, movies, events",
-  Productivity: "Software and app subscriptions, cloud storage, learning tools",
-  "Health & Fitness": "Gym, pharmacy, medical",
-  Travel: "Flights, hotels, lodging",
+  Transport: "Transit, rideshare, fuel, parking",
+  Subscriptions: "Streaming, music, software, gym and other recurring memberships",
+  Other: "Pharmacy, entertainment and anything else",
   Transfers: "Moving money between own accounts: savings, auto-reload, bank transfers",
   Cashback: "Rewards and cash back credited by PayPal Offers",
 };

@@ -57,7 +57,7 @@ export function HomePage() {
       cashback: cashbackIn(state, ym),
       recurringMonthly: sum.totalMonthly,
       upcoming: upcomingCharges(state.recurring, state.asOf, 14).slice(0, 4),
-      recent: [...state.transactions].reverse().filter((t) => t.category !== "Transfers").slice(0, 4),
+      recent: [...state.transactions].reverse().filter((t) => t.category !== "Transfers" && t.category !== "Cashback").slice(0, 4),
       offers: eligibleOffers(state)
         .filter((e) => e.best)
         .sort((a, b) => (b.best?.cashback ?? 0) - (a.best?.cashback ?? 0)),
@@ -151,7 +151,9 @@ export function HomePage() {
                     <Gift size={18} />
                   </span>
                   <div className="flex min-w-0 flex-col gap-1">
-                    <span className="text-[17px] font-semibold leading-snug">{best.offer.title}</span>
+                    <span className="text-[17px] font-semibold leading-snug">
+                      {best.offer.title.split(" on ")[0]} at {best.offer.merchant}
+                    </span>
                     <span className="text-sm leading-normal text-muted">
                       Matches your {money(-best.best.transaction.amount)} purchase on {shortDate(best.best.transaction.date)}. Earns {money(best.best.cashback)} back, through {shortDate(best.offer.validUntil)}.
                     </span>

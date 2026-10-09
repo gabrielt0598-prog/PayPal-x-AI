@@ -7,11 +7,20 @@ import type { CellClassParams, ColDef, ICellRendererParams } from "ag-grid-commu
 import { Sparkles } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import { METHOD_LABEL } from "./format";
-import type { Transaction } from "@/lib/types";
+import type { Offer, Transaction } from "@/lib/types";
 import { Grid } from "./Grid";
 import { amt, Avatar, Btn, cx, Drawer, KV, money, Panel, Pill, shortDate } from "./ui";
 
-function txCols(selected?: string | null): ColDef<Transaction>[] {
+/** Cash back tied to a purchase, shown under the merchant as on the Clean design. */
+function cashLine(t: Transaction, offers: Offer[], all: Transaction[]) {
+  const o = t.appliedOfferId ? offers.find((x) => x.id === t.appliedOfferId) : undefined;
+  if (!o) return null;
+  if (o.status === "pending") return { text: `+${money(o.pendingCashback ?? 0)} · pending`, tone: "text-warning" };
+  const credit = all.find((x) => x.category === "Cashback" && x.description === `Cash back — ${o.title}`);
+  return credit ? { text: `+${money(credit.amount)} · added ${shortDate(credit.date)}`, tone: "text-positive" } : null;
+}
+
+function txCols(selected: string | null | undefined, offers: Offer[], all: Transaction[]): ColDef<Transaction>[] {
   const cols: ColDef<Transaction>[] = [
   {
     field: "merchant",
@@ -23,7 +32,13 @@ function txCols(selected?: string | null): ColDef<Transaction>[] {
       data ? (
         <span className="flex h-full min-w-0 items-center gap-3">
           <Avatar name={data.merchant} />
-          <span className="truncate">{data.merchant}</span>
+          <span className="flex min-w-0 flex-col leading-tight">
+            <span className="truncate">{data.merchant}</span>
+            {(() => {
+              const c = cashLine(data, offers, all);
+              return c ? <span className={cx("truncate text-xs font-medium", c.tone)}>{c.text}</span> : null;
+            })()}
+          </span>
         </span>
       ) : null,
   },
@@ -36,7 +51,7 @@ function txCols(selected?: string | null): ColDef<Transaction>[] {
     cellRenderer: ({ data }: ICellRendererParams<Transaction>) =>
       data ? (
         <span className="flex h-full min-w-0 items-center gap-2 text-sm">
-          <span className="truncate">{data.category}</span>
+          {data.needsReview ? <span className="truncate font-medium text-accent">✦ Needs review</span> : <span className="truncate">{data.category}</span>}
           {data.status === "pending" && <Pill tone="warn">Pending</Pill>}
         </span>
       ) : null,
@@ -55,7 +70,8 @@ function txCols(selected?: string | null): ColDef<Transaction>[] {
 
 /** Transactions table on AG Grid: sortable columns, quick filter, optional pagination. */
 export function TxGrid({ rows, selected, onOpen, quickFilter, pageSize }: { rows: Transaction[]; selected?: string | null; onOpen: (t: Transaction) => void; quickFilter?: string; pageSize?: number }) {
-  const columnDefs = useMemo(() => txCols(selected), [selected]);
+  const { state } = useFinance();
+  const columnDefs = useMemo(() => txCols(selected, state?.offers ?? [], state?.transactions ?? []), [selected, state]);
   return (
     <Grid<Transaction>
       rowData={rows}
@@ -89,6 +105,16 @@ export function TxDrawer({ tx, onClose }: { tx: Transaction; onClose: () => void
         </div>
         <Avatar name={tx.merchant} size={48} />
       </div>
+      {tx.needsReview && (
+        <div className="flex flex-col gap-2 rounded-xl bg-accent-bg p-3.5 text-[13px] leading-normal">
+          <span>
+            <span className="font-medium">PayPal AI isn’t sure about this one.</span> “{tx.merchant}” looks like a coffee shop, so it’s probably Dining.
+          </span>
+          <Btn small kind="primary" className="self-start" onClick={() => openAssistant(`Categorize my recent transactions`)}>
+            Check with PayPal AI
+          </Btn>
+        </div>
+      )}
       <Btn small onClick={() => openAssistant(`Tell me about my ${tx.merchant} spending`)} className="self-start">
         <Sparkles size={14} className="text-accent" /> Ask PayPal AI about this
       </Btn>

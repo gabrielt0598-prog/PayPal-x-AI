@@ -28,12 +28,14 @@ export function InsightsPage() {
     const hasPrev = months.some((m) => m.ym === pym);
     const cats = monthCategories(state, ym);
     // Biggest mover vs last month (rent excluded: it never moves).
-    const movers = hasPrev ? cats.rows.filter((c) => c.name !== "Housing" && c.name !== "Other" && c.prev) : [];
+    const movers = hasPrev ? cats.rows.filter((c) => c.name !== "Essential bills" && c.name !== "Other" && c.prev) : [];
     const mover = movers.sort((a, b) => Math.abs(b.spend - (b.prev ?? 0)) - Math.abs(a.spend - (a.prev ?? 0)))[0];
     const { from, to } = monthBounds(ym);
-    const billTx = state.transactions.filter((t) => t.amount < 0 && (t.category === "Housing" || t.category === "Utilities") && t.date.slice(0, 10) >= from && t.date.slice(0, 10) <= to);
+    const billTx = state.transactions.filter((t) => t.amount < 0 && t.category === "Essential bills" && t.date.slice(0, 10) >= from && t.date.slice(0, 10) <= to);
     const bills = new Map<string, number>();
-    for (const t of billTx) bills.set(t.merchant, r2((bills.get(t.merchant) ?? 0) - t.amount));
+    const LABEL: Record<string, string> = { "Parkside Apartments": "Rent · Parkside", "PG&E": "Electric & gas · PG&E", Recology: "Trash · Recology" };
+    for (const t of billTx) bills.set(LABEL[t.merchant] ?? t.merchant, r2((bills.get(LABEL[t.merchant] ?? t.merchant) ?? 0) - t.amount));
+    const prevBills = r2(state.transactions.filter((t) => t.amount < 0 && t.category === "Essential bills" && ymOf(t.date) === pym).reduce((a, t) => a - t.amount, 0));
     const billTotal = r2([...bills.values()].reduce((a, v) => a + v, 0));
     const cashTx = state.transactions.filter((t) => t.category === "Cashback" && ymOf(t.date) === ym);
     const history = months
@@ -41,7 +43,7 @@ export function InsightsPage() {
       .sort()
       .filter((m) => m <= ym)
       .slice(-6);
-    return { pym, hasPrev, cats, mover, bills: [...bills.entries()].sort((a, b) => b[1] - a[1]), billTotal, cash: cashbackIn(state, ym), cashCount: cashTx.length, history, total: monthTotals(state, ym).spend };
+    return { prevBills, pym, hasPrev, cats, mover, bills: [...bills.entries()].sort((a, b) => b[1] - a[1]), billTotal, cash: cashbackIn(state, ym), cashCount: cashTx.length, history, total: monthTotals(state, ym).spend };
   }, [state, ym, months]);
 
   if (loading || !state || !d || !ym) return <Skeleton className="mx-auto h-[600px] w-full max-w-[1600px]" />;
@@ -139,8 +141,8 @@ export function InsightsPage() {
         )}
         <Finding
           tag={<Pill tone="acc">{Math.round((d.billTotal / (d.total || 1)) * 100)}% of spending</Pill>}
-          title="Rent and utilities are your steadiest cost"
-          body={`${money(d.billTotal)} on housing and utilities in ${monthName(ym)}.`}
+          title="Essential bills are your biggest, steadiest cost"
+          body={`${money(d.billTotal)} in ${monthName(ym)}${!d.hasPrev ? "." : Math.abs(d.billTotal - d.prevBills) < 0.005 ? `, the same as ${monthName(d.pym)}.` : `, ${money(Math.abs(d.billTotal - d.prevBills))} ${d.billTotal > d.prevBills ? "more" : "less"} than ${monthName(d.pym)}. Only PG&E changed.`}`}
           cta="See bills"
           onCta={() => go("recurring")}
         >

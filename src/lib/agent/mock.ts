@@ -10,13 +10,10 @@ const CATEGORY_ALIASES: [RegExp, (typeof CATEGORIES)[number]][] = [
   [/dining|restaurant|eat(ing)? out|food|coffee|takeout/i, "Dining"],
   [/grocer/i, "Groceries"],
   [/shopping|clothes|retail/i, "Shopping"],
-  [/entertainment|streaming/i, "Entertainment"],
-  [/transport|transit|uber|commut/i, "Transportation"],
-  [/utilit/i, "Utilities"],
-  [/rent|housing/i, "Housing"],
-  [/travel/i, "Travel"],
-  [/fitness|gym|health/i, "Health & Fitness"],
-  [/productivity|software|apps?\b/i, "Productivity"],
+  [/subscription|streaming|membership|software|apps?\b/i, "Subscriptions"],
+  [/transport|transit|uber|commut|rides?\b/i, "Transport"],
+  [/bills?\b|rent|housing|utilit/i, "Essential bills"],
+  [/\bother\b/i, "Other"],
 ];
 
 function parseSalary(m: string) {

@@ -5,18 +5,16 @@
 export type ISODate = string; // "2026-10-07"
 export type ISODateTime = string; // "2026-10-07T14:32:00.000Z"
 
+/** The Clean design's categories, plus Transfers and Cashback for money that isn't spending. */
 export const CATEGORIES = [
   "Income",
-  "Housing",
-  "Utilities",
-  "Transportation",
-  "Groceries",
+  "Essential bills",
   "Dining",
+  "Groceries",
   "Shopping",
-  "Entertainment",
-  "Productivity",
-  "Health & Fitness",
-  "Travel",
+  "Transport",
+  "Subscriptions",
+  "Other",
   "Transfers",
   "Cashback",
 ] as const;
@@ -49,6 +47,8 @@ export interface Transaction {
   recurringId?: string;
   /** Set when a PayPal offer has been applied to this transaction. */
   appliedOfferId?: string;
+  /** Unrecognised merchant descriptor the user should confirm a category for. */
+  needsReview?: boolean;
 }
 
 export type BillingCycle = "weekly" | "monthly" | "yearly";
@@ -77,6 +77,8 @@ export interface RecurringPayment {
   cancelChannel: "paypal_subscriptions_api" | "kernel_browser" | "none";
   /** Last time the user actually used the service (for "unused subscription" insights). */
   lastUsedAt?: ISODate;
+  /** First charge ("Since" on the Recurring page). */
+  since?: ISODate;
 }
 
 export type OfferType = "percent_cashback" | "fixed_cashback";
@@ -100,6 +102,8 @@ export interface Offer {
   /** Pending offers only: cash back owed and the day it posts to the balance. */
   pendingCashback?: number;
   postsOn?: ISODate;
+  /** Why the offer was matched to this user ("you’ve shopped at Uniqlo 3 times since August"). */
+  matchNote?: string;
   appliedToTransactionId?: string;
 }
 

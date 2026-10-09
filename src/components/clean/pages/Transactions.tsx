@@ -35,7 +35,7 @@ export function TransactionsPage() {
     const today = asOfDate(state);
     const ym = ymOf(today);
     const end = Date.parse(`${today}T23:59:59Z`);
-    const all = [...state.transactions].reverse();
+    const all = [...state.transactions].reverse().filter((t) => t.category !== "Cashback");
     const dateOk = (t: Transaction) =>
       date === "all" || (date === "7d" ? Date.parse(t.date) > end - 7 * 86_400_000 : date === "month" ? ymOf(t.date) === ym : ymOf(t.date) === prevYm(ym));
     const base = all.filter((t) => dateOk(t) && (!q || t.merchant.toLowerCase().includes(q.toLowerCase())));
@@ -57,7 +57,7 @@ export function TransactionsPage() {
             })
           : [...new Set(state.transactions.map((t) => ymOf(t.date)))].sort().map((m) => ({ label: monthShort(m), title: monthName(m), value: monthTotals(state, m).spend, current: m === ym }));
     const categories = [...new Set(state.transactions.map((t) => t.category))].sort();
-    return { rows, base, bars, categories, io: incomeOut(base), top: categoryBreakdown(base).slice(0, 3), ym };
+    return { rows, base, bars, categories, io: incomeOut(base), top: categoryBreakdown(base).slice(0, 3), ym, review: base.filter((t) => t.needsReview) };
   }, [state, date, q, cats, range]);
 
   if (loading || !state || !d) return <Skeleton className="mx-auto h-[600px] w-full max-w-[1600px]" />;
@@ -103,9 +103,15 @@ export function TransactionsPage() {
                 </div>
               ))}
             </div>
-            <Btn kind="link" className="mt-auto self-start" onClick={() => openAssistant("Categorize my recent transactions")}>
-              <Sparkles size={14} /> Check categories with AI →
-            </Btn>
+            {d.review.length > 0 ? (
+              <Btn kind="link" className="mt-auto self-start" onClick={() => setSel(d.review[0])}>
+                <Sparkles size={14} /> {d.review.length} needs review →
+              </Btn>
+            ) : (
+              <Btn kind="link" className="mt-auto self-start" onClick={() => openAssistant("Categorize my recent transactions")}>
+                <Sparkles size={14} /> Check categories with AI →
+              </Btn>
+            )}
           </Card>
         </Section>
       </div>

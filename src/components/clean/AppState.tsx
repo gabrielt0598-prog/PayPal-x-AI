@@ -11,7 +11,7 @@ import type { MoneyMove } from "@/lib/store";
 export const PAGES = ["home", "transactions", "recurring", "essentials", "offers", "rewards", "insights", "account"] as const;
 export type PageId = (typeof PAGES)[number];
 
-export const REWARD_CATS = ["Dining", "Groceries", "Shopping", "Health & Fitness"] as const;
+export const REWARD_CATS = ["Dining", "Groceries", "Shopping", "Transport"] as const;
 export type RewardCat = (typeof REWARD_CATS)[number];
 
 export interface RewardsLog {
