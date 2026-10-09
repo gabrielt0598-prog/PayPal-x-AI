@@ -63,7 +63,7 @@ export function applyOffer(
   const state = getState();
   const offer = state.offers.find((o) => o.id === offerId);
   if (!offer) return { ok: false, error: `No offer with id ${offerId}` };
-  if (offer.status !== "available") return { ok: false, error: `Offer "${offer.title}" is ${offer.status}` };
+  if (offer.status !== "available" && offer.status !== "added") return { ok: false, error: `Offer "${offer.title}" is ${offer.status}` };
 
   const candidates = transactionId
     ? state.transactions.filter((t) => t.id === transactionId)
@@ -105,6 +105,15 @@ export function simulateSpend(merchant: string, amount: number, category: Catego
     method: "paypal_debit_card",
     status: "pending",
   });
+}
+
+/** Save an offer to the account (or remove it) without a matching purchase yet. */
+export function setOfferAdded(offerId: string, added: boolean): Result<Offer> {
+  const offer = getState().offers.find((o) => o.id === offerId);
+  if (!offer) return { ok: false, error: `No offer with id ${offerId}` };
+  if (offer.status !== "available" && offer.status !== "added") return { ok: false, error: `Offer "${offer.title}" is ${offer.status}` };
+  offer.status = added ? "added" : "available";
+  return { ok: true, value: offer };
 }
 
 export function recategorize(transactionId: string, category: Category): Result<Transaction> {

@@ -88,6 +88,7 @@ const offerSeeds: Offer[] = [
   { id: "offer_wholefoods_3", merchant: "Whole Foods Market", title: "3% back at Whole Foods", description: "Earn 3% cash back on groceries at Whole Foods Market, up to $6.", type: "percent_cashback", value: 3, maxCashback: 6, validFrom: "2026-09-20", validUntil: "2026-11-20", status: "available" },
   { id: "offer_uber_10", merchant: "Uber", title: "10% back on Uber rides", description: "Earn 10% back on Uber rides paid with PayPal, up to $5.", type: "percent_cashback", value: 10, maxCashback: 5, validFrom: "2026-09-10", validUntil: "2026-10-31", status: "available" },
   { id: "offer_doordash_7", merchant: "DoorDash", title: "$7 back on $35+ at DoorDash", description: "Get $7 back on a DoorDash order of $35 or more.", type: "fixed_cashback", value: 7, minSpend: 35, validFrom: "2026-10-01", validUntil: "2026-10-31", status: "available" },
+  { id: "offer_lyft_15", merchant: "Lyft", title: "15% back on Lyft rides", description: "Earn 15% back on Lyft rides paid with PayPal, up to $6.", type: "percent_cashback", value: 15, maxCashback: 6, validFrom: "2026-10-08", validUntil: "2026-10-31", status: "added" },
   { id: "offer_amazon_2", merchant: "Amazon", title: "2% back at Amazon", description: "Earn 2% back at Amazon, up to $8.", type: "percent_cashback", value: 2, maxCashback: 8, validFrom: "2026-07-01", validUntil: "2026-08-31", status: "expired" },
 ];
 
@@ -212,6 +213,16 @@ const appliedStarbucks = drafts
   .filter((d) => d.merchant === "Starbucks" && d.date >= "2026-09-01")
   .sort((a, b) => a.date.localeCompare(b.date))[0];
 
+// An October payout: the Whole Foods offer was applied to a late-September shop
+// and its cash back posted on Oct 2.
+const appliedWholeFoods = drafts
+  .filter((d) => d.merchant === "Whole Foods Market" && d.date >= "2026-09-20" && d.date < "2026-10-01")
+  .sort((a, b) => a.date.localeCompare(b.date))[0];
+if (appliedWholeFoods) {
+  appliedWholeFoods.appliedOfferId = "offer_wholefoods_3";
+  drafts.push({ date: "2026-10-02T10:00:00.000Z", merchant: "PayPal Offers", description: "Cash back — 3% back at Whole Foods", amount: Math.min(r2(-appliedWholeFoods.amount * 0.03), 6), category: "Cashback", method: "paypal_offer" });
+}
+
 // ---------------------------------------------------------------------------
 // Reconcile: sort, assign ids, run the balance, inject PayPal auto-reloads.
 // ---------------------------------------------------------------------------
@@ -286,11 +297,19 @@ export const subscriptions: RecurringPayment[] = recurringSeeds.map((r) => {
   return { ...r, nextChargeDate: nextMonthlyDate(r.billingDay!) };
 });
 
-export const offers: Offer[] = offerSeeds.map((o) =>
-  o.id === "offer_starbucks_10" && appliedStarbucks
-    ? { ...o, status: "applied", appliedToTransactionId: transactions.find((t) => t.appliedOfferId === o.id)?.id }
-    : o,
-);
+const targetOct4 = transactions.find((t) => t.merchant === "Target" && t.date.startsWith("2026-10-04"));
+
+export const offers: Offer[] = offerSeeds.map((o) => {
+  if ((o.id === "offer_starbucks_10" && appliedStarbucks) || (o.id === "offer_wholefoods_3" && appliedWholeFoods)) {
+    return { ...o, status: "applied", appliedToTransactionId: transactions.find((t) => t.appliedOfferId === o.id)?.id };
+  }
+  // Cash back on the Oct 4 Target shop is still pending; it posts on Oct 11.
+  if (o.id === "offer_target_5" && targetOct4) {
+    targetOct4.appliedOfferId = o.id;
+    return { ...o, status: "pending", appliedToTransactionId: targetOct4.id, pendingCashback: r2(-targetOct4.amount * 0.05), postsOn: "2026-10-11" };
+  }
+  return o;
+});
 
 /** Fresh deep copy of the seed state. The server store mutates its own copy. */
 export function createSeedState(): FinanceState {

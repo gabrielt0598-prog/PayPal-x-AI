@@ -1,15 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Plus } from "lucide-react";
+import { Check, Clock, Plus } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import { eligibleOffers } from "@/lib/finance";
 import type { Offer, Transaction } from "@/lib/types";
+import { useClean } from "../AppState";
 import { cashbackIn } from "../data";
 import { Avatar, Btn, cx, Drawer, KV, money, monthShort, Page, Panel, Pill, shortDate, Skeleton } from "../ui";
 
-type Kind = "Available" | "Earned" | "Expired";
-const FILTERS = ["All", "Available", "Earned", "Expired"] as const;
+type Kind = "Available" | "Added" | "Pending" | "Earned" | "Expired";
+const FILTERS = ["All", "Available", "Added", "Pending", "Earned", "Expired"] as const;
 
 const STEPS = [
   ["Add an offer", "PayPal AI applies it to a matching purchase"],
@@ -21,16 +22,17 @@ const STEPS = [
 const shortTitle = (o: Offer) => o.title.replace(new RegExp(`\\s+at\\s+${o.merchant.split(" ")[0]}.*$`, "i"), "");
 
 export function OffersPage() {
-  const { state, loading } = useFinance();
+  const { state, loading, refresh } = useFinance();
   const { openAssistant } = useAssistantUI();
+  const { toast } = useClean();
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("All");
   const [open, setOpen] = useState<Offer | null>(null);
 
   const d = useMemo(() => {
     if (!state) return null;
     const matches = new Map(eligibleOffers(state).map((e) => [e.offer.id, e.best]));
-    const kind = (o: Offer): Kind => (o.status === "applied" ? "Earned" : o.status === "expired" ? "Expired" : "Available");
-    const rank = (o: Offer) => (kind(o) === "Available" ? (matches.get(o.id) ? 0 : 1) : kind(o) === "Earned" ? 2 : 3);
+    const kind = (o: Offer): Kind => ({ available: "Available", added: "Added", pending: "Pending", applied: "Earned", expired: "Expired" } as const)[o.status];
+    const rank = (o: Offer) => (matches.get(o.id) ? 0 : { Available: 1, Added: 2, Pending: 3, Earned: 4, Expired: 5 }[kind(o)]);
     const ordered = [...state.offers].sort((a, b) => rank(a) - rank(b) || (matches.get(b.id)?.cashback ?? 0) - (matches.get(a.id)?.cashback ?? 0));
     const credit = new Map(state.transactions.filter((t) => t.category === "Cashback").map((t) => [t.description, t]));
     const earnedOn = (o: Offer) => state.transactions.find((t) => t.id === o.appliedToTransactionId);
@@ -43,7 +45,8 @@ export function OffersPage() {
       earnedOn,
       earnedAmt,
       count,
-      best: ordered.find((o) => kind(o) === "Available" && matches.get(o.id)),
+      best: ordered.find((o) => matches.get(o.id)),
+      pending: state.offers.reduce((a, o) => a + (o.status === "pending" ? (o.pendingCashback ?? 0) : 0), 0),
       claimable: [...matches.values()].reduce((a, m) => a + (m?.cashback ?? 0), 0),
       earnedMonth: cashbackIn(state, state.asOf.slice(0, 7)),
       ym: state.asOf.slice(0, 7),
@@ -54,6 +57,12 @@ export function OffersPage() {
   const shown = d.ordered.filter((o) => filter === "All" || d.kind(o) === filter);
   const bm = d.best ? d.matches.get(d.best.id) : null;
   const apply = (o: Offer) => openAssistant(`Apply the "${o.title}" offer`);
+  const setAdded = async (o: Offer, added: boolean) => {
+    const res = await fetch("/api/demo/offers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ offerId: o.id, added }) });
+    if (!res.ok) return toast("Couldn’t update the offer");
+    await refresh();
+    toast(added ? `${shortTitle(o)} at ${o.merchant} added` : "Offer removed", added ? `Pay with PayPal at ${o.merchant} by ${shortDate(o.validUntil)} to earn it` : undefined);
+  };
 
   return (
     <Page
@@ -63,7 +72,8 @@ export function OffersPage() {
           <Pill tone="pos">
             Earned in {monthShort(d.ym)} · {money(d.earnedMonth)}
           </Pill>
-          {d.claimable > 0 && <Pill tone="warn">To claim · {money(d.claimable)}</Pill>}
+          {d.pending > 0 && <Pill tone="warn">Pending · {money(d.pending)}</Pill>}
+          {d.claimable > 0 && <Pill tone="acc">To claim · {money(d.claimable)}</Pill>}
         </span>
       }
     >
@@ -105,7 +115,7 @@ export function OffersPage() {
       )}
 
       <div role="group" aria-label="Filter offers" className="flex flex-wrap gap-2">
-        {FILTERS.filter((f) => f === "All" || d.count(f) > 0 || f === "Available").map((f) => (
+        {FILTERS.filter((f) => f !== "Expired" || d.count(f) > 0).map((f) => (
           <button
             key={f}
             type="button"
@@ -133,9 +143,9 @@ export function OffersPage() {
                     {o.merchant} · {k === "Expired" ? "ended" : "ends"} {shortDate(o.validUntil)} · View terms
                   </span>
                 </button>
-                <OfferButton kind={k} matched={!!m} label={o.title} onAdd={() => (m ? apply(o) : setOpen(o))} />
+                <OfferButton kind={k} matched={!!m} label={o.title} onAdd={() => (m ? apply(o) : k === "Added" ? setOpen(o) : setAdded(o, true))} />
               </div>
-              <OfferLine kind={k} match={m ?? null} earned={on} amount={d.earnedAmt(o)} merchant={o.merchant} />
+              <OfferLine offer={o} kind={k} match={m ?? null} earned={on} amount={d.earnedAmt(o)} />
             </article>
           );
         })}
@@ -147,7 +157,8 @@ export function OffersPage() {
           kind={d.kind(open)}
           match={d.matches.get(open.id) ?? null}
           onAdd={() => {
-            apply(open);
+            if (d.matches.get(open.id)) apply(open);
+            else void setAdded(open, d.kind(open) !== "Added");
             setOpen(null);
           }}
           onClose={() => setOpen(null)}
@@ -159,29 +170,37 @@ export function OffersPage() {
 
 function OfferButton({ kind, matched, label, onAdd }: { kind: Kind; matched: boolean; label: string; onAdd: () => void }) {
   if (kind === "Expired") return null;
-  if (kind === "Earned")
+  if (kind === "Earned" || kind === "Pending")
     return (
-      <span aria-label={`${label}: cash back earned`} className="flex size-11 shrink-0 items-center justify-center rounded-full bg-positive-bg text-positive">
+      <span aria-label={`${label}: ${kind === "Earned" ? "cash back earned" : "cash back pending"}`} className={cx("flex size-11 shrink-0 items-center justify-center rounded-full", kind === "Earned" ? "bg-positive-bg text-positive" : "bg-warning-bg text-warning")}>
         <Check size={18} />
       </span>
     );
+  if (kind === "Added" && !matched)
+    return (
+      <button type="button" onClick={onAdd} aria-label={`${label}: added. See terms or remove`} className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent-bg text-accent">
+        <Check size={18} />
+      </button>
+    );
   return (
-    <button
-      type="button"
-      onClick={onAdd}
-      aria-label={matched ? `Add ${label}` : `${label}: see terms`}
-      className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border-strong text-text transition hover:bg-white/[0.06]"
-    >
+    <button type="button" onClick={onAdd} aria-label={matched ? `Apply ${label}` : `Add ${label}`} className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border-strong text-text transition hover:bg-white/[0.06]">
       <Plus size={18} />
     </button>
   );
 }
 
-function OfferLine({ kind, match, earned, amount, merchant }: { kind: Kind; match: { transaction: Transaction; cashback: number } | null; earned?: Transaction; amount: number; merchant: string }) {
+function OfferLine({ offer: o, kind, match, earned, amount }: { offer: Offer; kind: Kind; match: { transaction: Transaction; cashback: number } | null; earned?: Transaction; amount: number }) {
   if (kind === "Earned")
     return (
       <span className="text-xs font-medium text-positive">
         ✓ {money(amount)} earned{earned ? ` on your ${shortDate(earned.date)} purchase` : ""}
+      </span>
+    );
+  if (kind === "Pending")
+    return (
+      <span className="flex items-center gap-1 text-xs font-medium text-warning">
+        <Clock size={12} /> {money(o.pendingCashback ?? 0)} pending{earned ? ` from your ${shortDate(earned.date)} purchase` : ""}
+        {o.postsOn ? ` · posts by ${shortDate(o.postsOn)}` : ""}
       </span>
     );
   if (kind === "Expired") return <span className="text-xs font-medium text-faint">This offer has ended.</span>;
@@ -191,7 +210,8 @@ function OfferLine({ kind, match, earned, amount, merchant }: { kind: Kind; matc
         Matched to your {money(-match.transaction.amount)} purchase on {shortDate(match.transaction.date)} · earns {money(match.cashback)}
       </span>
     );
-  return <span className="text-xs font-medium text-faint">No matching purchase yet. Pay with PayPal at {merchant} to earn it.</span>;
+  if (kind === "Added") return <span className="text-xs font-medium text-accent">Added · pay with PayPal at {o.merchant} by {shortDate(o.validUntil)} to earn it</span>;
+  return <span className="text-xs font-medium text-faint">Add it, then pay with PayPal at {o.merchant} to earn it.</span>;
 }
 
 function OfferDrawer({ offer: o, kind, match, onAdd, onClose }: { offer: Offer; kind: Kind; match: { transaction: Transaction; cashback: number } | null; onAdd: () => void; onClose: () => void }) {
@@ -205,12 +225,12 @@ function OfferDrawer({ offer: o, kind, match, onAdd, onClose }: { offer: Offer; 
         </div>
         <Avatar name={o.merchant} size={56} />
       </div>
-      <Pill tone={kind === "Earned" ? "pos" : kind === "Expired" ? "neu" : match ? "acc" : "neu"} className="self-start">
-        {kind === "Available" ? (match ? "Ready to add" : "Available") : kind}
+      <Pill tone={kind === "Earned" ? "pos" : kind === "Pending" ? "warn" : kind === "Expired" ? "neu" : "acc"} className="self-start">
+        {match ? "Matches a purchase" : kind}
       </Pill>
-      {kind === "Available" && match && (
-        <Btn kind="primary" onClick={onAdd}>
-          Add offer · {money(match.cashback)} back
+      {(kind === "Available" || kind === "Added") && (
+        <Btn kind={kind === "Added" && !match ? "secondary" : "primary"} onClick={onAdd}>
+          {match ? `Apply offer · ${money(match.cashback)} back` : kind === "Added" ? "Remove offer" : "Add offer"}
         </Btn>
       )}
       <Panel>

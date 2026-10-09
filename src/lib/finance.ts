@@ -139,7 +139,7 @@ export function upcomingCharges(recurring: RecurringPayment[], asOf: string, day
 
 /** Cashback an offer would pay on a transaction, or null if ineligible. */
 export function offerCashback(offer: Offer, t: Transaction): number | null {
-  if (offer.status !== "available") return null;
+  if (offer.status !== "available" && offer.status !== "added") return null;
   if (t.merchant !== offer.merchant || !isSpend(t) || t.appliedOfferId) return null;
   const d = t.date.slice(0, 10);
   if (d < offer.validFrom || d > offer.validUntil) return null;
@@ -152,7 +152,7 @@ export function offerCashback(offer: Offer, t: Transaction): number | null {
 /** Best eligible transaction for each available offer (highest cashback, then most recent). */
 export function eligibleOffers(state: Pick<FinanceState, "offers" | "transactions">) {
   return state.offers
-    .filter((o) => o.status === "available")
+    .filter((o) => o.status === "available" || o.status === "added")
     .map((offer) => {
       let best: { transaction: Transaction; cashback: number } | null = null;
       for (const t of state.transactions) {

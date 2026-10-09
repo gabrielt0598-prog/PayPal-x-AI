@@ -95,7 +95,11 @@ export interface Offer {
   maxCashback?: number;
   validFrom: ISODate;
   validUntil: ISODate;
-  status: "available" | "applied" | "expired";
+  /** available → added (saved, waiting for a purchase) → pending (cash back on its way) → applied (paid out). */
+  status: "available" | "added" | "pending" | "applied" | "expired";
+  /** Pending offers only: cash back owed and the day it posts to the balance. */
+  pendingCashback?: number;
+  postsOn?: ISODate;
   appliedToTransactionId?: string;
 }
 

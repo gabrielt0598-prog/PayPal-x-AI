@@ -51,7 +51,7 @@ export function dataMonths(s: FinanceState) {
     .reverse();
 }
 
-export const CAT_COLORS = ["var(--chart)", "#e8833a", "#22a06b", "#a46ee8", "#d4a72c", "#e5577a", "#8a8f98"];
+export const CAT_COLORS = ["#3d8bff", "#e8833a", "#22a06b", "#a46ee8", "#d4a72c", "#e5577a", "#8a8f98"];
 
 /** Top 6 categories + Other for a month, with change vs the previous month. */
 export function monthCategories(s: FinanceState, ym: string) {

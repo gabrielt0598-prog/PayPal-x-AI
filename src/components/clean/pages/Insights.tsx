@@ -97,7 +97,7 @@ export function InsightsPage() {
         </div>
         <div className="flex flex-wrap items-center gap-10">
           <Donut
-            parts={d.cats.rows.map((r, i) => ({ value: r.spend, color: CAT_COLORS[i] }))}
+            parts={d.cats.rows.map((r, i) => ({ label: r.name, value: r.spend, color: CAT_COLORS[i] }))}
             size={308}
             center={money0(d.cats.total)}
             sub={`spent in ${monthShort(ym)}`}

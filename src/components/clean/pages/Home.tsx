@@ -8,7 +8,7 @@ import type { Transaction } from "@/lib/types";
 import { useClean } from "../AppState";
 import { Bars, CompareLine } from "../charts";
 import { asOfDate, cashbackIn, cumulative, daysInMonth, monthTotals, prevYm, ymOf } from "../data";
-import { TxDrawer, TxRows } from "../TxTable";
+import { TxDrawer, TxGrid } from "../TxTable";
 import { amt, Avatar, Btn, Card, daysUntil, IconTile, Modal, money, monthName, monthShort, Page, Pill, Section, Segmented, shortDate, Skeleton } from "../ui";
 
 const RANGES = ["Month", "3M", "Year"] as const;
@@ -100,7 +100,7 @@ export function HomePage() {
                 USD · Debit card ••{p.card.last4}
               </button>
               <div className="-mx-5 mt-4">
-                <TxRows rows={d.recent} selected={sel?.id} onOpen={setSel} />
+                <TxGrid rows={d.recent} selected={sel?.id} onOpen={setSel} />
                 <div className="px-5 pb-3 pt-1.5">
                   <Btn kind="link" onClick={() => go("transactions")}>
                     See all transactions →

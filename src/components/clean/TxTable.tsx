@@ -1,38 +1,74 @@
 "use client";
 
-// Transaction rows (Merchant | Date | Category | Amount) and the details drawer.
+// Transactions table (AG Grid: Merchant | Date | Category | Amount) and the details drawer.
 
+import { useMemo } from "react";
+import type { CellClassParams, ColDef, ICellRendererParams } from "ag-grid-community";
 import { Sparkles } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import { METHOD_LABEL } from "./format";
 import type { Transaction } from "@/lib/types";
-import { amt, Avatar, Btn, cx, Drawer, GRID4, KV, money, Panel, Pill, shortDate, TableHead } from "./ui";
+import { Grid } from "./Grid";
+import { amt, Avatar, Btn, cx, Drawer, KV, money, Panel, Pill, shortDate } from "./ui";
 
-export function TxRows({ rows, selected, onOpen }: { rows: Transaction[]; selected?: string | null; onOpen: (t: Transaction) => void }) {
+function txCols(selected?: string | null): ColDef<Transaction>[] {
+  const cols: ColDef<Transaction>[] = [
+  {
+    field: "merchant",
+    headerName: "Merchant",
+    flex: 2,
+    minWidth: 180,
+    getQuickFilterText: (p) => `${p.data?.merchant} ${p.data?.description}`,
+    cellRenderer: ({ data }: ICellRendererParams<Transaction>) =>
+      data ? (
+        <span className="flex h-full min-w-0 items-center gap-3">
+          <Avatar name={data.merchant} />
+          <span className="truncate">{data.merchant}</span>
+        </span>
+      ) : null,
+  },
+  { field: "date", headerName: "Date", flex: 1, minWidth: 90, sort: "desc", cellClass: "text-muted !text-sm", valueFormatter: (p) => (p.value ? shortDate(p.value as string) : "") },
+  {
+    field: "category",
+    headerName: "Category",
+    flex: 1,
+    minWidth: 120,
+    cellRenderer: ({ data }: ICellRendererParams<Transaction>) =>
+      data ? (
+        <span className="flex h-full min-w-0 items-center gap-2 text-sm">
+          <span className="truncate">{data.category}</span>
+          {data.status === "pending" && <Pill tone="warn">Pending</Pill>}
+        </span>
+      ) : null,
+  },
+  {
+    field: "amount",
+    headerName: "Amount",
+    flex: 1,
+    minWidth: 100,
+    cellClass: (p) => cx("num", (p.value as number) > 0 && "!text-positive"),
+    valueFormatter: (p) => amt(p.value as number),
+  },
+  ];
+  return cols.map((c) => ({ ...c, cellClassRules: { "!bg-accent-bg": (p: CellClassParams<Transaction>) => !!selected && p.data?.id === selected } }));
+}
+
+/** Transactions table on AG Grid: sortable columns, quick filter, optional pagination. */
+export function TxGrid({ rows, selected, onOpen, quickFilter, pageSize }: { rows: Transaction[]; selected?: string | null; onOpen: (t: Transaction) => void; quickFilter?: string; pageSize?: number }) {
+  const columnDefs = useMemo(() => txCols(selected), [selected]);
   return (
-    <div role="table" aria-label="Transactions">
-      <TableHead cols={["Merchant", "Date", "Category", "Amount"]} />
-      {rows.map((t) => (
-        <button
-          key={t.id}
-          type="button"
-          role="row"
-          onClick={() => onOpen(t)}
-          className={cx(GRID4, "w-full py-[13px] text-left transition", selected === t.id ? "bg-accent-bg" : "hover:bg-white/[0.03]")}
-        >
-          <span className="flex min-w-0 items-center gap-3">
-            <Avatar name={t.merchant} />
-            <span className="truncate text-[15px]">{t.merchant}</span>
-          </span>
-          <span className="text-sm text-muted">{shortDate(t.date)}</span>
-          <span className="flex min-w-0 items-center gap-2 text-sm">
-            <span className="truncate">{t.category}</span>
-            {t.status === "pending" && <Pill tone="warn">Pending</Pill>}
-          </span>
-          <span className={cx("num text-[15px]", t.amount > 0 && "text-positive")}>{amt(t.amount)}</span>
-        </button>
-      ))}
-    </div>
+    <Grid<Transaction>
+      rowData={rows}
+      columnDefs={columnDefs}
+      getRowId={(p) => p.data.id}
+      quickFilterText={quickFilter}
+      onRowClicked={(e) => e.data && onOpen(e.data)}
+      rowClass="cursor-pointer"
+      pagination={!!pageSize}
+      paginationPageSize={pageSize}
+      paginationPageSizeSelector={pageSize ? [pageSize, 50, 100] : undefined}
+      overlayNoRowsTemplate='<span style="color:#a1a1a1;font-size:14px">No transactions match these filters.</span>'
+    />
   );
 }
 

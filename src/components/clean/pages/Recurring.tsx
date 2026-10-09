@@ -1,12 +1,14 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState } from "react";
+import type { CellClassParams, ColDef, ICellRendererParams } from "ag-grid-community";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, House, Play, Repeat, ShieldCheck, Sparkles } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import { monthlyCost, recurringSummary, unusedSubscriptions } from "@/lib/finance";
 import type { RecurringPayment } from "@/lib/types";
 import { asOfDate, daysInMonth, ymOf } from "../data";
-import { Avatar, Btn, Card, cx, Drawer, GRID4, KV, money, monthName, Page, Panel, Pill, Section, shortDate, Skeleton, TableHead } from "../ui";
+import { Grid } from "../Grid";
+import { Avatar, Btn, Card, cx, Drawer, KV, money, monthName, Page, Panel, Pill, Section, shortDate, Skeleton } from "../ui";
 
 const CHANNEL = {
   paypal_subscriptions_api: "PayPal Subscriptions API",
@@ -82,18 +84,12 @@ export function RecurringPage() {
         <div className="flex min-w-0 flex-col gap-5">
           <Section title="Subscriptions" aside={<Pill>{subsActive.length}</Pill>}>
             <Card flush>
-              <TableHead cols={["Name", "Next charge", "Plan", "Amount"]} />
-              {d.subs.map((r) => (
-                <Row key={r.id} r={r} selected={sel?.id === r.id} onOpen={setSel} col3={r.plan} badge={d.unused.has(r.id) ? <Pill tone="warn">Unused 30d+</Pill> : null} />
-              ))}
+              <RecurringGrid rows={d.subs} third="Plan" unused={d.unused} selected={sel?.id} onOpen={setSel} />
             </Card>
           </Section>
           <Section title="Bills" aside={<Pill>{d.bills.length}</Pill>}>
             <Card flush>
-              <TableHead cols={["Name", "Next charge", "Category", "Amount"]} />
-              {d.bills.map((r) => (
-                <Row key={r.id} r={r} selected={sel?.id === r.id} onOpen={setSel} col3={r.category} />
-              ))}
+              <RecurringGrid rows={d.bills} third="Category" unused={d.unused} selected={sel?.id} onOpen={setSel} />
             </Card>
           </Section>
         </div>
@@ -198,26 +194,48 @@ export function RecurringPage() {
   );
 }
 
-function Row({ r, selected, onOpen, col3, badge }: { r: RecurringPayment; selected: boolean; onOpen: (r: RecurringPayment) => void; col3: string; badge?: ReactNode }) {
-  const cancelled = r.status === "cancelled";
-  return (
-    <button type="button" onClick={() => onOpen(r)} className={cx(GRID4, "w-full py-[13px] text-left transition", selected ? "bg-accent-bg" : "hover:bg-white/[0.03]", cancelled && "opacity-60")}>
-      <span className="flex min-w-0 items-center gap-3">
-        <Avatar name={r.merchant} />
-        <span className="flex min-w-0 flex-col">
-          <span className={cx("truncate text-[15px]", cancelled && "line-through")}>{r.merchant}</span>
-          {badge}
-        </span>
-      </span>
-      <span className="text-sm text-muted">{cancelled ? "Cancelled" : r.cycle === "weekly" ? "Weekly" : shortDate(r.nextChargeDate)}</span>
-      <span className="truncate text-sm">{col3}</span>
-      <span className="num text-[15px]">
-        {r.kind === "variable" ? "~" : ""}
-        {money(r.amount)}
-        {r.cycle === "weekly" ? "/wk" : ""}
-      </span>
-    </button>
-  );
+/** Subscriptions / bills table on AG Grid; sortable by name, next charge and amount. */
+function RecurringGrid({ rows, third, unused, selected, onOpen }: { rows: RecurringPayment[]; third: "Plan" | "Category"; unused: Set<string>; selected?: string; onOpen: (r: RecurringPayment) => void }) {
+  const columnDefs = useMemo<ColDef<RecurringPayment>[]>(() => {
+    const sel = { "!bg-accent-bg": (p: CellClassParams<RecurringPayment>) => !!selected && p.data?.id === selected };
+    const cols: ColDef<RecurringPayment>[] = [
+      {
+        field: "merchant",
+        headerName: "Name",
+        flex: 2,
+        minWidth: 170,
+        cellRenderer: ({ data: r }: ICellRendererParams<RecurringPayment>) =>
+          r ? (
+            <span className={cx("flex h-full min-w-0 items-center gap-3", r.status === "cancelled" && "opacity-60")}>
+              <Avatar name={r.merchant} />
+              <span className="flex min-w-0 flex-col items-start leading-tight">
+                <span className={cx("truncate", r.status === "cancelled" && "line-through")}>{r.merchant}</span>
+                {unused.has(r.id) && <Pill tone="warn">Unused 30d+</Pill>}
+              </span>
+            </span>
+          ) : null,
+      },
+      {
+        field: "nextChargeDate",
+        headerName: "Next charge",
+        flex: 1,
+        minWidth: 100,
+        cellClass: "text-muted !text-sm",
+        valueFormatter: (p) => (!p.data ? "" : p.data.status === "cancelled" ? "Cancelled" : p.data.cycle === "weekly" ? "Weekly" : shortDate(p.value as string)),
+      },
+      { field: third === "Plan" ? "plan" : "category", headerName: third, flex: 1, minWidth: 110, cellClass: "!text-sm" },
+      {
+        field: "amount",
+        headerName: "Amount",
+        flex: 1,
+        minWidth: 100,
+        cellClass: "num",
+        valueFormatter: (p) => (p.data ? `${p.data.kind === "variable" ? "~" : ""}${money(p.value as number)}${p.data.cycle === "weekly" ? "/wk" : ""}` : ""),
+      },
+    ];
+    return cols.map((c) => ({ ...c, cellClassRules: sel }));
+  }, [third, unused, selected]);
+  return <Grid<RecurringPayment> rowData={rows} columnDefs={columnDefs} getRowId={(p) => p.data.id} onRowClicked={(e) => e.data && onOpen(e.data)} rowClass="cursor-pointer" />;
 }
 
 function PaymentDrawer({ r, unused, today, onClose }: { r: RecurringPayment; unused: boolean; today: string; onClose: () => void }) {

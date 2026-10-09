@@ -40,7 +40,9 @@ integration to live mode; the dashboard's integrations widget shows which are li
 | Concern | Choice |
 |---|---|
 | App | Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4 |
-| UI | Clean design system: Tailwind tokens + SVG charts (`src/components/clean/`) |
+| UI | Clean design system: Tailwind tokens + primitives (`src/components/clean/`) |
+| Transactions and recurring tables | AG Grid Community (`ag-grid-react`), themed to the Clean design |
+| Spending line, bar and donut charts | AG Charts Community (`ag-charts-react`), themed to the Clean design |
 | Assistant | Claude via `@anthropic-ai/sdk` — default `claude-haiku-5-5` (`ANTHROPIC_MODEL`) |
 | Guardrails & categorisation | TypeSafe Jev via `@typesafe-ai/sdk` + deterministic figure checks |
 | Money data | APIMatic-generated PayPal Server SDK (`@paypal/paypal-server-sdk`) |
@@ -79,6 +81,7 @@ src/
     api/agent                POST chat → Claude tool loop → Jev guardrail
     api/{paypal,jev,kernel,zapier,memory,demo,integrations}/…
     api/demo/move-money      Add money / Transfer / rewards cash-out / Store Sync reorder
+    api/demo/offers          add or remove an offer (Added state)
   components/
     clean/                   Clean design: side panel, pages, charts, UI primitives
     assistant/               PayPal AI drawer (⌘K), citations, action cards

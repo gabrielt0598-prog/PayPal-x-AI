@@ -7,7 +7,7 @@ import { categoryBreakdown, isSpend } from "@/lib/finance";
 import type { Category, Transaction } from "@/lib/types";
 import { Bars, type Bar } from "../charts";
 import { asOfDate, incomeOut, monthTotals, prevYm, ymOf } from "../data";
-import { TxDrawer, TxRows } from "../TxTable";
+import { TxDrawer, TxGrid } from "../TxTable";
 import { Btn, Card, cx, money, monthName, monthShort, Page, Section, Segmented, shortDate, Skeleton } from "../ui";
 
 const RANGES = ["1M", "3M", "All"] as const;
@@ -28,7 +28,6 @@ export function TransactionsPage() {
   const [date, setDate] = useState<DateId>("all");
   const [cats, setCats] = useState<Category[]>([]);
   const [menu, setMenu] = useState<"date" | "cat" | null>(null);
-  const [limit, setLimit] = useState(40);
   const [sel, setSel] = useState<Transaction | null>(null);
 
   const d = useMemo(() => {
@@ -179,15 +178,7 @@ export function TransactionsPage() {
         </Menu>
       </div>
       <Card flush>
-        <TxRows rows={d.rows.slice(0, limit)} selected={sel?.id} onOpen={setSel} />
-        {d.rows.length === 0 && <p className="px-5 py-6 text-sm text-muted">No transactions match these filters.</p>}
-        {d.rows.length > limit && (
-          <div className="px-5 pb-3 pt-1.5">
-            <Btn kind="link" onClick={() => setLimit((l) => l + 40)}>
-              Show more ({d.rows.length - limit} left) →
-            </Btn>
-          </div>
-        )}
+        <TxGrid rows={d.rows} selected={sel?.id} onOpen={setSel} pageSize={20} />
       </Card>
       {sel && <TxDrawer tx={sel} onClose={() => setSel(null)} />}
     </Page>
