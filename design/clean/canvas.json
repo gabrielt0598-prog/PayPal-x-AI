@@ -1,0 +1,65 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Prototype-Clean.dc.html": {
+      "expand": "fill",
+      "h": 875,
+      "is_interactive": true,
+      "title": "★ Clean · interactive prototype (docked side panel + AI drawer)",
+      "w": 1400,
+      "x": 0,
+      "y": 0
+    },
+    "ProtoClean.dc.html": {
+      "expand": "fill",
+      "h": 875,
+      "is_interactive": true,
+      "title": "Component · Clean prototype (used by the clean frame)",
+      "w": 1400,
+      "x": 0,
+      "y": 1240
+    },
+    "Icon.dc.html": {
+      "h": 40,
+      "title": "Component · Icon",
+      "w": 40,
+      "x": 1480,
+      "y": 1240
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-08T17:19:05Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "focused",
+    "file": "Prototype-Clean.dc.html"
+  },
+  "notes": {
+    "s0": {
+      "fill": "green",
+      "size": 24,
+      "w": 480,
+      "x": -560,
+      "y": 0,
+      "text": "★ Clean is the live prototype. Press Play. Earlier variations, flows and chat explorations moved to the design archive canvas: https://claude.ai/artifact/3vg9hQFaoBJtCFqjrvYM4h"
+    },
+    "t1": {
+      "kind": "title1",
+      "maxW": 3000,
+      "text": "Shared components",
+      "w": 240,
+      "x": 0,
+      "y": 980
+    }
+  },
+  "order": [
+    "Prototype-Clean.dc.html",
+    "ProtoClean.dc.html",
+    "Icon.dc.html"
+  ],
+  "pages": [],
+  "title": "PayPal × AI — User flows v2"
+}
