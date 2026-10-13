@@ -145,3 +145,21 @@ export function moveMoney(kind: MoneyMove, amount: number, merchant?: string) {
     status: kind === "purchase" ? "pending" : "completed",
   });
 }
+
+
+// ---------- card controls (mock: PayPal exposes no public freeze / dispute API) ----------
+
+export function setCardFrozen(frozen: boolean) {
+  const card = getState().userProfile.card;
+  card.frozen = frozen;
+  return { frozen: card.frozen === true, last4: card.last4 };
+}
+
+let claimSeq = 0;
+
+/** Freezes the card, files an unauthorized-transaction claim and orders a replacement card. */
+export function reportUnauthorizedCharge(merchant: string, amount: number) {
+  const { last4 } = setCardFrozen(true);
+  claimSeq += 1;
+  return { last4, merchant, amount: Math.abs(amount), claimId: `PP-U-${77310 + claimSeq - 1}`, replacementDays: "5 to 7" };
+}

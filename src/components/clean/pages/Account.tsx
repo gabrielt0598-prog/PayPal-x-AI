@@ -35,12 +35,13 @@ function liveOf(v: unknown): boolean | null {
 }
 
 export function AccountPage() {
-  const { state, loading } = useFinance();
+  const { state, loading, refresh } = useFinance();
   const { rewards, toast } = useClean();
   const [show, setShow] = useState(false);
-  const [frozen, setFrozen] = useState(false);
+  const frozen = state?.userProfile.card.frozen === true;
   const [facts, setFacts] = useState<MemoryFact[] | null>(null);
   const [status, setStatus] = useState<Record<string, unknown> | null>(null);
+  const [sandbox, setSandbox] = useState<{ balance: number; mode: string } | null>(null);
 
   const loadFacts = useCallback(() => {
     fetch(`/api/memory?sessionId=${encodeURIComponent(sessionId())}`, { cache: "no-store" })
@@ -55,6 +56,11 @@ export function AccountPage() {
       .then((r) => (r.ok ? r.json() : null))
       .then(setStatus)
       .catch(() => setStatus(null));
+    // A live read through the PayPal Server SDK (Transaction Search), so the page shows the integration working.
+    fetch("/api/paypal/balance", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((b: { balance?: number; mode?: string } | null) => setSandbox(b && typeof b.balance === "number" ? { balance: b.balance, mode: String(b.mode) } : null))
+      .catch(() => setSandbox(null));
   }, [loadFacts]);
 
   if (loading || !state) return <Skeleton className="mx-auto h-[600px] w-full max-w-[1600px]" />;
@@ -105,9 +111,16 @@ export function AccountPage() {
               </Btn>
               <Btn
                 className="flex-1"
-                onClick={() => {
-                  setFrozen(!frozen);
-                  toast(frozen ? "Card unfrozen" : "Card frozen", frozen ? "Purchases work again" : "New purchases and ATM withdrawals are declined");
+                onClick={async () => {
+                  const next = !frozen;
+                  try {
+                    const res = await fetch("/api/demo/card", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ frozen: next }) });
+                    if (!res.ok) throw new Error(String(res.status));
+                    await refresh();
+                    toast(next ? "Card frozen" : "Card unfrozen", next ? "New purchases and ATM withdrawals are declined" : "Purchases work again", { kind: next ? "warn" : "success" });
+                  } catch {
+                    toast("Something went wrong", "The card was not changed", { kind: "warn" });
+                  }
                 }}
               >
                 <Snowflake size={16} /> {frozen ? "Unfreeze card" : "Freeze card"}
@@ -115,7 +128,6 @@ export function AccountPage() {
             </div>
             <Panel>
               <KV first k="Cash back" v={`5% on ${rewards.cat} this month`} />
-              <KV k="Daily spending limit" v="$3,000" />
               <KV k="ATM withdrawals" v="$400 per day" />
             </Panel>
           </Card>
@@ -187,7 +199,9 @@ export function AccountPage() {
                 <div key={key} className={cx("flex items-center gap-3 px-5 py-3.5", i && "border-t border-border")}>
                   <span className="flex flex-1 flex-col">
                     <span className="text-[15px]">{label}</span>
-                    <span className="text-[13px] text-faint">{sub}</span>
+                    <span className="text-[13px] text-faint">
+                      {key === "paypal" && sandbox?.mode === "live" ? `Live sandbox balance ${money(sandbox.balance)} read through the SDK` : sub}
+                    </span>
                   </span>
                   <Pill tone={live === null ? "neu" : live ? "pos" : "warn"}>{live === null ? "Unknown" : live ? "Live" : "Sample data"}</Pill>
                 </div>

@@ -120,6 +120,8 @@ export interface UserProfile {
   card: {
     product: "PayPal Debit Mastercard";
     last4: string;
+    /** Demo state: a frozen card declines new purchases. Mock-only; PayPal has no public freeze API. */
+    frozen?: boolean;
   };
   autoReload: {
     enabled: boolean;

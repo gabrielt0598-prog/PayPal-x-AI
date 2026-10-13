@@ -19,7 +19,7 @@ import {
   spendByYear,
   unusedSubscriptions,
 } from "@/lib/finance";
-import { applyOffer, cancelRecurring, getState, recategorize } from "@/lib/store";
+import { applyOffer, cancelRecurring, getState, recategorize, reportUnauthorizedCharge, setCardFrozen } from "@/lib/store";
 import { jev, kernel, memory, paypal } from "@/lib/services";
 import { CATEGORIES, type Category, type RecurringPayment, type Transaction } from "@/lib/types";
 import type { IntentResult } from "@/lib/services/contracts";
@@ -122,6 +122,22 @@ export const TOOLS: Anthropic.Tool[] = [
       type: "object",
       properties: { recurring_id: { type: "string" }, confirmed: { type: "boolean" } },
       required: ["recurring_id", "confirmed"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "freeze_card",
+    description: "Freeze or unfreeze the user's PayPal Debit Card. A frozen card declines new purchases; the PayPal balance still works online with PayPal Checkout. Demo-only: this is a mock card control.",
+    input_schema: { type: "object", properties: { frozen: { type: "boolean", description: "true to freeze, false to unfreeze" } }, required: ["frozen"], additionalProperties: false },
+  },
+  {
+    name: "report_unauthorized_charge",
+    description:
+      "The user says a card charge was not theirs. Acts immediately: freezes the Debit Card, files an unauthorized-transaction claim and orders a replacement card, then reports each step. Use when the user says 'that wasn't me', 'I didn't make this charge' or reports fraud. Demo-only: the claim and replacement card are mocked.",
+    input_schema: {
+      type: "object",
+      properties: { merchant: { type: "string" }, amount: { type: "number", description: "Charge amount in USD, positive" } },
+      required: ["merchant", "amount"],
       additionalProperties: false,
     },
   },
@@ -735,6 +751,41 @@ async function forgetFact(input: Record<string, unknown>, ctx: ToolContext): Pro
   return { summary: ok ? `Forgot ${key}.` : `I had no remembered fact called ${key}.`, forgotten: ok };
 }
 
+async function freezeCard(input: Record<string, unknown>): Promise<ToolOutput> {
+  const frozen = input.frozen === true;
+  const r = setCardFrozen(frozen);
+  return {
+    summary: frozen
+      ? `Your PayPal Debit Card ••${r.last4} is frozen. New purchases are declined until you unfreeze it, and your PayPal balance still works online with PayPal Checkout. Mock card control.`
+      : `Your PayPal Debit Card ••${r.last4} is active again. Mock card control.`,
+    frozen: r.frozen,
+    last4: r.last4,
+  };
+}
+
+async function reportUnauthorized(input: Record<string, unknown>, ctx: ToolContext): Promise<ToolOutput> {
+  const merchant = typeof input.merchant === "string" && input.merchant.trim() ? input.merchant.trim() : "Unknown merchant";
+  const amount = Number(input.amount);
+  if (!Number.isFinite(amount) || amount <= 0) return { summary: "I need the charge amount to file a claim.", error: "invalid_amount" };
+  const r = reportUnauthorizedCharge(merchant, amount);
+  const money = formatUSD(r.amount);
+  ctx.actions.push({
+    type: "steps_completed",
+    steps: [
+      { title: `Debit card ••${r.last4} frozen`, sub: "The card can’t be used until you unfreeze it", status: "Done" },
+      { title: "Unauthorized transaction claim", sub: `${money} at ${r.merchant} · Case **${r.claimId}**`, status: "Submitted" },
+      { title: "Replacement card ordered", sub: `New card number · arrives in **${r.replacementDays} days**`, status: "Ordered" },
+    ],
+  });
+  return {
+    summary: `Done. I froze your Debit Card ••${r.last4}, filed an unauthorized transaction claim for ${money} at ${r.merchant} (case ${r.claimId}) and ordered a replacement card that arrives in ${r.replacementDays} days. Your PayPal balance still works online with PayPal Checkout. Mock: no real card was frozen.`,
+    claimId: r.claimId,
+    amount: money,
+    merchant: r.merchant,
+    last4: r.last4,
+  };
+}
+
 export async function executeTool(name: string, rawInput: unknown, ctx: ToolContext): Promise<ToolOutput> {
   const input = obj(rawInput);
   let output: ToolOutput;
@@ -746,6 +797,8 @@ export async function executeTool(name: string, rawInput: unknown, ctx: ToolCont
       case "categorize_transactions": output = await categorizeTransactions(input, ctx); break;
       case "list_recurring": output = await listRecurring(input); break;
       case "cancel_subscription": output = await cancelSubscription(input, ctx); break;
+      case "freeze_card": output = await freezeCard(input); break;
+      case "report_unauthorized_charge": output = await reportUnauthorized(input, ctx); break;
       case "list_offers": output = await listOffers(); break;
       case "apply_offer": output = await applyOfferTool(input, ctx); break;
       case "what_if": output = await whatIf(input, ctx); break;

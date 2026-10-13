@@ -43,6 +43,17 @@ export async function mockAgent(ctx: ToolContext): Promise<string> {
     }
   }
 
+  // 1a. Card controls: fraud report ("that wasn't me") or freeze / unfreeze.
+  if (/wasn.?t me|not me\b|didn.?t (make|authori[sz]e)|unauthori[sz]ed|fraud/i.test(lower)) {
+    const amount = parseSalary(m);
+    const merchant = m.match(/(?:from|by|at)?\s*([A-Z][\w&'.-]*(?:\s+[A-Z][\w&'.-]*)*)\s+charged/)?.[1] ?? m.match(/\bat\s+([A-Z][\w&'.-]*(?:\s+[A-Z][\w&'.-]*)*)/)?.[1];
+    if (amount !== undefined && merchant) return cite(await call("report_unauthorized_charge", { merchant, amount }));
+    return "I can freeze your card and file a claim right away. Which charge wasn't you? Tell me the merchant and the amount.";
+  }
+  if (/\b(freeze|lock|unfreeze|unlock)\b.*\bcard\b|\bcard\b.*\b(freeze|lock|unfreeze|unlock)\b/i.test(lower)) {
+    return cite(await call("freeze_card", { frozen: !/unfreeze|unlock/i.test(lower) }));
+  }
+
   // 1b. What-if projections.
   if (/what if|what happens if|\bwhat would happen\b/i.test(lower)) {
     const amount = /\b(buy|bought|purchase|spend|get)\b|laptop|\$\s*\d/i.test(lower) ? parseSalary(m) : undefined;
