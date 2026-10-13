@@ -301,7 +301,7 @@ export function EssentialsPage() {
                     <Wallet size={18} className="shrink-0 text-accent" />
                     <span className="flex min-w-0 flex-col">
                       <span className="text-[13px] font-medium">PayPal balance</span>
-                      <span className="block truncate text-xs text-faint">{balance !== undefined ? `${money(balance)} · ` : ""}backup Chase ••7712</span>
+                      <span className="block truncate text-xs text-faint">{balance !== undefined ? `${money(balance)} · ` : ""}backup Northwind ••7712</span>
                     </span>
                   </div>
                   <div className="flex min-w-0 flex-col justify-center rounded-[10px] border border-border px-3 py-2.5">

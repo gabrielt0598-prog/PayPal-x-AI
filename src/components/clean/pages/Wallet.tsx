@@ -53,9 +53,9 @@ export function WalletPage() {
 
   const PMS: PM[] = [
     { id: "chase", kind: "bank", n: bankName, sub: `••${bankEnd} · auto-reload source`, rows: [["Type", "Checking account"], ["Account ending", bankEnd], ["Status", "Verified"], ["Linked", "Mar 14, 2025"]] },
-    { id: "ally", kind: "bank", n: "Ally Online Savings", sub: "••3390", rows: [["Type", "Savings account"], ["Account ending", "3390"], ["Status", "Verified"], ["Linked", "Aug 2, 2025"]] },
-    { id: "sapphire", kind: "card", n: "Chase Sapphire Preferred · Visa", sub: "Credit ••1123 · expires 04/28", rows: [["Type", "Visa credit card"], ["Card ending", "1123"], ["Expires", "04/28"], ["Status", "Verified"], ["Linked", "Jan 9, 2025"]] },
-    { id: "apple", kind: "card", n: "Apple Card · Mastercard", sub: "Credit ••6620 · expires 11/27", rows: [["Type", "Mastercard credit card"], ["Card ending", "6620"], ["Expires", "11/27"], ["Status", "Verified"], ["Linked", "Nov 21, 2025"]] },
+    { id: "ally", kind: "bank", n: "Lakeshore Online Savings", sub: "••3390", rows: [["Type", "Savings account"], ["Account ending", "3390"], ["Status", "Verified"], ["Linked", "Aug 2, 2025"]] },
+    { id: "sapphire", kind: "card", n: "Northwind Summit Preferred · Visa", sub: "Credit ••1123 · expires 04/28", rows: [["Type", "Visa credit card"], ["Card ending", "1123"], ["Expires", "04/28"], ["Status", "Verified"], ["Linked", "Jan 9, 2025"]] },
+    { id: "apple", kind: "card", n: "Orchard Card · Mastercard", sub: "Credit ••6620 · expires 11/27", rows: [["Type", "Mastercard credit card"], ["Card ending", "6620"], ["Expires", "11/27"], ["Status", "Verified"], ["Linked", "Nov 21, 2025"]] },
   ];
   const live = PMS.filter((m) => !gone[m.id]);
   const pmCur = live.find((m) => m.id === pmSel);
