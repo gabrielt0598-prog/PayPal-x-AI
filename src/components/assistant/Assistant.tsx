@@ -60,7 +60,7 @@ function getSessionId() {
 const uid = () => Math.random().toString(36).slice(2);
 
 /**
- * PayPal AI drawer. Docked between the side panel and the page on wide screens
+ * Stella drawer. Docked between the side panel and the page on wide screens
  * (the page stays visible and usable), full screen on phones. Talks to POST
  * /api/agent: Claude with tools over the PayPal data, every reply checked by Jev.
  */
@@ -162,13 +162,13 @@ export function Assistant() {
   const lastAssistantId = [...messages].reverse().find((m) => m.role === "assistant")?.id;
   const salary = memory.find((f) => /salary/i.test(f.key));
   const firstUser = messages.find((m) => m.role === "user")?.content;
-  const title = firstUser ? (firstUser.length > 40 ? `${firstUser.slice(0, 38)}…` : firstUser) : "PayPal AI";
+  const title = firstUser ? (firstUser.length > 40 ? `${firstUser.slice(0, 38)}…` : firstUser) : "Stella";
   const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
   const firstName = state?.userProfile.name.split(" ")[0] ?? "there";
 
   return (
     <aside
-      aria-label="PayPal AI"
+      aria-label="Stella"
       className="m-in-right fixed inset-0 z-40 flex flex-col overflow-hidden bg-surface lg:inset-y-2 lg:left-auto lg:right-2 lg:z-30 lg:w-[380px] lg:rounded-2xl lg:border lg:border-border-strong"
     >
       <header className="relative flex items-center gap-0.5 border-b border-border py-2.5 pl-4 pr-2">
@@ -206,7 +206,7 @@ export function Assistant() {
         >
           <SquarePen size={16} />
         </button>
-        <button type="button" onClick={closeAssistant} aria-label="Close PayPal AI" title="Close" className="flex size-8 items-center justify-center rounded-lg text-muted hover:bg-white/[0.06] hover:text-text">
+        <button type="button" onClick={closeAssistant} aria-label="Close Stella" title="Close" className="flex size-8 items-center justify-center rounded-lg text-muted hover:bg-white/[0.06] hover:text-text">
           <X size={18} />
         </button>
         {showMemory && (
@@ -286,7 +286,7 @@ export function Assistant() {
         className="mx-3 mb-3 flex items-center gap-2 rounded-[14px] border border-border-strong bg-surface-2 py-1.5 pl-3.5 pr-1.5 focus-within:border-accent/60"
       >
         <label htmlFor="ai-input" className="sr-only">
-          Message PayPal AI
+          Message Stella
         </label>
         <input
           id="ai-input"

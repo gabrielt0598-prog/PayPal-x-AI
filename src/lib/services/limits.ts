@@ -23,7 +23,7 @@ interface Rule {
 }
 
 const DEFAULTS: Record<Name, Rule> = {
-  agent: { perMin: 10, perDay: 80, globalPerDay: 1500, what: "PayPal AI messages" },
+  agent: { perMin: 10, perDay: 80, globalPerDay: 1500, what: "Stella messages" },
   kernel: { perMin: 2, perDay: 6, globalPerDay: 60, what: "cloud-browser cancellations" },
   jev: { perMin: 20, perDay: 200, globalPerDay: 2000, what: "fact-check requests" },
   paypal: { perMin: 60, perDay: 1000, globalPerDay: 20000, what: "PayPal requests" },

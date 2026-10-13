@@ -586,7 +586,7 @@
    "expand": "fill",
    "h": 875,
    "page": "flows",
-   "title": "3 \u00b7 Ask PayPal AI for suggested limits",
+   "title": "3 \u00b7 Ask Stella for suggested limits",
    "w": 1400,
    "x": 3120,
    "y": 16800
@@ -901,7 +901,7 @@
    "expand": "fill",
    "h": 875,
    "page": "flows",
-   "title": "2 \u00b7 Open PayPal AI \u00b7 starter prompts",
+   "title": "2 \u00b7 Open Stella \u00b7 starter prompts",
    "w": 1400,
    "x": 1560,
    "y": 0
@@ -1470,7 +1470,7 @@
    "kind": "title1",
    "maxW": 1400,
    "page": "dockai",
-   "text": "Bottom dock layout \u00b7 PayPal AI chat open",
+   "text": "Bottom dock layout \u00b7 Stella chat open",
    "w": 240,
    "x": 0,
    "y": -140
@@ -1487,7 +1487,7 @@
    "fill": "gray",
    "maxH": 875,
    "page": "flows",
-   "text": "Home is the starting point. PayPal AI opens beside the rail, not over the page, and answers with sources and next steps.\n\n1. Home\n2. Open PayPal AI \u00b7 starter prompts\n3. Ask \u00b7 answer with sources and actions",
+   "text": "Home is the starting point. Stella opens beside the rail, not over the page, and answers with sources and next steps.\n\n1. Home\n2. Open Stella \u00b7 starter prompts\n3. Ask \u00b7 answer with sources and actions",
    "w": 480,
    "x": -560,
    "y": 0
@@ -1514,7 +1514,7 @@
    "fill": "gray",
    "maxH": 875,
    "page": "flows",
-   "text": "The avatar at the bottom of the rail opens Settings: profile details, security, notification and PayPal AI preferences.\n\n1. Settings",
+   "text": "The avatar at the bottom of the rail opens Settings: profile details, security, notification and Stella preferences.\n\n1. Settings",
    "w": 480,
    "x": -560,
    "y": 15400
@@ -1523,7 +1523,7 @@
    "fill": "gray",
    "maxH": 875,
    "page": "flows",
-   "text": "Budget is a rail page with two sections, Essentials and Spending: editable amounts, an Add category button under each, and an x to remove a row (with a confirm dialog). A summary ring shows what is left. PayPal AI can suggest limits in chat or on the page; nothing changes until the user applies it.\n\n1. Budget\n2. AI suggestions\n3. Suggest in chat\n4. Applied\n5. Add a category\n6. Remove a category\n7. Category details",
+   "text": "Budget is a rail page with two sections, Essentials and Spending: editable amounts, an Add category button under each, and an x to remove a row (with a confirm dialog). A summary ring shows what is left. Stella can suggest limits in chat or on the page; nothing changes until the user applies it.\n\n1. Budget\n2. AI suggestions\n3. Suggest in chat\n4. Applied\n5. Add a category\n6. Remove a category\n7. Category details",
    "w": 480,
    "x": -560,
    "y": 16800
@@ -1532,7 +1532,7 @@
    "fill": "gray",
    "maxH": 875,
    "page": "flows",
-   "text": "Find, filter and understand any transaction. Charges PayPal AI can\u2019t categorise get a review prompt.\n\n1. Transactions \u00b7 chart and list\n2. Category filter menu\n3. Filtered to Dining\n4. Transaction details panel\n5. Change category \u00b7 picker\n6. Category saved \u00b7 toast\n7. Needs-review charge\n8. Page 2 of results",
+   "text": "Find, filter and understand any transaction. Charges Stella can\u2019t categorise get a review prompt.\n\n1. Transactions \u00b7 chart and list\n2. Category filter menu\n3. Filtered to Dining\n4. Transaction details panel\n5. Change category \u00b7 picker\n6. Category saved \u00b7 toast\n7. Needs-review charge\n8. Page 2 of results",
    "w": 480,
    "x": -560,
    "y": 2800
@@ -1541,7 +1541,7 @@
    "fill": "gray",
    "maxH": 875,
    "page": "flows",
-   "text": "PayPal AI\u2019s agent (Kernel) cancels in a secure cloud browser, only after the user approves, and leaves proof and an undo.\n\n1. Recurring \u00b7 subscriptions and bills\n2. Subscription details panel\n3. Confirm cancellation\n4. Kernel run \u00b7 live browser and steps\n5. Cancelled \u00b7 toast with Undo\n6. Cancelled state \u00b7 proof",
+   "text": "Stella\u2019s agent (Kernel) cancels in a secure cloud browser, only after the user approves, and leaves proof and an undo.\n\n1. Recurring \u00b7 subscriptions and bills\n2. Subscription details panel\n3. Confirm cancellation\n4. Kernel run \u00b7 live browser and steps\n5. Cancelled \u00b7 toast with Undo\n6. Cancelled state \u00b7 proof",
    "w": 480,
    "x": -560,
    "y": 4200
@@ -1622,7 +1622,7 @@
    "kind": "title1",
    "maxW": 7640,
    "page": "flows",
-   "text": "11. PayPal AI in context",
+   "text": "11. Stella in context",
    "w": 240,
    "x": 0,
    "y": 13740
@@ -1720,7 +1720,7 @@
   "p3intro": {
    "fill": "green",
    "page": "aictx",
-   "text": "AI in context: the PayPal AI panel working next to real screens. Each flow pairs a passive Read screen with an agentic Act conversation, then the result.",
+   "text": "AI in context: the Stella panel working next to real screens. Each flow pairs a passive Read screen with an agentic Act conversation, then the result.",
    "w": 480,
    "x": -560,
    "y": -260
@@ -1783,7 +1783,7 @@
    "kind": "title1",
    "maxW": 7640,
    "page": "aictx",
-   "text": "PayPal AI in context",
+   "text": "Stella in context",
    "w": 240,
    "x": 0,
    "y": -260

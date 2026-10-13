@@ -11,5 +11,5 @@ export default function PayPalReturn() {
     window.opener?.postMessage({ source: "paypal-approval", result, orderId: q.get("token") }, window.location.origin);
     window.close();
   }, []);
-  return <main className="flex min-h-dvh items-center justify-center text-sm text-muted">Returning to PayPal AI…</main>;
+  return <main className="flex min-h-dvh items-center justify-center text-sm text-muted">Returning to Stella…</main>;
 }

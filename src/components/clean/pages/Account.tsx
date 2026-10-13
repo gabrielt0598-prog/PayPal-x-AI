@@ -18,7 +18,7 @@ function sessionId() {
 
 const SERVICES = [
   ["paypal", "PayPal Server SDK", "Transactions, balance, subscriptions"],
-  ["anthropic", "Claude", "PayPal AI assistant"],
+  ["anthropic", "Claude", "Stella assistant"],
   ["jev", "TypeSafe Jev", "Fact-checks every reply"],
   ["kernel", "Kernel", "Cancels on merchant sites"],
 ] as const;
@@ -102,7 +102,7 @@ export function AccountPage() {
     { title: "Profile", rows: [{ label: "Name", value: p.name }, { label: "Email", value: p.email }, { label: "Phone", value: "•••• 0142" }, { label: "Address", value: "1458 Fell St", sub: "Used for deliveries from Essentials" }] },
     { title: "Security", rows: [{ label: "Password", value: "Changed 3 months ago" }, { label: "Two-step verification", key: "twoStep", sub: "Ask for a code when signing in on a new device" }, { label: "Face ID sign-in", key: "bio" }] },
     { title: "Notifications", rows: [{ label: "Push notifications", key: "push" }, { label: "Payment alerts", key: "pay", sub: "Every purchase over $25" }, { label: "Low balance alerts", key: "low", sub: "When your balance drops under $25" }, { label: "Offers and news", key: "news" }] },
-    { title: "PayPal AI", rows: [{ label: "Learn from my chats", key: "learn", sub: "Remember preferences you share to personalise answers" }, { label: "Actions", value: "Asks before acting", sub: "Cancellations, payments and disputes always need your approval" }] },
+    { title: "Stella", rows: [{ label: "Learn from my chats", key: "learn", sub: "Remember preferences you share to personalise answers" }, { label: "Actions", value: "Asks before acting", sub: "Cancellations, payments and disputes always need your approval" }] },
   ];
   const settingsRows = (rows: (typeof settings)[number]["rows"]) =>
     rows.map((r, i) => (
@@ -172,7 +172,7 @@ export function AccountPage() {
                       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                         <span className="text-xs text-faint">{factLabel(f.key)}</span>
                         <span className="text-sm">{f.value}</span>
-                        <span className="text-xs text-faint">{f.source === "user" ? "You added it" : "Saved by PayPal AI"}</span>
+                        <span className="text-xs text-faint">{f.source === "user" ? "You added it" : "Saved by Stella"}</span>
                       </span>
                       <Btn
                         small
@@ -192,12 +192,12 @@ export function AccountPage() {
                 </div>
               ))
             )}
-            {facts !== null && facts.length === 0 && <p className="py-4 text-sm leading-normal text-muted">Nothing yet. Tell PayPal AI something like “my salary is $75,000 a year” and it will use it in answers.</p>}
+            {facts !== null && facts.length === 0 && <p className="py-4 text-sm leading-normal text-muted">Nothing yet. Tell Stella something like “my salary is $75,000 a year” and it will use it in answers.</p>}
             <div className={cx("flex items-center gap-2 py-4", facts?.length && "border-t border-border")}>
               <input
                 aria-label="Add a note to Memory"
                 value={newMem}
-                placeholder="Add something for PayPal AI to remember"
+                placeholder="Add something for Stella to remember"
                 onChange={(e) => setNewMem(e.target.value.slice(0, 200))}
                 onKeyDown={(e) => e.key === "Enter" && saveNote()}
                 className="h-10 min-w-0 flex-1 rounded-[12px] border border-border-strong bg-surface-2 px-3.5 text-sm outline-none"

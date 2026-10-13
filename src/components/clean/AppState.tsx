@@ -61,7 +61,7 @@ const TOAST_COLORS: Record<ToastKind, [string, string, string, string, string]> 
 interface CleanState {
   page: PageId;
   go: (p: PageId) => void;
-  /** Rows PayPal AI just changed (page + ids): the page tints them and tags "Updated by PayPal AI" until you leave it. */
+  /** Rows Stella just changed (page + ids): the page tints them and tags "Updated by Stella" until you leave it. */
   flash: { page: PageId; ids: string[] } | null;
   flashChange: (page: PageId, ids: string[]) => void;
   toast: (title: string, sub?: string, opts?: ToastOpts) => void;

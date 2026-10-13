@@ -1,7 +1,7 @@
 "use client";
 
 // App frame for the Final design: the page fills the window, the bottom dock
-// floats over it, and the PayPal AI panel opens from the right over the page
+// floats over it, and the Stella panel opens from the right over the page
 // (the page makes room for it). The page area is a size container, so grids
 // stack to one column whenever the content gets narrow.
 
@@ -45,7 +45,7 @@ function Frame() {
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("motion") === "off") document.documentElement.dataset.motion = "off";
   }, []);
-  // Bring a row PayPal AI just changed into view.
+  // Bring a row Stella just changed into view.
   useEffect(() => {
     if (!flash) return;
     const id = requestAnimationFrame(() => document.querySelector(".m-ai-flash")?.scrollIntoView({ block: "center", behavior: "smooth" }));
@@ -56,7 +56,7 @@ function Frame() {
     closeRef.current = closeAssistant;
   }, [closeAssistant]);
 
-  // Alerts arrive as a chat bubble above the PayPal AI button. Pressing it opens
+  // Alerts arrive as a chat bubble above the Stella button. Pressing it opens
   // the panel and starts the conversation. Any part of the app can raise one with
   //   window.dispatchEvent(new CustomEvent("pfm:alert", { detail: { title, body, prompt } }))
   // and `/?alert=suspicious-charge` raises the demo alert for walkthroughs.

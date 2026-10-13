@@ -10,7 +10,7 @@
 //            SubscriptionsController.listSubscriptions       -> listRecurring
 //            SubscriptionsController.cancelSubscription      -> cancelSubscription
 //            SubscriptionsController.suspendSubscription / activateSubscription -> setSubscriptionPaused
-//            OrdersController.createOrder / captureOrder     -> createOrder / captureOrder (Essentials checkout, PayPal AI)
+//            OrdersController.createOrder / captureOrder     -> createOrder / captureOrder (Essentials checkout, Stella)
 //   mock = delegate to the in-memory store (src/lib/store.ts), seeded from src/lib/mock-data.ts.
 //
 // Every live call is wrapped: SDK errors (ApiError etc.) are logged without secrets and the call degrades to the
@@ -288,7 +288,7 @@ export const paypal: PayPalService = {
             paymentSource: {
               paypal: {
                 experienceContext: {
-                  brandName: "PayPal AI",
+                  brandName: "Stella",
                   userAction: PaypalExperienceUserAction.PayNow,
                   shippingPreference: PaypalWalletContextShippingPreference.NoShipping,
                   returnUrl,

@@ -108,7 +108,7 @@ export function BudgetRowView({ row, total, suggestion, flash, onOpen, onAccept 
       </button>
       <span className="flex min-w-0 flex-col items-start gap-1.5">
         <span className="flex h-10 items-center text-[15px]">{money(lim)}</span>
-        {flash && <span className="m-pop inline-flex h-[22px] items-center whitespace-nowrap rounded-full border border-accent/45 bg-accent-bg px-2.5 text-xs font-medium text-accent">✦ Updated by PayPal AI</span>}
+        {flash && <span className="m-pop inline-flex h-[22px] items-center whitespace-nowrap rounded-full border border-accent/45 bg-accent-bg px-2.5 text-xs font-medium text-accent">✦ Updated by Stella</span>}
         {suggestion !== undefined && onAccept && (
           <button type="button" onClick={onAccept} aria-label={`Use suggested ${money(suggestion)} for ${item.name}`} className="rounded-full bg-accent-bg px-2.5 py-1 text-xs font-medium text-accent">
             AI suggests {money(suggestion)}

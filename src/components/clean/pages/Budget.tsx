@@ -239,7 +239,7 @@ export function BudgetPage() {
           <Sparkles size={18} className="text-accent" />
           <span className="flex min-w-[240px] flex-1 flex-col gap-0.5">
             <span className="text-sm font-semibold">
-              {changed.length ? `PayPal AI suggests ${changed.length} change${changed.length === 1 ? "" : "s"} to your budget` : "Your budget already matches PayPal AI’s suggestions"}
+              {changed.length ? `Stella suggests ${changed.length} change${changed.length === 1 ? "" : "s"} to your budget` : "Your budget already matches Stella’s suggestions"}
             </span>
             <span className="text-[13px] text-muted">Based on your last 3 months. Nothing is saved until you apply it, and you can still edit any amount.</span>
           </span>

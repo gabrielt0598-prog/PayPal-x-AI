@@ -1,7 +1,7 @@
 "use client";
 
 // Bottom dock: a floating, blurred pill with the pages and the account, and a
-// round PayPal AI button beside it. The dock stays centred in the page; the AI
+// round Stella button beside it. The dock stays centred in the page; the AI
 // panel opens from the right over the page. An optional bubble above the AI
 // button announces an event (e.g. a suspicious charge); pressing it opens the
 // panel and starts the conversation.
@@ -28,7 +28,7 @@ export const NAV: [string, LucideIcon, PageId][] = [
 export interface DockBubble {
   title: string;
   body: string;
-  /** Prompt sent to PayPal AI when the bubble is pressed. */
+  /** Prompt sent to Stella when the bubble is pressed. */
   prompt: string;
 }
 
@@ -79,7 +79,7 @@ export function Dock({ bubble, onBubble }: { bubble?: DockBubble | null; onBubbl
                 onBubble?.();
                 openAssistant(bubble.prompt);
               }}
-              aria-label={`${bubble.title}. Open PayPal AI`}
+              aria-label={`${bubble.title}. Open Stella`}
               className="m-pop absolute bottom-[calc(100%+14px)] left-1/2 flex w-80 max-w-[calc(100vw-24px)] -translate-x-1/2 gap-3 rounded-[18px] border border-border-strong bg-surface-2 px-4 py-3.5 text-left shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
             >
               <StellaLogo />
@@ -98,8 +98,8 @@ export function Dock({ bubble, onBubble }: { bubble?: DockBubble | null; onBubbl
             type="button"
             onClick={toggleAssistant}
             aria-expanded={aiOpen}
-            aria-label="Ask PayPal AI"
-            title="Ask PayPal AI"
+            aria-label="Ask Stella"
+            title="Ask Stella"
             className={cx(
               "flex size-14 items-center justify-center rounded-full border backdrop-blur-[18px]",
               !aiOpen && "border-border-strong shadow-[0_12px_32px_rgba(0,0,0,0.45)]",

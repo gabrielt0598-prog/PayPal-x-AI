@@ -196,7 +196,7 @@ function PaymentTable({ title, count, rows, today, selected, onOpen }: { title: 
                   <span className="flex min-w-0 items-center gap-2">
                     <span className={cx("truncate text-[15px]", cancelled && "text-faint line-through")}>{r.merchant}</span>
                     {trial && <Pill tone="acc">Free trial</Pill>}
-                    {flash?.page === "recurring" && flash.ids.includes(r.id) && <Pill tone="acc" className="m-pop">✦ Updated by PayPal AI</Pill>}
+                    {flash?.page === "recurring" && flash.ids.includes(r.id) && <Pill tone="acc" className="m-pop">✦ Updated by Stella</Pill>}
                   </span>
                   <span className="truncate text-[13px] text-faint">{trial || isBill(r) ? r.plan : `${r.plan} · monthly`}</span>
                 </span>
@@ -373,7 +373,7 @@ function PaymentDrawer({ r, unused, today, conf, run, onStop, onAskCancel, onRes
                 <KV k="Paid with" v={method === "bank_transfer" ? `${state?.userProfile.linkedBank} · bank transfer` : method === "paypal_balance" ? "PayPal balance · autopay" : `PayPal Debit Card ••${state?.userProfile.card.last4}`} />
                 <KV k="Paying since" v={sinceLabel(r.since)} />
               </Panel>
-              <p className="text-xs leading-normal text-muted">Bills are tracked here so a due date never surprises you. PayPal AI won’t suggest cancelling them.</p>
+              <p className="text-xs leading-normal text-muted">Bills are tracked here so a due date never surprises you. Stella won’t suggest cancelling them.</p>
               <div className="mt-auto flex gap-2 pt-2">
                 <Btn kind="primary" className="flex-1" onClick={remind}>
                   Remind me before it’s due
@@ -423,7 +423,7 @@ function PaymentDrawer({ r, unused, today, conf, run, onStop, onAskCancel, onRes
                   </Btn>
                 ) : (
                   <Btn className="flex-1" onClick={() => openAssistant(`Help me cancel my ${r.merchant} subscription`)}>
-                    Ask PayPal AI
+                    Ask Stella
                   </Btn>
                 )}
                 <Btn className="flex-1" onClick={remind}>

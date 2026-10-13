@@ -189,7 +189,7 @@ export function InsightsPage() {
               ? `${d.available} more offer${d.available === 1 ? " is" : "s are"} ready to add now${d.availEarn ? `, worth up to ${money(d.availEarn)}` : ""}.`
               : d.cashCount
                 ? `${d.cashCount} PayPal Offer${d.cashCount === 1 ? "" : "s"} paid out to your balance this month.`
-                : "No offers paid out this month. PayPal AI can match offers to purchases you already made."
+                : "No offers paid out this month. Stella can match offers to purchases you already made."
           }
           cta="See offers"
           onCta={() => go("offers")}

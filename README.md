@@ -5,7 +5,7 @@
 **Stella** is a closed-loop personal finance app for someone who lives entirely on their
 **PayPal balance and PayPal Debit Card**. A dark, Revolut-Business-inspired UI
 (the **Final** design in [`design/`](design/README.md)) with a floating bottom
-dock and a **PayPal AI** panel (⌘K) that opens from the right over the page.
+dock and a **Stella** panel (⌘K) that opens from the right over the page.
 Ask about spending, run what-if scenarios, categorise transactions, cancel
 subscriptions and apply PayPal offers while the page you're looking at stays
 visible — without the assistant ever inventing a number.
@@ -37,7 +37,7 @@ PayPal Store Sync and PayPal Rewards have no public API, so Essentials' catalog 
 
 ## How we used AI
 
-- **PayPal AI assistant** (Claude via `@anthropic-ai/sdk`, `src/lib/agent/`): a tool-using agent that
+- **Stella assistant** (Claude via `@anthropic-ai/sdk`, `src/lib/agent/`): a tool-using agent that
   answers questions about the user's money and takes actions: search and summarise spending,
   what-if projections, categorise transactions, cancel or pause subscriptions, apply offers, set budget
   limits, freeze a card, and pay with PayPal (Orders API). Every figure comes from a server-side tool, never from the model.
@@ -46,7 +46,7 @@ PayPal Store Sync and PayPal Rewards have no public API, so Essentials' catalog 
   Jev also classifies intents and categorises transactions.
 - **Kernel** cloud browser: when a subscription isn't billed through PayPal, the agent cancels it on the
   merchant's site in a real cloud browser and shows the replay and a screenshot as proof.
-- Actions show on the page: the changed row is highlighted ("Updated by PayPal AI") with a toast and Undo.
+- Actions show on the page: the changed row is highlighted ("Updated by Stella") with a toast and Undo.
 - With no `ANTHROPIC_API_KEY` a deterministic rule-based assistant uses the same tools, so the demo still works.
 
 ## Sponsor integrations and other tools
@@ -131,7 +131,7 @@ npx context-plugins install https://github.com/paypaldev/server-sdk-context-plug
 
 ### Demo alert
 
-`/?alert=suspicious-charge` raises a PayPal AI chat bubble above the dock's AI
+`/?alert=suspicious-charge` raises a Stella chat bubble above the dock's AI
 button (any code can raise one with a `pfm:alert` CustomEvent). Pressing it
 opens the panel and starts the conversation. The assistant then freezes the card, files the claim and
 orders a replacement (demo-only: the card controls are mocked).
@@ -144,7 +144,7 @@ daily cap; going over returns HTTP 429 with a friendly message and `Retry-After`
 
 | Guarded | Per minute | Per day | Global per day |
 |---|---|---|---|
-| PayPal AI (`/api/agent`: Claude + Jev) | 10 | 80 | 1,500 |
+| Stella (`/api/agent`: Claude + Jev) | 10 | 80 | 1,500 |
 | Kernel cancellations (`/api/kernel/cancel`) | 2 | 6 | 60 |
 | Jev routes (`/api/jev/*`) | 20 | 200 | 2,000 |
 | PayPal reads / SDK calls (`/api/paypal/*`) | 60 | 1,000 | 20,000 |
@@ -171,7 +171,7 @@ src/
     api/demo/offers          add or remove an offer (Added state)
   components/
     clean/                   Final design: bottom dock, pages (incl. Budget), charts, UI primitives
-    assistant/               PayPal AI panel (⌘K), citations, step rail, what-if compare card
+    assistant/               Stella panel (⌘K), citations, step rail, what-if compare card
     state/AppProviders.tsx   shared client state (finance snapshot + panel)
   lib/
     types.ts                 domain types shared by UI, agent and services

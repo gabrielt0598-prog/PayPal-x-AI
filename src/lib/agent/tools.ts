@@ -611,7 +611,7 @@ async function cancelSubscription(input: Record<string, unknown>, ctx: ToolConte
   let done = false;
   let detail = "";
   if (channel === "paypal_subscriptions_api") {
-    const r = await paypal.cancelSubscription(sub.id, "Cancelled by user via PayPal Assistant");
+    const r = await paypal.cancelSubscription(sub.id, "Cancelled by user via Stella");
     mode = paypal.mode();
     done = r.ok;
     detail = r.error ?? "";
@@ -811,7 +811,7 @@ async function pauseSubscription(input: Record<string, unknown>, ctx: ToolContex
   const paused = input.paused !== false;
   const sub = getState().recurring.find((r) => r.id === id);
   if (!sub) return { summary: `No recurring payment with id ${id}. Call list_recurring to find the right id.`, error: "not_found" };
-  const r = await paypal.setSubscriptionPaused(id, paused, `${paused ? "Paused" : "Resumed"} by user via PayPal AI`);
+  const r = await paypal.setSubscriptionPaused(id, paused, `${paused ? "Paused" : "Resumed"} by user via Stella`);
   if (!r.ok) return { summary: r.error ?? `${sub.merchant} could not be ${paused ? "paused" : "resumed"}.`, error: "not_changed" };
   const amountLabel = formatUSD(sub.amount);
   ctx.actions.push({

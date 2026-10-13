@@ -137,7 +137,7 @@ function BudgetChangeCard({ action }: { action: BudgetAction }) {
     window.dispatchEvent(new Event("budget:changed"));
     flashChange("budget", [action.itemId]);
     setResult({ from });
-    toast(`PayPal AI updated ${action.label}`, `${money(from)} → ${action.limitLabel} · saved to Budget`, {
+    toast(`Stella updated ${action.label}`, `${money(from)} → ${action.limitLabel} · saved to Budget`, {
       undo: () => {
         const cur = loadBudget() ?? DEFAULT_STATE;
         saveBudget({ ...cur, limits: { ...cur.limits, [action.itemId]: from } });
