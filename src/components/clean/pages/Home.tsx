@@ -73,8 +73,8 @@ export function HomePage() {
 
   return (
     <Page title={`${greeting}, ${p.name.split(" ")[0]}`}>
-      <div className="grid grid-cols-1 items-start gap-5 @3xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <div className="flex min-w-0 flex-col gap-5">
+      <div className="grid grid-cols-1 items-start gap-[var(--sec-gap,32px)] @3xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <div className="flex min-w-0 flex-col gap-[var(--sec-gap,32px)]">
           <Section title="PayPal balance">
             <div className="flex flex-col gap-1.5 overflow-hidden rounded-[20px] bg-surface px-5 pb-1 pt-5">
               <div className="flex flex-wrap items-center gap-2.5">
@@ -142,7 +142,7 @@ export function HomePage() {
           </Section>
         </div>
 
-        <aside aria-label="Widgets" className="flex min-w-0 flex-col gap-5">
+        <aside aria-label="Widgets" className="flex min-w-0 flex-col gap-[var(--sec-gap,32px)]">
           {best?.best && (
             <Section title="Offers for you">
               <Card>
@@ -323,9 +323,9 @@ function MoveMoneyModal({ kind, bank, balance, onClose, onConfirm }: { kind: "ad
 
 function HomeSkeleton() {
   return (
-    <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-5">
+    <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-[var(--sec-gap,32px)]">
       <Skeleton className="h-8 w-72" />
-      <div className="grid grid-cols-1 gap-5 @3xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-[var(--sec-gap,32px)] @3xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <Skeleton className="h-[440px]" />
         <Skeleton className="h-[440px]" />
       </div>

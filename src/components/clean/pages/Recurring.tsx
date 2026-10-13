@@ -69,8 +69,8 @@ export function RecurringPage() {
         </div>
       </Section>
 
-      <div className="grid grid-cols-1 items-start gap-5 @3xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <div className="flex min-w-0 flex-col gap-5">
+      <div className="grid grid-cols-1 items-start gap-[var(--sec-gap,32px)] @3xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <div className="flex min-w-0 flex-col gap-[var(--sec-gap,32px)]">
           <Section title="Subscriptions" aside={<TableTotal count={subsActive.length} monthly={d.subsMonthly} />}>
             <div className="overflow-hidden rounded-[20px] bg-surface py-1">
               <RecurringGrid rows={d.subs} nextHeader="Next charge" today={d.today} selected={sel?.id} onOpen={setSel} />

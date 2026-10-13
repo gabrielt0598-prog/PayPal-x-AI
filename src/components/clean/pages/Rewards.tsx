@@ -23,7 +23,7 @@ export function RewardsPage() {
 
   return (
     <Page title="Rewards">
-      <div className="grid grid-cols-1 items-stretch gap-5 @3xl:grid-cols-2">
+      <div className="grid grid-cols-1 items-stretch gap-[var(--sec-gap,32px)] @3xl:grid-cols-2">
         <Section title="Your points">
           <Card className="flex-1">
             <div className="flex flex-col gap-1">

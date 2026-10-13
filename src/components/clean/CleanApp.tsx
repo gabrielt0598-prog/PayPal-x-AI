@@ -1,13 +1,16 @@
 "use client";
 
-// App frame for the Clean design: docked side panel | PayPal AI drawer | page.
-// The page area is a size container, so grids stack to one column whenever the
-// content gets narrow (e.g. side panel and AI drawer both open).
+// App frame for the Final design: the page fills the window, the bottom dock
+// floats over it, and the PayPal AI panel opens from the right over the page
+// (the page makes room for it). The page area is a size container, so grids
+// stack to one column whenever the content gets narrow.
 
 import type { ComponentType } from "react";
 import { Assistant } from "@/components/assistant/Assistant";
+import { useAssistantUI } from "@/components/state/AppProviders";
 import { CleanStateProvider, useClean, type PageId } from "./AppState";
-import { MobileTabs, Rail } from "./Rail";
+import { Dock } from "./Dock";
+import { BudgetPage } from "./pages/Budget";
 import { AccountPage } from "./pages/Account";
 import { EssentialsPage } from "./pages/Essentials";
 import { HomePage } from "./pages/Home";
@@ -20,6 +23,7 @@ import { TransactionsPage } from "./pages/Transactions";
 const PAGE: Record<PageId, ComponentType> = {
   home: HomePage,
   transactions: TransactionsPage,
+  budget: BudgetPage,
   recurring: RecurringPage,
   essentials: EssentialsPage,
   offers: OffersPage,
@@ -30,15 +34,21 @@ const PAGE: Record<PageId, ComponentType> = {
 
 function Frame() {
   const { page } = useClean();
+  const { open: aiOpen } = useAssistantUI();
   const Current = PAGE[page];
+  // --sec-gap is the space between page sections: 32px, or 16px while the AI
+  // panel covers the right of the page.
   return (
-    <div className="flex h-dvh min-h-[560px] w-full overflow-hidden">
-      <Rail />
-      <Assistant />
-      <main key={page} className="@container min-w-0 flex-1 overflow-y-auto px-4 pb-28 pt-6 sm:px-8 lg:pb-8 lg:pt-7">
+    <div className="relative h-dvh min-h-[560px] w-full overflow-hidden">
+      <main
+        key={page}
+        style={{ "--sec-gap": aiOpen ? "16px" : "32px" } as React.CSSProperties}
+        className={`@container h-full min-w-0 overflow-y-auto px-4 pb-28 pt-7 sm:px-20 ${aiOpen ? "lg:pr-[396px]" : ""}`}
+      >
         <Current />
       </main>
-      <MobileTabs />
+      <Assistant />
+      <Dock />
     </div>
   );
 }

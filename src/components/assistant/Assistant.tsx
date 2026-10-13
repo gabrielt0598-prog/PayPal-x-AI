@@ -144,7 +144,7 @@ export function Assistant() {
   return (
     <aside
       aria-label="PayPal AI"
-      className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-surface lg:static lg:z-auto lg:my-3 lg:ml-3 lg:w-[380px] lg:shrink-0 lg:rounded-[20px] lg:border lg:border-border-strong"
+      className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-surface lg:inset-y-2 lg:left-auto lg:right-2 lg:z-30 lg:w-[380px] lg:rounded-[20px] lg:border lg:border-border-strong"
     >
       <header className="relative flex items-center gap-0.5 border-b border-border py-2.5 pl-4 pr-2">
         <span className="mr-2 flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-bg text-accent">

@@ -5,10 +5,11 @@
 // money-movement endpoint behind Add money / Transfer / Redeem / Reorder.
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Check, X } from "lucide-react";
 import { useFinance } from "@/components/state/AppProviders";
 import type { MoneyMove } from "@/lib/store";
 
-export const PAGES = ["home", "transactions", "recurring", "essentials", "offers", "rewards", "insights", "account"] as const;
+export const PAGES = ["home", "transactions", "budget", "recurring", "essentials", "offers", "rewards", "insights", "account"] as const;
 export type PageId = (typeof PAGES)[number];
 
 export const REWARD_CATS = ["Dining", "Groceries", "Shopping", "Transport"] as const;
@@ -21,18 +22,34 @@ export interface RewardsLog {
   pts: number;
 }
 
+export type ToastKind = "success" | "warn" | "info";
+
 interface Toast {
   id: number;
   title: string;
   sub?: string;
+  kind: ToastKind;
+  undo?: () => void;
 }
+
+export interface ToastOpts {
+  kind?: ToastKind;
+  /** Shows an Undo action; the callback runs when it is pressed. */
+  undo?: () => void;
+}
+
+/** Dark-mode toast palette: [background, border, icon fill, text, action colour]. */
+const TOAST_COLORS: Record<ToastKind, [string, string, string, string, string]> = {
+  success: ["#0f2b1e", "#1d5a3b", "#1f9d5c", "#d8f3e4", "#7fe0a8"],
+  warn: ["#2c2209", "#6a4d12", "#c27a04", "#fbe8bd", "#f2c466"],
+  info: ["#0d2236", "#1c4a78", "#1f6fd1", "#d5e7fb", "#8cc4ff"],
+};
 
 interface CleanState {
   page: PageId;
   go: (p: PageId) => void;
-  navOpen: boolean;
-  setNavOpen: (v: boolean) => void;
-  toast: (title: string, sub?: string) => void;
+  toast: (title: string, sub?: string, opts?: ToastOpts) => void;
+  dismissToast: (id?: number) => void;
   moveMoney: (kind: MoneyMove, amount: number, merchant?: string) => Promise<boolean>;
   rewards: {
     pts: number;
@@ -64,7 +81,6 @@ function pageFromHash(): PageId {
 export function CleanStateProvider({ children }: { children: ReactNode }) {
   const { refresh, state } = useFinance();
   const [page, setPage] = useState<PageId>("home");
-  const [navOpen, setNavOpen] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [pts, setPts] = useState(1845);
   const [cat, setCat] = useState<RewardCat>("Dining");
@@ -83,11 +99,12 @@ export function CleanStateProvider({ children }: { children: ReactNode }) {
     if (window.location.hash.slice(1) !== p) history.replaceState(null, "", `#${p}`);
   }, []);
 
-  const toast = useCallback((title: string, sub?: string) => {
+  const toast = useCallback((title: string, sub?: string, opts?: ToastOpts) => {
     const id = ++tid.current;
-    setToasts((t) => [...t, { id, title, sub }]);
+    setToasts([{ id, title, sub, kind: opts?.kind ?? "success", undo: opts?.undo }]);
     setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 4500);
   }, []);
+  const dismissToast = useCallback((id?: number) => setToasts((t) => (id === undefined ? [] : t.filter((x) => x.id !== id))), []);
 
   const moveMoney = useCallback(
     async (kind: MoneyMove, amount: number, merchant?: string) => {
@@ -124,9 +141,8 @@ export function CleanStateProvider({ children }: { children: ReactNode }) {
     () => ({
       page,
       go,
-      navOpen,
-      setNavOpen,
       toast,
+      dismissToast,
       moveMoney,
       rewards: {
         pts,
@@ -141,19 +157,43 @@ export function CleanStateProvider({ children }: { children: ReactNode }) {
         redeem,
       },
     }),
-    [page, go, navOpen, toast, moveMoney, pts, cat, log, redeem],
+    [page, go, toast, dismissToast, moveMoney, pts, cat, log, redeem],
   );
 
   return (
     <Ctx.Provider value={value}>
       {children}
-      <div aria-live="polite" className="pointer-events-none fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 flex-col items-center gap-2">
-        {toasts.map((t) => (
-          <div key={t.id} role="status" className="flex flex-col rounded-2xl bg-[#ededed] px-4 py-3 text-black shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
-            <span className="text-sm font-semibold">{t.title}</span>
-            {t.sub && <span className="text-xs opacity-80">{t.sub}</span>}
-          </div>
-        ))}
+      <div aria-live="polite" className="pointer-events-none fixed bottom-[88px] left-1/2 z-50 flex -translate-x-1/2 flex-col items-center gap-2">
+        {toasts.map((t) => {
+          const [bg, bd, icon, fg, act] = TOAST_COLORS[t.kind];
+          return (
+            <div key={t.id} role="status" style={{ background: bg, borderColor: bd, color: fg }} className="pointer-events-auto flex items-center gap-3 rounded-2xl border py-3 pl-3.5 pr-4 shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
+              <span style={{ background: icon }} className="flex size-[30px] shrink-0 items-center justify-center rounded-full text-base font-bold text-white">
+                {t.kind === "success" ? <Check size={18} /> : t.kind === "warn" ? "!" : "i"}
+              </span>
+              <span className="flex flex-col">
+                <span className="text-sm font-semibold">{t.title}</span>
+                {t.sub && <span className="text-xs opacity-80">{t.sub}</span>}
+              </span>
+              {t.undo && (
+                <button
+                  type="button"
+                  style={{ color: act }}
+                  onClick={() => {
+                    t.undo?.();
+                    dismissToast(t.id);
+                  }}
+                  className="min-h-9 px-1 text-[13px] font-semibold underline"
+                >
+                  Undo
+                </button>
+              )}
+              <button type="button" aria-label="Dismiss" onClick={() => dismissToast(t.id)} style={{ color: fg }} className="flex size-7 items-center justify-center rounded-full opacity-70 hover:opacity-100">
+                <X size={16} />
+              </button>
+            </div>
+          );
+        })}
       </div>
     </Ctx.Provider>
   );

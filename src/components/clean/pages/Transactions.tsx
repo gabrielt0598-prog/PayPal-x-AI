@@ -66,7 +66,7 @@ export function TransactionsPage() {
 
   return (
     <Page title="Transactions">
-      <div className="grid grid-cols-1 items-stretch gap-5 @3xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 items-stretch gap-[var(--sec-gap,32px)] @3xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <Section title="Spending" aside={<span className="ml-auto"><Segmented label="Range" value={range} options={RANGES} onChange={setRange} /></span>}>
           <Card className="flex-1">
             <div className="flex flex-col gap-0.5">

@@ -149,7 +149,7 @@ export function AccountPage() {
         </div>
       </Section>
 
-      <div className="grid grid-cols-1 items-start gap-5 @3xl:grid-cols-2">
+      <div className="grid grid-cols-1 items-start gap-[var(--sec-gap,32px)] @3xl:grid-cols-2">
         <Section title="Memory">
           <Card flush>
             {facts === null ? (

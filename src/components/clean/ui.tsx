@@ -27,8 +27,11 @@ export function daysUntil(fromIso: string, toIso: string) {
 
 export function Page({ title, actions, children }: { title: ReactNode; actions?: ReactNode; children: ReactNode }) {
   return (
-    <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-5">
+    <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-[var(--sec-gap,32px)]">
       <header className="flex flex-wrap items-center gap-3">
+        <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-accent-strong text-lg font-bold italic text-white">
+          P
+        </span>
         <h1 className="mr-auto text-2xl font-semibold leading-tight">{title}</h1>
         {actions}
       </header>
@@ -142,12 +145,12 @@ export function TableHead({ cols }: { cols: string[] }) {
 }
 
 /** Floating side panel (transaction / payment / offer details). */
-export function Drawer({ label, onClose, children, width = 400 }: { label: string; onClose: () => void; children: ReactNode; width?: number }) {
+export function Drawer({ label, onClose, children, width = 380 }: { label: string; onClose: () => void; children: ReactNode; width?: number }) {
   return (
     <aside
       aria-label={label}
       style={{ width }}
-      className="fixed inset-y-3 right-3 z-30 flex max-w-[calc(100%-24px)] flex-col gap-3.5 overflow-y-auto rounded-[20px] border border-border-strong bg-surface p-5 shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
+      className="fixed inset-y-2 right-2 z-40 flex max-w-[calc(100%-16px)] flex-col gap-3.5 overflow-y-auto rounded-[20px] border border-border-strong bg-surface p-5 shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
     >
       <div className="flex items-center">
         <span className="flex-1 text-[13px] font-medium text-faint">{label}</span>
