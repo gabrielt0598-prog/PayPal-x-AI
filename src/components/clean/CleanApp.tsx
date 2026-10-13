@@ -7,7 +7,7 @@
 
 import type { ComponentType, CSSProperties } from "react";
 import { Assistant } from "@/components/assistant/Assistant";
-import { useAssistantUI } from "@/components/state/AppProviders";
+import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import { CleanStateProvider, useClean, type PageId } from "./AppState";
 import { useEffect, useRef, useState } from "react";
 import { Dock, type DockBubble } from "./Dock";
@@ -38,6 +38,7 @@ const PAGE: Record<PageId, ComponentType> = {
 function Frame() {
   const { page } = useClean();
   const { open: aiOpen, closeAssistant } = useAssistantUI();
+  const { state, loading } = useFinance();
   const Current = PAGE[page];
   const [bubble, setBubble] = useState<DockBubble | null>(null);
   const closeRef = useRef(closeAssistant);
@@ -70,7 +71,8 @@ function Frame() {
   return (
     <div className="relative h-dvh min-h-[560px] w-full overflow-hidden">
       <main
-        key={page}
+        // Re-keyed once the data arrives so the entrance plays on the real content, not on the loading skeleton.
+        key={`${page}:${loading || !state ? "wait" : "ready"}`}
         style={{ "--sec-gap": aiOpen ? "16px" : "32px" } as CSSProperties}
         className={`page-enter @container h-full min-w-0 overflow-y-auto px-4 pb-28 pt-7 sm:px-20 ${aiOpen ? "lg:pr-[396px]" : ""}`}
       >
