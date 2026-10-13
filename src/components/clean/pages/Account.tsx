@@ -67,7 +67,6 @@ export function AccountPage() {
 
   if (loading || !state) return <Skeleton className="mx-auto h-[600px] w-full max-w-[1600px]" />;
   const p = state.userProfile;
-  const initials = p.name.split(" ").map((s) => s[0]).join("");
 
   const togglePref = (key: string, text: string) => {
     const was = prefs[key];
@@ -121,7 +120,6 @@ export function AccountPage() {
   return (
     <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-[var(--sec-gap,32px)]">
       <header className="flex items-center gap-4">
-        <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-surface-3 text-lg font-semibold">{initials}</span>
         <div className="flex flex-1 flex-col gap-0.5">
           <span className="flex items-center gap-3">
             <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-accent-strong text-lg font-bold italic text-white">
@@ -129,7 +127,7 @@ export function AccountPage() {
             </span>
             <h1 className="text-2xl font-semibold leading-tight">Profile</h1>
           </span>
-          <span className="text-[13px] text-faint">{p.name} · Personal · USD</span>
+          <span className="pl-12 text-[13px] text-faint">{p.name} · Personal · USD</span>
         </div>
       </header>
 
