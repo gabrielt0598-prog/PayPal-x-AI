@@ -11,6 +11,7 @@ import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import { useClean, type PageId } from "./AppState";
 import { cx } from "./ui";
 import { Sparkles } from "./SparkleIcon";
+import { StellaLogo } from "./StellaLogo";
 
 export const NAV: [string, LucideIcon, PageId][] = [
   ["Home", House, "home"],
@@ -81,10 +82,10 @@ export function Dock({ bubble, onBubble }: { bubble?: DockBubble | null; onBubbl
               aria-label={`${bubble.title}. Open PayPal AI`}
               className="m-pop absolute bottom-[calc(100%+14px)] left-1/2 flex w-80 max-w-[calc(100vw-24px)] -translate-x-1/2 gap-3 rounded-[18px] border border-border-strong bg-surface-2 px-4 py-3.5 text-left shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
             >
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-accent-strong text-base font-bold italic text-white">P</span>
+              <StellaLogo />
               <span className="flex min-w-0 flex-col gap-0.5">
                 <span className="flex gap-2 text-xs text-faint">
-                  <span className="font-semibold text-muted">PayPal</span>
+                  <span className="font-semibold text-muted">Stella</span>
                   <span>now</span>
                 </span>
                 <span className="text-sm font-semibold">{bubble.title}</span>

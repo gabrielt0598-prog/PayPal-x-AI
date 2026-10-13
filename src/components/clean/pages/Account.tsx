@@ -6,6 +6,7 @@ import type { MemoryFact } from "@/lib/services/contracts";
 import { useClean } from "../AppState";
 import { Btn, cx, money, Pill, Skeleton } from "../ui";
 import { Toggle } from "./accountShared";
+import { StellaLogo } from "../StellaLogo";
 
 function sessionId() {
   try {
@@ -121,9 +122,7 @@ export function AccountPage() {
       <header className="flex items-center gap-4">
         <div className="flex flex-1 flex-col gap-0.5">
           <span className="flex items-center gap-3">
-            <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-accent-strong text-lg font-bold italic text-white">
-              P
-            </span>
+            <StellaLogo />
             <h1 className="text-2xl font-semibold leading-tight">Profile</h1>
           </span>
           <span className="pl-12 text-[13px] text-faint">{p.name} · Personal · USD</span>

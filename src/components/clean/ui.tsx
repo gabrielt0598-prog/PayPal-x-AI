@@ -5,6 +5,7 @@
 
 import { useEffect, useRef, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { X } from "lucide-react";
+import { StellaLogo } from "./StellaLogo";
 
 export const cx = (...c: (string | number | false | null | undefined)[]) => c.filter((x): x is string => typeof x === "string" && x !== "").join(" ");
 
@@ -29,9 +30,7 @@ export function Page({ title, actions, children }: { title: ReactNode; actions?:
   return (
     <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-[var(--sec-gap,32px)]">
       <header className="flex flex-wrap items-center gap-3">
-        <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-accent-strong text-lg font-bold italic text-white">
-          P
-        </span>
+        <StellaLogo />
         <h1 className="mr-auto text-2xl font-semibold leading-tight">{title}</h1>
         {actions}
       </header>

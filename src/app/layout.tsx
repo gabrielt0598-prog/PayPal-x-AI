@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PayPal x AI — Money",
-  description: "Closed-loop personal finance for your PayPal balance and Debit Card.",
+  title: "Stella",
+  description: "Stella: AI personal finance for your PayPal balance and Debit Card.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

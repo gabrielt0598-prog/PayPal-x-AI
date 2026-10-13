@@ -5,6 +5,7 @@ import { ArrowDown, ChevronLeft, ChevronRight, Trophy, Wallet } from "lucide-rea
 import { REWARD_CATS, useClean } from "../AppState";
 import { Logo, logoMark } from "../Logo";
 import { CountText, Card, cx, money, Pill, Section, shortDate } from "../ui";
+import { StellaLogo } from "../StellaLogo";
 
 const markFor = (merchant: string) => logoMark(merchant) ?? "unknown";
 
@@ -33,9 +34,7 @@ export function RewardsPage() {
     <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-[var(--sec-gap,32px)]">
       <header className="-mb-3.5 flex items-center">
         <span className="flex items-center gap-3">
-          <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-accent-strong text-lg font-bold italic text-white">
-            P
-          </span>
+          <StellaLogo />
           <h1 className="text-2xl font-semibold leading-tight">Rewards</h1>
         </span>
       </header>

@@ -1,6 +1,8 @@
-# PayPal × AI — Personal Finance
+# Stella — AI personal finance for PayPal
 
-A closed-loop personal finance app for someone who lives entirely on their
+<img src="public/stella-logo.png" alt="Stella" width="72" align="right">
+
+**Stella** is a closed-loop personal finance app for someone who lives entirely on their
 **PayPal balance and PayPal Debit Card**. A dark, Revolut-Business-inspired UI
 (the **Final** design in [`design/`](design/README.md)) with a floating bottom
 dock and a **PayPal AI** panel (⌘K) that opens from the right over the page.

@@ -8,6 +8,7 @@ import type { Offer } from "@/lib/types";
 import { useClean } from "../AppState";
 import { Logo, logoMark } from "../Logo";
 import { Avatar, Btn, cx, Drawer, money, money0, shortDate, Skeleton } from "../ui";
+import { StellaLogo } from "../StellaLogo";
 
 type Kind = "available" | "added" | "pending" | "earned" | "expired";
 
@@ -73,9 +74,7 @@ export function OffersPage() {
     <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-[18px]">
       <header className="flex items-center gap-2">
         <span className="flex items-center gap-3">
-          <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-accent-strong text-lg font-bold italic text-white">
-            P
-          </span>
+          <StellaLogo />
           <h1 className="text-2xl font-semibold leading-tight">Offers</h1>
         </span>
         <span className="group relative inline-flex">
