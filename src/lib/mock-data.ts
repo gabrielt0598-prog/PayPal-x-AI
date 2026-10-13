@@ -29,8 +29,8 @@ export const userProfile: UserProfile = {
   payFrequency: "biweekly",
   paypalBalance: 0, // filled in from the reconciled ledger below
   card: { product: "PayPal Debit Mastercard", last4: "4821" },
-  autoReload: { enabled: true, threshold: 250, reloadAmount: 500, fundingSource: "Chase Checking ••7712" },
-  linkedBank: "Chase Checking ••7712",
+  autoReload: { enabled: true, threshold: 25, reloadAmount: 100, fundingSource: "Chase Total Checking ••7712" },
+  linkedBank: "Chase Total Checking ••7712",
   memberSince: "2019-03-14",
 };
 

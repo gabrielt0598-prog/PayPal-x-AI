@@ -59,7 +59,7 @@ curl -s -X POST localhost:3000/api/paypal/subscriptions/sub_disney/cancel \
 ```bash
 curl -s -X POST localhost:3000/api/zapier/low-balance          # manual test with current state
 curl -s -X POST localhost:3000/api/demo/simulate-spend -H 'content-type: application/json' \
-  -d '{"merchant":"Voltway","amount":2000}'                 # crosses the $250 threshold -> alert
+  -d '{"merchant":"Voltway","amount":2020}'                 # crosses the $25 threshold -> alert
 # -> {"transaction":{...},"balanceBefore":...,"balanceAfter":...,"crossedBelowThreshold":true,"zapier":{"delivered":true,...}}
 ```
 
