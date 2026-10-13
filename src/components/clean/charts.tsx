@@ -182,3 +182,96 @@ export function Donut({ parts, size = 280, center, sub, aria }: { parts: { label
     </div>
   );
 }
+
+export interface SpendBar {
+  /** X axis label under the bar ("" to hide). */
+  x: string;
+  title: string;
+  /** undefined = no data yet (upcoming); drawn as a small stub. */
+  value?: number;
+  current?: boolean;
+}
+
+const fmtTick = (v: number) => (v >= 1000 ? `$${+(v / 1000).toFixed(2)}k` : `$${v}`);
+
+/** Round the cap to a clean axis (four equal steps), ignoring bars far above the rest (they are drawn cut off). */
+export function niceCap(values: number[]) {
+  const v = values.filter((x) => x > 0).sort((a, b) => a - b);
+  if (!v.length) return 100;
+  const med = v[Math.floor(v.length / 2)];
+  const ref = Math.max(...v.filter((x) => x <= med * 4), med);
+  const mag = 10 ** Math.floor(Math.log10(ref * 1.05));
+  return [1, 2, 4, 8, 10].map((m) => m * mag).find((c) => c >= ref * 1.05) ?? 10 * mag;
+}
+
+/** The Transactions "Spending" chart: dashed grid, hover tips, current bar solid, the rest faded. */
+export function SpendBars({ bars, cap, maxBarWidth, aria }: { bars: SpendBar[]; cap: number; maxBarWidth: number; aria: string }) {
+  const step = cap / 4;
+  return (
+    <>
+      <div role="img" aria-label={aria} className="relative ml-10 mt-3.5 h-40">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <div key={i} className={`absolute inset-x-0 h-0 border-t ${i ? "border-dashed border-border" : "border-solid border-border-strong"}`} style={{ bottom: `${i * 25}%` }}>
+            <span className="absolute right-full top-0 mr-2.5 -translate-y-1/2 whitespace-nowrap text-[11px] text-faint">{fmtTick(i * step)}</span>
+          </div>
+        ))}
+        <div className="absolute inset-0 flex items-end gap-1">
+          {bars.map((b, i) => {
+            const past = b.value !== undefined;
+            const capped = past && b.value! > cap;
+            const pct = past ? (Math.min(b.value!, cap) / cap) * (capped ? 88 : 100) : 0;
+            const tip = `${b.title}${past ? ` · ${money(b.value!)}` : " · upcoming"}`;
+            return (
+              <div key={i} className="group relative flex h-full min-w-0 flex-1 flex-col items-center justify-end">
+                <span
+                  className="pointer-events-none absolute left-1/2 z-[6] hidden -translate-x-1/2 whitespace-nowrap rounded-lg border border-border-strong bg-surface-2 px-[9px] py-[5px] text-xs font-medium shadow-[0_8px_24px_rgba(0,0,0,0.45)] group-hover:block"
+                  style={{ bottom: `calc(${past ? `${pct.toFixed(1)}%` : "4px"} + 8px)` }}
+                >
+                  {tip}
+                </span>
+                <div
+                  className={`w-full rounded-t rounded-b-[2px] ${past ? "bg-chart group-hover:!opacity-100 group-hover:brightness-[1.35]" : "bg-surface-3"}`}
+                  style={{ maxWidth: maxBarWidth, height: past ? `${pct.toFixed(1)}%` : 4, opacity: past ? (b.current ? 1 : 0.3) : undefined }}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      <div className="ml-10 flex gap-1 pt-1.5" aria-hidden>
+        {bars.map((b, i) => (
+          <span key={i} className={`min-w-0 flex-1 whitespace-nowrap text-center text-[11px] ${b.current ? "font-semibold text-text" : "text-faint"}`}>
+            {b.x}
+          </span>
+        ))}
+      </div>
+    </>
+  );
+}
+
+/** Insights donut: thin rounded segments with gaps, total in the middle (SVG, no canvas). */
+export function SvgDonut({ parts, size = 240, center, sub, aria }: { parts: { label: string; value: number; color: string }[]; size?: number; center: string; sub: string; aria: string }) {
+  const total = parts.reduce((a, p) => a + p.value, 0) || 1;
+  const C = 2 * Math.PI * 43;
+  const sw = 8;
+  const gap = 2;
+  const starts = parts.map((_, i) => parts.slice(0, i).reduce((a, p) => a + (p.value / total) * C, 0));
+  return (
+    <div role="img" aria-label={aria} className="relative mx-auto shrink-0" style={{ width: size, height: size }}>
+      <svg viewBox="0 0 100 100" aria-hidden className="absolute inset-0 size-full">
+        <g transform="rotate(-90 50 50)">
+          {parts.map((p, i) => {
+            const len = (p.value / total) * C;
+            const dash = Math.max(len - sw - gap, 0.01);
+            const o = -(starts[i] + sw / 2 + gap / 2);
+            return <circle key={p.label} cx="50" cy="50" r="43" fill="none" stroke={p.color} strokeWidth={sw} strokeLinecap="round" strokeDasharray={`${dash.toFixed(2)} ${C.toFixed(2)}`} strokeDashoffset={o.toFixed(2)} />;
+          })}
+        </g>
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
+        <span className="num text-[30px] font-semibold">{center}</span>
+        <span className="text-[13px] text-faint">{sub}</span>
+      </div>
+    </div>
+  );
+}

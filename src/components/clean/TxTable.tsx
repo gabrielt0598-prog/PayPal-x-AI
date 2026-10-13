@@ -1,143 +1,252 @@
 "use client";
 
-// Transactions table (AG Grid: Merchant | Date | Category | Amount) and the details drawer.
+// Transactions table (Merchant | Date | Category | Amount), its pager, and the details drawer,
+// as drawn in design/clean/ProtoClean.dc.html.
 
-import { useMemo } from "react";
-import type { CellClassParams, ColDef, ICellRendererParams } from "ag-grid-community";
+import { useState, useSyncExternalStore } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import { METHOD_LABEL } from "./format";
-import type { Offer, Transaction } from "@/lib/types";
-import { Grid } from "./Grid";
-import { amt, Avatar, Btn, cx, Drawer, KV, money, Panel, Pill, shortDate } from "./ui";
+import type { Category, Offer, Transaction } from "@/lib/types";
+import { useClean } from "./AppState";
+import { Logo, logoMark } from "./Logo";
+import { Avatar, Btn, cx, Drawer, money, Panel, Pill, shortDate } from "./ui";
 import { Sparkles } from "./SparkleIcon";
 
-/** Cash back tied to a purchase, shown under the merchant as on the Clean design. */
+// ---- Local category changes -------------------------------------------------------------
+// There is no endpoint for changing a category from the UI, so a change made in the drawer is kept
+// for the session and applied wherever transactions are listed (table, summary, drawer).
+const overrides = new Map<string, Category>();
+const listeners = new Set<() => void>();
+let version = 0;
+const subscribe = (cb: () => void) => {
+  listeners.add(cb);
+  return () => void listeners.delete(cb);
+};
+export function setTxCategory(id: string, category: Category) {
+  overrides.set(id, category);
+  version++;
+  listeners.forEach((l) => l());
+}
+/** Re-renders when a category changes; returns a function that applies the changes to a transaction. */
+export function useTxOverrides() {
+  useSyncExternalStore(subscribe, () => version, () => 0);
+  return <T extends Transaction>(t: T): T => {
+    const c = overrides.get(t.id);
+    return c ? { ...t, category: c, needsReview: false } : t;
+  };
+}
+
+/** Merchant mark: the design's logo where it has one, a letter avatar otherwise. */
+export function MerchantMark({ name, size = 34 }: { name: string; size?: number }) {
+  const mark = logoMark(name);
+  return mark ? <Logo mark={mark} size={size} /> : <Avatar name={name} size={size} className="text-[13px]" />;
+}
+
+/** Cash back tied to a purchase. */
 function cashLine(t: Transaction, offers: Offer[], all: Transaction[]) {
   const o = t.appliedOfferId ? offers.find((x) => x.id === t.appliedOfferId) : undefined;
   if (!o) return null;
-  if (o.status === "pending") return { text: `+${money(o.pendingCashback ?? 0)} · pending`, tone: "text-warning" };
+  if (o.status === "pending") return { text: `+${money(o.pendingCashback ?? 0)}`, pending: true, tone: "text-warning" };
   const credit = all.find((x) => x.category === "Cashback" && x.description === `Cash back — ${o.title}`);
-  return credit ? { text: `+${money(credit.amount)} · added ${shortDate(credit.date)}`, tone: "text-positive" } : null;
+  return credit ? { text: `+${money(credit.amount)} · added ${shortDate(credit.date)}`, pending: false, tone: "text-positive" } : null;
 }
 
-function txCols(selected: string | null | undefined, offers: Offer[], all: Transaction[]): ColDef<Transaction>[] {
-  const cols: ColDef<Transaction>[] = [
-  {
-    field: "merchant",
-    headerName: "Merchant",
-    flex: 2,
-    minWidth: 180,
-    getQuickFilterText: (p) => `${p.data?.merchant} ${p.data?.description}`,
-    cellRenderer: ({ data }: ICellRendererParams<Transaction>) =>
-      data ? (
-        <span className="flex h-full min-w-0 items-center gap-3">
-          <Avatar name={data.merchant} />
-          <span className="flex min-w-0 flex-col leading-tight">
-            <span className="truncate">{data.merchant}</span>
-            {(() => {
-              const c = cashLine(data, offers, all);
-              return c ? <span className={cx("truncate text-xs font-medium", c.tone)}>{c.text}</span> : null;
-            })()}
-          </span>
-        </span>
-      ) : null,
-  },
-  { field: "date", headerName: "Date", flex: 1, minWidth: 90, sort: "desc", cellClass: "text-muted !text-sm", valueFormatter: (p) => (p.value ? shortDate(p.value as string) : "") },
-  {
-    field: "category",
-    headerName: "Category",
-    flex: 1,
-    minWidth: 120,
-    cellRenderer: ({ data }: ICellRendererParams<Transaction>) =>
-      data ? (
-        <span className="flex h-full min-w-0 items-center gap-2 text-sm">
-          {data.needsReview ? <span className="truncate font-medium text-accent">✦ Needs review</span> : <span className="truncate">{data.category}</span>}
-          {data.status === "pending" && <Pill tone="warn">Pending</Pill>}
-        </span>
-      ) : null,
-  },
-  {
-    field: "amount",
-    headerName: "Amount",
-    flex: 1,
-    minWidth: 100,
-    cellClass: (p) => cx("num", (p.value as number) > 0 && "!text-positive"),
-    valueFormatter: (p) => amt(p.value as number),
-  },
-  ];
-  return cols.map((c) => ({ ...c, cellClassRules: { "!bg-accent-bg": (p: CellClassParams<Transaction>) => !!selected && p.data?.id === selected } }));
-}
+const COLS = "grid grid-cols-[minmax(0,2.15fr)_minmax(84px,0.85fr)_minmax(0,1.4fr)_minmax(112px,0.9fr)] items-center gap-4 px-5";
+const signed = (n: number) => (n > 0 ? "+" : "") + money(Math.abs(n));
 
-/** Transactions table on AG Grid: sortable columns, quick filter, optional pagination. */
-export function TxGrid({ rows, selected, onOpen, quickFilter, pageSize }: { rows: Transaction[]; selected?: string | null; onOpen: (t: Transaction) => void; quickFilter?: string; pageSize?: number }) {
+/** Table with left-aligned headers. With `pageSize`, shows page `page` (0-based) of the rows. */
+export function TxGrid({
+  rows,
+  selected,
+  onOpen,
+  quickFilter,
+  pageSize,
+  page = 0,
+  cash = true,
+}: {
+  rows: Transaction[];
+  selected?: string | null;
+  onOpen: (t: Transaction) => void;
+  quickFilter?: string;
+  pageSize?: number;
+  page?: number;
+  /** Show the cash back line under the merchant. */
+  cash?: boolean;
+}) {
   const { state } = useFinance();
-  const columnDefs = useMemo(() => txCols(selected, state?.offers ?? [], state?.transactions ?? []), [selected, state]);
+  const apply = useTxOverrides();
+  const q = quickFilter?.trim().toLowerCase();
+  const all = rows.map(apply).filter((t) => !q || `${t.merchant} ${t.description} ${t.category}`.toLowerCase().includes(q));
+  const shown = pageSize ? all.slice(page * pageSize, (page + 1) * pageSize) : all;
   return (
-    <Grid<Transaction>
-      rowData={rows}
-      columnDefs={columnDefs}
-      getRowId={(p) => p.data.id}
-      quickFilterText={quickFilter}
-      onRowClicked={(e) => e.data && onOpen(e.data)}
-      rowClass="cursor-pointer"
-      pagination={!!pageSize}
-      paginationPageSize={pageSize}
-      paginationPageSizeSelector={pageSize ? [pageSize, 50, 100] : undefined}
-      overlayNoRowsTemplate='<span style="color:#a1a1a1;font-size:14px">No transactions match these filters.</span>'
-    />
+    <div role="table" aria-label="Transactions">
+      <div role="row" className={cx(COLS, "py-2.5 text-[13px] text-faint")}>
+        <span role="columnheader">Merchant</span>
+        <span role="columnheader">Date</span>
+        <span role="columnheader">Category</span>
+        <span role="columnheader">Amount</span>
+      </div>
+      {shown.length === 0 && <div className="px-5 py-6 text-sm text-muted">No transactions match these filters.</div>}
+      {shown.map((t) => {
+        const c = cash ? cashLine(t, state?.offers ?? [], state?.transactions ?? []) : null;
+        return (
+          <button
+            key={t.id}
+            type="button"
+            role="row"
+            onClick={() => onOpen(t)}
+            className={cx(COLS, "w-full border-0 py-[13px] text-left text-text", selected === t.id ? "bg-accent-bg" : "bg-transparent hover:bg-white/[0.03]")}
+          >
+            <span className="flex min-w-0 items-center gap-3">
+              <MerchantMark name={t.merchant} />
+              <span className="flex min-w-0 flex-col">
+                <span className="block truncate text-[15px]">{t.merchant}</span>
+                {c && <span className={cx("block truncate text-xs font-medium", c.tone)}>{c.text}{c.pending ? " · pending" : ""}</span>}
+              </span>
+            </span>
+            <span className="whitespace-nowrap text-sm">{shortDate(t.date)}</span>
+            <span className={cx("block truncate text-sm", t.needsReview ? "font-medium text-accent" : "text-muted")}>
+              {t.needsReview ? "Needs review" : t.category}
+              {t.status === "pending" ? " · pending" : ""}
+            </span>
+            <span className={cx("num text-[15px]", t.status === "pending" ? "text-warning" : t.amount > 0 && "text-positive")}>{signed(t.amount)}</span>
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
-export function TxDrawer({ tx, onClose }: { tx: Transaction; onClose: () => void }) {
+/** "Showing 1 to 10 of 614" with Previous / Next. Hidden when everything fits on one page. */
+export function TxPager({ total, page, pageSize, onPage }: { total: number; page: number; pageSize: number; onPage: (p: number) => void }) {
+  if (total <= pageSize) return null;
+  const pages = Math.max(1, Math.ceil(total / pageSize));
+  const p = Math.min(page, pages - 1);
+  const nav = "flex size-9 items-center justify-center rounded-full bg-white/[0.08] text-text transition hover:bg-white/[0.12] disabled:cursor-default disabled:opacity-35 disabled:hover:bg-white/[0.08]";
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 text-[13px] text-faint">
+      <span>
+        Showing {p * pageSize + 1} to {Math.min(total, (p + 1) * pageSize)} of {total.toLocaleString("en-US")}
+      </span>
+      <div className="flex items-center gap-3">
+        <span>
+          Page {p + 1} of {pages}
+        </span>
+        <div className="flex gap-2">
+          <button type="button" aria-label="Previous page" disabled={p === 0} onClick={() => onPage(p - 1)} className={nav}>
+            <ChevronLeft size={16} />
+          </button>
+          <button type="button" aria-label="Next page" disabled={p >= pages - 1} onClick={() => onPage(p + 1)} className={nav}>
+            <ChevronRight size={16} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const PICK = ["Dining", "Shopping", "Groceries", "Transport", "Essential bills", "Subscriptions", "Income"] as const;
+const Row = ({ k, children, first }: { k: string; children: React.ReactNode; first?: boolean }) => (
+  <div className={cx("flex items-center py-4", !first && "border-t border-border")}>
+    <span className="flex-1 text-[13px] text-muted">{k}</span>
+    <span className="text-[13px] font-medium">{children}</span>
+  </div>
+);
+
+export function TxDrawer({ tx: raw, onClose }: { tx: Transaction; onClose: () => void }) {
   const { openAssistant } = useAssistantUI();
   const { state } = useFinance();
-  const offer = tx.appliedOfferId ? state?.offers.find((o) => o.id === tx.appliedOfferId) : undefined;
-  const fromMerchant = state?.transactions.filter((t) => t.merchant === tx.merchant && t.amount < 0) ?? [];
-  const total = fromMerchant.reduce((a, t) => a - t.amount, 0);
+  const { toast } = useClean();
+  const apply = useTxOverrides();
+  const tx = apply(raw);
+  const [pick, setPick] = useState<Category | null | false>(false); // false = details view, null = picking, string = chosen
+  const cash = cashLine(tx, state?.offers ?? [], state?.transactions ?? []);
+  const method = tx.method === "paypal_debit_card" ? `Debit card ••${state?.userProfile.card.last4 ?? ""}` : METHOD_LABEL[tx.method];
+  const date = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "short", day: "numeric", year: "numeric" }).format(new Date(tx.date));
+  const picking = pick !== false;
+
+  const save = (c: Category) => {
+    setTxCategory(tx.id, c);
+    setPick(false);
+    toast(`Category set to ${c}`, `Similar ${tx.merchant} charges will be sorted the same way`);
+  };
+
   return (
     <Drawer label="Transaction" onClose={onClose}>
+      {picking && (
+        <button type="button" onClick={() => setPick(false)} className="-mt-1 inline-flex min-h-9 items-center gap-1 self-start pl-0.5 pr-2 text-[13px] font-medium text-muted hover:text-text">
+          <ChevronLeft size={16} />
+          Back
+        </button>
+      )}
       <div className="flex items-center gap-3">
         <div className="flex flex-1 flex-col">
-          <span className={cx("num text-[32px] font-semibold leading-tight", tx.amount > 0 && "text-positive")}>{(tx.amount > 0 ? "+" : "") + money(tx.amount)}</span>
+          <span className={cx("num text-[32px] font-semibold leading-[1.15] tracking-[-0.02em]", tx.amount > 0 && "text-positive")}>{signed(tx.amount)}</span>
           <span className="text-[13px] text-muted">
-            {tx.merchant} · {new Intl.DateTimeFormat("en-US", { timeZone: "UTC", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(tx.date))}
+            {tx.merchant} · {shortDate(tx.date)}
           </span>
         </div>
-        <Avatar name={tx.merchant} size={48} />
+        <MerchantMark name={tx.merchant} size={48} />
       </div>
-      {tx.needsReview && (
-        <div className="flex flex-col gap-2 rounded-xl bg-accent-bg p-3.5 text-[13px] leading-normal">
-          <span>
-            <span className="font-medium">PayPal AI isn’t sure about this one.</span> “{tx.merchant}” looks like a coffee shop, so it’s probably Dining.
-          </span>
-          <Btn small kind="primary" className="self-start" onClick={() => openAssistant(`Categorize my recent transactions`)}>
-            Check with PayPal AI
-          </Btn>
-        </div>
-      )}
-      <Btn small onClick={() => openAssistant(`Tell me about my ${tx.merchant} spending`)} className="self-start">
-        <Sparkles size={14} className="text-accent" /> Ask PayPal AI about this
-      </Btn>
-      <Panel>
-        <KV first k="Status" v={<Pill tone={tx.status === "pending" ? "warn" : "neu"}>{tx.status === "pending" ? "Pending" : "Completed"}</Pill>} />
-        <KV k="Category" v={tx.category} />
-        <KV k="Paid with" v={tx.method === "paypal_debit_card" ? `Debit card ••${state?.userProfile.card.last4 ?? ""}` : METHOD_LABEL[tx.method]} />
-        <KV k="Description" v={tx.description} />
-        <KV k="Balance after" v={money(tx.balanceAfter)} />
-        <KV k="PayPal ID" v={<span className="font-mono text-xs">{tx.id}</span>} />
-      </Panel>
-      {offer && (
-        <Panel>
-          <KV first k="Offer applied" v={<Pill tone="pos">{offer.title}</Pill>} />
-        </Panel>
-      )}
-      {fromMerchant.length > 1 && tx.amount < 0 && (
-        <div className="flex flex-col gap-1.5 rounded-xl bg-surface-2 p-3.5">
-          <span className="text-[13px] font-medium">Merchant history</span>
-          <p className="text-[13px] leading-normal text-muted">
-            {fromMerchant.length} payments to {tx.merchant} since {shortDate(fromMerchant[0].date)} · {money(total)} in total · avg {money(total / fromMerchant.length)}.
-          </p>
-        </div>
+
+      {!picking ? (
+        <>
+          <Panel>
+            <Row first k="Date">{date}</Row>
+            <Row k="Payment method">{method}</Row>
+            <Row k="Category">{tx.category}</Row>
+            {cash && (
+              <Row k="Cash back">
+                <span className="flex items-center gap-2">
+                  <span className="text-positive">{cash.text}</span>
+                  {cash.pending && <Pill tone="warn">Pending</Pill>}
+                </span>
+              </Row>
+            )}
+          </Panel>
+          {tx.needsReview && (
+            <div className="flex items-start gap-2.5 rounded-[10px] bg-accent-bg px-3.5 py-3">
+              <Sparkles size={18} className="shrink-0 text-accent" />
+              <p className="text-xs leading-normal">This looks like a coffee shop, so it’s probably Dining. Confirm it and similar charges will be sorted automatically.</p>
+            </div>
+          )}
+          <div className="mt-auto flex gap-2 pt-2">
+            <Btn className="flex-1 !bg-accent-bg !text-accent hover:!bg-accent-bg/70" onClick={() => openAssistant(`Tell me about my ${tx.merchant} charges`)}>
+              <Sparkles size={16} /> Ask about this
+            </Btn>
+            <Btn className="flex-1" onClick={() => (tx.needsReview ? save("Dining") : setPick(null))}>
+              {tx.needsReview ? "Confirm Dining" : "Change category"}
+            </Btn>
+          </div>
+        </>
+      ) : (
+        <>
+          <Panel>
+            <Row first k="Current category">{tx.category}</Row>
+          </Panel>
+          <span className="mt-1 text-[13px] font-medium text-muted">Change to</span>
+          <div role="radiogroup" aria-label="New category" className="rounded-[10px] border border-border bg-surface-2 px-3.5">
+            {PICK.filter((l) => l !== tx.category).map((l, i) => (
+              <button
+                key={l}
+                type="button"
+                role="radio"
+                aria-checked={pick === l}
+                onClick={() => setPick(l)}
+                className={cx("flex w-full items-center gap-3 py-4 text-left text-[13px] text-text", i > 0 && "border-t border-border")}
+              >
+                <span className="flex-1">{l}</span>
+                <span className="text-sm text-accent">{pick === l ? "✓" : ""}</span>
+              </button>
+            ))}
+          </div>
+          <div className="mt-auto flex pt-2">
+            <Btn kind="primary" className="flex-1" disabled={!pick} onClick={() => pick && save(pick)}>
+              Save category
+            </Btn>
+          </div>
+        </>
       )}
     </Drawer>
   );
