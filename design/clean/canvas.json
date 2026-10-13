@@ -1445,6 +1445,15 @@
    "w": 1400,
    "x": 1560,
    "y": -44
+  },
+  "Screen-ai-paypal-pay.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "is_interactive": true,
+   "title": "PayPal Orders API \u00b7 AI pays with PayPal",
+   "w": 1400,
+   "x": 3120,
+   "y": -44
   }
  },
  "createdOnFiles": {
@@ -2009,7 +2018,8 @@
   "Logo.dc.html",
   "Product.dc.html",
   "Screen-home-sidebar.dc.html",
-  "Screen-ai-change.dc.html"
+  "Screen-ai-change.dc.html",
+  "Screen-ai-paypal-pay.dc.html"
  ],
  "pages": [
   {
