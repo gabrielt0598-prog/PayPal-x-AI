@@ -150,8 +150,8 @@ export function RunPanel({ run, onStop, onClose }: { run: RunState; onStop: () =
   const err = status === "error";
   return (
     <>
-      <div className="flex items-start gap-3">
-        <Avatar name={r.merchant} size={44} />
+      <div className="flex items-center gap-2.5">
+        <Avatar name={r.merchant} size={34} />
         <div className="flex min-w-0 flex-1 flex-col">
           <h2 className="truncate text-lg font-semibold leading-tight">{done ? `${r.merchant} cancelled` : err ? "Couldn’t finish" : `Cancelling ${r.merchant}…`}</h2>
           <span className="text-xs text-faint">{kernel ? "Kernel secure cloud browser" : "PayPal Subscriptions"}</span>
@@ -167,7 +167,7 @@ export function RunPanel({ run, onStop, onClose }: { run: RunState; onStop: () =
               {step >= 6 ? "/account/cancelled" : "/account/membership"}
             </span>
           </div>
-          <div className="flex h-[168px] flex-col items-center justify-center gap-2 border-t border-border bg-white px-5 text-center text-black">
+          <div className="flex h-[200px] flex-col items-center justify-center gap-2 border-t border-border bg-white px-5 text-center text-black">
             <span className="text-xs font-medium text-[#555]">{r.merchant} · sandbox merchant</span>
             <span className="text-[17px] font-semibold">{pages[Math.min(step, 6)]}</span>
             <span className="text-xs font-medium text-[#0062c4]">{done ? (run.conf ? `Confirmation ${run.conf}` : "Cancelled") : `Kernel: ${labels[Math.min(step, labels.length - 1)]}`}</span>
