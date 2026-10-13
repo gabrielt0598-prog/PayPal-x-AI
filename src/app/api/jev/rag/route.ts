@@ -3,6 +3,7 @@ import { memory } from "@/lib/services";
 import { retrieveEvidence } from "@/lib/services/evidence";
 import { parseBody } from "@/lib/services/http";
 import { getState } from "@/lib/store";
+import { limit } from "@/lib/services/limits";
 
 const Body = z.object({
   question: z.string().trim().min(1).max(1_000),
@@ -13,6 +14,8 @@ const Body = z.object({
 // POST /api/jev/rag { question, sessionId? } -> { documents, mode, ranking, intent, candidates }
 // Debug / demo route: shows the code-built candidate evidence, Jev's 0..3 relevance score per candidate, and what the agent would see.
 export async function POST(req: Request) {
+  const limited = limit(req, "jev");
+  if (limited) return limited;
   const body = await parseBody(req, Body);
   if ("response" in body) return body.response;
   const facts = body.data.sessionId ? await memory.list(body.data.sessionId) : [];

@@ -81,6 +81,10 @@ export function Assistant() {
           }),
         });
         const data = (await res.json()) as AgentResponse | { error: string };
+        if (res.status === 429 && "error" in data) {
+          setMessages((m) => [...m, { id: uid(), role: "assistant", content: data.error, error: true }]);
+          return;
+        }
         if (!res.ok || "error" in data) throw new Error("error" in data ? data.error : `HTTP ${res.status}`);
         setMessages((m) => [...m, { id: uid(), role: "assistant", content: data.reply, response: data }]);
         setMemory(data.memory);

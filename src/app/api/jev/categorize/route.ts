@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { parseBody } from "@/lib/services/http";
 import { jev } from "@/lib/services/jev";
+import { limit } from "@/lib/services/limits";
 
 const Body = z.object({
   merchant: z.string().trim().min(1).max(200),
@@ -10,6 +11,8 @@ const Body = z.object({
 
 // POST /api/jev/categorize { merchant, description, amount } -> { category, confidence, mode }
 export async function POST(req: Request) {
+  const limited = limit(req, "jev");
+  if (limited) return limited;
   const body = await parseBody(req, Body);
   if ("response" in body) return body.response;
   return Response.json(await jev.categorizeTransaction(body.data));

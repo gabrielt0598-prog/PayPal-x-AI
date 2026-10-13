@@ -1,9 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { runAgent } from "@/lib/agent/run";
+import { limit } from "@/lib/services/limits";
 import type { ChatMessage } from "@/lib/agent/types";
 
 // POST /api/agent — one assistant turn. Non-streaming JSON.
 export async function POST(request: Request) {
+  const limited = limit(request, "agent");
+  if (limited) return limited;
   let body: unknown;
   try {
     body = await request.json();

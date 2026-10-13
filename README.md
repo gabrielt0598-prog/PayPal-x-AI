@@ -78,6 +78,29 @@ button (any code can raise one with a `pfm:alert` CustomEvent). Pressing it
 opens the panel and starts the conversation. The app has no freeze-card or
 dispute tool, so the assistant answers from the data and says what it can't do.
 
+## Usage limits
+
+The routes that spend money or quota are rate-limited (`src/lib/services/limits.ts`), so judges and
+participants can't run up your bill. Each has a per-visitor rate (per minute and per day) and a global
+daily cap; going over returns HTTP 429 with a friendly message and `Retry-After`.
+
+| Guarded | Per minute | Per day | Global per day |
+|---|---|---|---|
+| PayPal AI (`/api/agent`: Claude + Jev) | 10 | 80 | 1,500 |
+| Kernel cancellations (`/api/kernel/cancel`) | 2 | 6 | 60 |
+| Zapier alerts (`/api/zapier/*`, `/api/demo/simulate-spend`) | 3 | 10 | 100 |
+| Jev routes (`/api/jev/*`) | 20 | 200 | 2,000 |
+| PayPal reads / SDK calls (`/api/paypal/*`) | 60 | 1,000 | 20,000 |
+
+Tune with env vars, e.g. `LIMIT_AGENT_PER_MIN=5 LIMIT_AGENT_PER_DAY=40 LIMIT_AGENT_GLOBAL_PER_DAY=800`
+(names: `LIMIT_<AGENT|KERNEL|ZAPIER|JEV|PAYPAL>_<PER_MIN|PER_DAY|GLOBAL_PER_DAY>`), or `RATE_LIMITS=off` for
+local development. Each Claude turn is also capped at 1,500 output tokens, 6 tool rounds, 12 messages of
+history and 4,000 characters per message.
+
+**On Vercel the counters are per serverless instance**, so the real ceiling can be a few times higher.
+For a hard cap also set: an Anthropic Console spend limit, your Kernel and Zapier plan limits, and a
+Vercel Firewall rate-limit rule (Project → Firewall → Rate limiting) on `/api/*`.
+
 ## Project layout
 
 ```

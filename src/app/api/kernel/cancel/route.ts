@@ -2,6 +2,7 @@ import { z } from "zod";
 import { jsonError, parseBody } from "@/lib/services/http";
 import { kernel } from "@/lib/services/kernel";
 import { cancelRecurring, getState } from "@/lib/store";
+import { limit } from "@/lib/services/limits";
 
 const Body = z.object({ recurringId: z.string().trim().min(1).max(100) });
 
@@ -11,6 +12,8 @@ const Body = z.object({ recurringId: z.string().trim().min(1).max(100) });
 // result also carries replayUrl, screenshotDataUrl (JPEG data: URL), confirmationNumber, previewUrl and
 // target ("sandbox" = fake merchant page, the default; "real" = KERNEL_TARGET=real, stops before the final click).
 export async function POST(req: Request) {
+  const limited = limit(req, "kernel");
+  if (limited) return limited;
   const body = await parseBody(req, Body);
   if ("response" in body) return body.response;
   const sub = getState().recurring.find((r) => r.id === body.data.recurringId);

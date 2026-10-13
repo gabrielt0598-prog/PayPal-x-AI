@@ -3,6 +3,7 @@ import { parseBody } from "@/lib/services/http";
 import { jev } from "@/lib/services/jev";
 import { simulateSpend } from "@/lib/store";
 import { maybeAlertLowBalance } from "@/lib/services/zapier";
+import { limit } from "@/lib/services/limits";
 
 const Body = z.object({
   merchant: z.string().trim().min(1).max(80),
@@ -14,6 +15,8 @@ const Body = z.object({
 // Posts a card purchase to the store (category via Jev), then fires the Zapier low-balance alert if it crossed
 // below the auto-reload threshold.
 export async function POST(req: Request) {
+  const limited = limit(req, "zapier");
+  if (limited) return limited;
   const body = await parseBody(req, Body);
   if ("response" in body) return body.response;
   const { merchant, amount } = body.data;
