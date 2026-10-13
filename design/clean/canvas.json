@@ -1,64 +1,2033 @@
 {
-  "v": 3,
-  "attachments": {},
-  "boards": {
-    "Final.dc.html": {
-      "expand": "fill",
-      "h": 875,
-      "is_interactive": true,
-      "title": "Final",
-      "w": 1400,
-      "x": 0,
-      "y": 0
-    },
-    "ProtoClean.dc.html": {
-      "expand": "fill",
-      "h": 875,
-      "is_interactive": true,
-      "title": "Component \u00b7 Clean prototype (used by the Final frame)",
-      "w": 1400,
-      "x": 0,
-      "y": 1240
-    },
-    "Icon.dc.html": {
-      "h": 40,
-      "title": "Component \u00b7 Icon",
-      "w": 40,
-      "x": 1480,
-      "y": 1240
-    },
-    "Logo.dc.html": {
-      "h": 48,
-      "title": "Component \u00b7 Merchant logo",
-      "w": 48,
-      "x": 1580,
-      "y": 1240
-    },
-    "Product.dc.html": {
-      "h": 170,
-      "title": "Component \u00b7 Product image",
-      "w": 170,
-      "x": 1660,
-      "y": 1240
-    }
+ "v": 3,
+ "attachments": {},
+ "boards": {
+  "Arrow-1-1.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 1420,
+   "y": 417
   },
-  "createdOnFiles": {
-    "at": "2026-10-08T17:19:05Z",
-    "v": 1
+  "Arrow-1-2.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 2980,
+   "y": 417
   },
-  "designSystems": [],
-  "launch": {
-    "view": "focused",
-    "file": "Final.dc.html"
+  "Arrow-10-1.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 1420,
+   "y": 13017
   },
-  "notes": {},
-  "order": [
-    "Final.dc.html",
-    "ProtoClean.dc.html",
-    "Icon.dc.html",
-    "Logo.dc.html",
-    "Product.dc.html"
-  ],
-  "pages": [],
-  "title": "PayPal \u00d7 AI \u2014 User flows v2"
+  "Arrow-10-2.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 2980,
+   "y": 13017
+  },
+  "Arrow-10-3.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 4540,
+   "y": 13017
+  },
+  "Arrow-10-4.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 6100,
+   "y": 13017
+  },
+  "Arrow-10-5.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 7660,
+   "y": 13017
+  },
+  "Arrow-10-6.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 9220,
+   "y": 13017
+  },
+  "Arrow-10-7.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 10780,
+   "y": 13017
+  },
+  "Arrow-10-8.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 12340,
+   "y": 13017
+  },
+  "Arrow-11-1.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 1420,
+   "y": 14417
+  },
+  "Arrow-11-2.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 2980,
+   "y": 14417
+  },
+  "Arrow-11-3.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 4540,
+   "y": 14417
+  },
+  "Arrow-11-4.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 6100,
+   "y": 14417
+  },
+  "Arrow-13-1.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 1420,
+   "y": 17217
+  },
+  "Arrow-13-2.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 2980,
+   "y": 17217
+  },
+  "Arrow-13-3.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 4540,
+   "y": 17217
+  },
+  "Arrow-13-4.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 6100,
+   "y": 17217
+  },
+  "Arrow-13-5.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 7660,
+   "y": 17217
+  },
+  "Arrow-13-6.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 9220,
+   "y": 17217
+  },
+  "Arrow-2-1.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 1420,
+   "y": 1817
+  },
+  "Arrow-2-2.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 2980,
+   "y": 1817
+  },
+  "Arrow-2-3.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 4540,
+   "y": 1817
+  },
+  "Arrow-3-1.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 1420,
+   "y": 3217
+  },
+  "Arrow-3-2.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 2980,
+   "y": 3217
+  },
+  "Arrow-3-3.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 4540,
+   "y": 3217
+  },
+  "Arrow-3-4.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 6100,
+   "y": 3217
+  },
+  "Arrow-3-5.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 7660,
+   "y": 3217
+  },
+  "Arrow-3-6.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 9220,
+   "y": 3217
+  },
+  "Arrow-3-7.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 10780,
+   "y": 3217
+  },
+  "Arrow-4-1.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 1420,
+   "y": 4617
+  },
+  "Arrow-4-2.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 2980,
+   "y": 4617
+  },
+  "Arrow-4-3.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 4540,
+   "y": 4617
+  },
+  "Arrow-4-4.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 6100,
+   "y": 4617
+  },
+  "Arrow-4-5.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 7660,
+   "y": 4617
+  },
+  "Arrow-5-1.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 1420,
+   "y": 6017
+  },
+  "Arrow-6-1.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 1420,
+   "y": 7417
+  },
+  "Arrow-6-2.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 2980,
+   "y": 7417
+  },
+  "Arrow-6-3.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 4540,
+   "y": 7417
+  },
+  "Arrow-6-4.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 6100,
+   "y": 7417
+  },
+  "Arrow-7-1.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 1420,
+   "y": 8817
+  },
+  "Arrow-7-2.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 2980,
+   "y": 8817
+  },
+  "Arrow-8-1.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 1420,
+   "y": 10217
+  },
+  "Arrow-8-2.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 2980,
+   "y": 10217
+  },
+  "Arrow-8-3.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 4540,
+   "y": 10217
+  },
+  "Arrow-9-1.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 1420,
+   "y": 11617
+  },
+  "Arrow-9-2.dc.html": {
+   "h": 40,
+   "page": "flows",
+   "title": "\u2192",
+   "w": 120,
+   "x": 2980,
+   "y": 11617
+  },
+  "Arrow-p3-1-1.dc.html": {
+   "h": 40,
+   "page": "aictx",
+   "title": "\u2192",
+   "w": 120,
+   "x": 1420,
+   "y": 417
+  },
+  "Arrow-p3-1-2.dc.html": {
+   "h": 40,
+   "page": "aictx",
+   "title": "\u2192",
+   "w": 120,
+   "x": 2980,
+   "y": 417
+  },
+  "Arrow-p3-10-1.dc.html": {
+   "h": 40,
+   "page": "aictx",
+   "title": "\u2192",
+   "w": 120,
+   "x": 1420,
+   "y": 7417
+  },
+  "Arrow-p3-10-2.dc.html": {
+   "h": 40,
+   "page": "aictx",
+   "title": "\u2192",
+   "w": 120,
+   "x": 2980,
+   "y": 7417
+  },
+  "Arrow-p3-10-3.dc.html": {
+   "h": 40,
+   "page": "aictx",
+   "title": "\u2192",
+   "w": 120,
+   "x": 4540,
+   "y": 7417
+  },
+  "Arrow-p3-3-1.dc.html": {
+   "h": 40,
+   "page": "aictx",
+   "title": "\u2192",
+   "w": 120,
+   "x": 1420,
+   "y": 1817
+  },
+  "Arrow-p3-3-2.dc.html": {
+   "h": 40,
+   "page": "aictx",
+   "title": "\u2192",
+   "w": 120,
+   "x": 2980,
+   "y": 1817
+  },
+  "Arrow-p3-6-1.dc.html": {
+   "h": 40,
+   "page": "aictx",
+   "title": "\u2192",
+   "w": 120,
+   "x": 1420,
+   "y": 3217
+  },
+  "Arrow-p3-6-2.dc.html": {
+   "h": 40,
+   "page": "aictx",
+   "title": "\u2192",
+   "w": 120,
+   "x": 2980,
+   "y": 3217
+  },
+  "Arrow-p3-8-1.dc.html": {
+   "h": 40,
+   "page": "aictx",
+   "title": "\u2192",
+   "w": 120,
+   "x": 1420,
+   "y": 4617
+  },
+  "Arrow-p3-8-2.dc.html": {
+   "h": 40,
+   "page": "aictx",
+   "title": "\u2192",
+   "w": 120,
+   "x": 2980,
+   "y": 4617
+  },
+  "Arrow-p3-9-1.dc.html": {
+   "h": 40,
+   "page": "aictx",
+   "title": "\u2192",
+   "w": 120,
+   "x": 1420,
+   "y": 6017
+  },
+  "Arrow-p3-9-2.dc.html": {
+   "h": 40,
+   "page": "aictx",
+   "title": "\u2192",
+   "w": 120,
+   "x": 2980,
+   "y": 6017
+  },
+  "Arrow-p3-9-3.dc.html": {
+   "h": 40,
+   "page": "aictx",
+   "title": "\u2192",
+   "w": 120,
+   "x": 4540,
+   "y": 6017
+  },
+  "Arrow-p3-9-4.dc.html": {
+   "h": 40,
+   "page": "aictx",
+   "title": "\u2192",
+   "w": 120,
+   "x": 6100,
+   "y": 6017
+  },
+  "Icon.dc.html": {
+   "h": 40,
+   "title": "Component \u00b7 Icon",
+   "w": 40,
+   "x": 1480,
+   "y": 1240
+  },
+  "Logo.dc.html": {
+   "h": 48,
+   "title": "Component \u00b7 Merchant logo",
+   "w": 48,
+   "x": 1580,
+   "y": 1240
+  },
+  "Product.dc.html": {
+   "h": 170,
+   "title": "Component \u00b7 Product image",
+   "w": 170,
+   "x": 1660,
+   "y": 1240
+  },
+  "ProtoClean.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "is_interactive": true,
+   "title": "Component \u00b7 Clean prototype (used by the clean frame)",
+   "w": 1400,
+   "x": 0,
+   "y": 1240
+  },
+  "Screen-ai-cancel.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "5 \u00b7 Cancel \u00b7 on Recurring",
+   "w": 1400,
+   "x": 6240,
+   "y": 14000
+  },
+  "Screen-ai-dining.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "1 \u00b7 Dining \u00b7 on Transactions",
+   "w": 1400,
+   "x": 0,
+   "y": 14000
+  },
+  "Screen-ai-due.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "2 \u00b7 What\u2019s due \u00b7 on Recurring",
+   "w": 1400,
+   "x": 1560,
+   "y": 14000
+  },
+  "Screen-ai-reorder.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "3 \u00b7 Reorder \u00b7 on Essentials",
+   "w": 1400,
+   "x": 3120,
+   "y": 14000
+  },
+  "Screen-ai-tv.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "4 \u00b7 Can I afford\u2026 \u00b7 on Wallet",
+   "w": 1400,
+   "x": 4680,
+   "y": 14000
+  },
+  "Screen-budget-add.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "5 \u00b7 Add a category \u00b7 dialog",
+   "w": 1400,
+   "x": 6240,
+   "y": 16800
+  },
+  "Screen-budget-ai.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "3 \u00b7 Ask PayPal AI for suggested limits",
+   "w": 1400,
+   "x": 3120,
+   "y": 16800
+  },
+  "Screen-budget-detail.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "7 \u00b7 Category details \u00b7 trend, biggest spend, recent",
+   "w": 1400,
+   "x": 9360,
+   "y": 16800
+  },
+  "Screen-budget-edit.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "2 \u00b7 AI fills in suggested amounts",
+   "w": 1400,
+   "x": 1560,
+   "y": 16800
+  },
+  "Screen-budget-rm.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "6 \u00b7 Remove a category \u00b7 confirm",
+   "w": 1400,
+   "x": 7800,
+   "y": 16800
+  },
+  "Screen-budget-saved.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "4 \u00b7 Limits applied \u00b7 toast",
+   "w": 1400,
+   "x": 4680,
+   "y": 16800
+  },
+  "Screen-budget.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "1 \u00b7 Budget \u00b7 editable amounts",
+   "w": 1400,
+   "x": 0,
+   "y": 16800
+  },
+  "Screen-dk-budget-add.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "20 \u00b7 Budget \u00b7 add category dialog",
+   "w": 1400,
+   "x": 4680,
+   "y": 4240
+  },
+  "Screen-dk-budget-detail.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "12 \u00b7 Budget \u00b7 category panel",
+   "w": 1400,
+   "x": 4680,
+   "y": 2120
+  },
+  "Screen-dk-budget.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "4 \u00b7 Budget",
+   "w": 1400,
+   "x": 4680,
+   "y": 0
+  },
+  "Screen-dk-ess-history.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "16 \u00b7 Essentials \u00b7 order history",
+   "w": 1400,
+   "x": 4680,
+   "y": 3180
+  },
+  "Screen-dk-ess-sheet.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "15 \u00b7 Essentials \u00b7 order review",
+   "w": 1400,
+   "x": 3120,
+   "y": 3180
+  },
+  "Screen-dk-essentials.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "6 \u00b7 Essentials",
+   "w": 1400,
+   "x": 1560,
+   "y": 1060
+  },
+  "Screen-dk-home.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "1 \u00b7 Home",
+   "w": 1400,
+   "x": 0,
+   "y": 0
+  },
+  "Screen-dk-insights.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "9 \u00b7 Insights",
+   "w": 1400,
+   "x": 0,
+   "y": 2120
+  },
+  "Screen-dk-offers-detail.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "17 \u00b7 Offers \u00b7 details panel",
+   "w": 1400,
+   "x": 0,
+   "y": 4240
+  },
+  "Screen-dk-offers.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "7 \u00b7 Offers",
+   "w": 1400,
+   "x": 3120,
+   "y": 1060
+  },
+  "Screen-dk-rewards.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "8 \u00b7 Rewards",
+   "w": 1400,
+   "x": 4680,
+   "y": 1060
+  },
+  "Screen-dk-settings.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "10 \u00b7 Settings",
+   "w": 1400,
+   "x": 1560,
+   "y": 2120
+  },
+  "Screen-dk-subs-calendar.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "14 \u00b7 Recurring \u00b7 calendar day",
+   "w": 1400,
+   "x": 1560,
+   "y": 3180
+  },
+  "Screen-dk-subs-panel.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "13 \u00b7 Recurring \u00b7 details panel",
+   "w": 1400,
+   "x": 0,
+   "y": 3180
+  },
+  "Screen-dk-subs.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "5 \u00b7 Recurring",
+   "w": 1400,
+   "x": 0,
+   "y": 1060
+  },
+  "Screen-dk-tx-detail.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "11 \u00b7 Transactions \u00b7 details panel",
+   "w": 1400,
+   "x": 3120,
+   "y": 2120
+  },
+  "Screen-dk-tx.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "3 \u00b7 Transactions",
+   "w": 1400,
+   "x": 3120,
+   "y": 0
+  },
+  "Screen-dk-wallet-autoreload-set.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "19 \u00b7 Wallet \u00b7 auto reload dialog",
+   "w": 1400,
+   "x": 3120,
+   "y": 4240
+  },
+  "Screen-dk-wallet-method.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "18 \u00b7 Wallet \u00b7 linked account panel",
+   "w": 1400,
+   "x": 1560,
+   "y": 4240
+  },
+  "Screen-dk-wallet.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "dockai",
+   "title": "2 \u00b7 Wallet",
+   "w": 1400,
+   "x": 1560,
+   "y": 0
+  },
+  "Screen-ess-done.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "4 \u00b7 Order placed",
+   "w": 1400,
+   "x": 4680,
+   "y": 7000
+  },
+  "Screen-ess-history.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "5 \u00b7 Order history \u00b7 Buy again",
+   "w": 1400,
+   "x": 6240,
+   "y": 7000
+  },
+  "Screen-ess-running.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "3 \u00b7 Placing the order \u00b7 steps",
+   "w": 1400,
+   "x": 3120,
+   "y": 7000
+  },
+  "Screen-ess-sheet.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "2 \u00b7 Review order",
+   "w": 1400,
+   "x": 1560,
+   "y": 7000
+  },
+  "Screen-ess.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "1 \u00b7 Essentials \u00b7 items",
+   "w": 1400,
+   "x": 0,
+   "y": 7000
+  },
+  "Screen-home-2.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "1 \u00b7 Home \u00b7 balance card",
+   "w": 1400,
+   "x": 0,
+   "y": 1400
+  },
+  "Screen-home-add.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "2 \u00b7 Add money to PayPal",
+   "w": 1400,
+   "x": 1560,
+   "y": 1400
+  },
+  "Screen-home-added.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "3 \u00b7 Added \u00b7 toast and new balance",
+   "w": 1400,
+   "x": 3120,
+   "y": 1400
+  },
+  "Screen-home-ai-dining.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "3 \u00b7 Ask \u00b7 answer with sources and actions",
+   "w": 1400,
+   "x": 3120,
+   "y": 0
+  },
+  "Screen-home-ai.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "2 \u00b7 Open PayPal AI \u00b7 starter prompts",
+   "w": 1400,
+   "x": 1560,
+   "y": 0
+  },
+  "Screen-home-sidebar.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "is_interactive": true,
+   "title": "Final",
+   "w": 1400,
+   "x": 0,
+   "y": -44
+  },
+  "Screen-home.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "1 \u00b7 Home",
+   "w": 1400,
+   "x": 0,
+   "y": 0
+  },
+  "Screen-insights-aug.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "3 \u00b7 Another month",
+   "w": 1400,
+   "x": 3120,
+   "y": 11200
+  },
+  "Screen-insights-menu.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "2 \u00b7 Month menu",
+   "w": 1400,
+   "x": 1560,
+   "y": 11200
+  },
+  "Screen-insights.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "1 \u00b7 Insights \u00b7 September",
+   "w": 1400,
+   "x": 0,
+   "y": 11200
+  },
+  "Screen-offers-added.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "3 \u00b7 Offer added",
+   "w": 1400,
+   "x": 3120,
+   "y": 8400
+  },
+  "Screen-offers-detail.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "2 \u00b7 Offer details panel",
+   "w": 1400,
+   "x": 1560,
+   "y": 8400
+  },
+  "Screen-offers.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "1 \u00b7 Offers gallery",
+   "w": 1400,
+   "x": 0,
+   "y": 8400
+  },
+  "Screen-p3-1-1-ai-dining.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "1 \u00b7 Dining \u00b7 on Transactions",
+   "w": 1400,
+   "x": 0,
+   "y": 0
+  },
+  "Screen-p3-1-2-ai-due.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "2 \u00b7 What\u2019s due \u00b7 on Recurring",
+   "w": 1400,
+   "x": 1560,
+   "y": 0
+  },
+  "Screen-p3-10-1-whatif-read.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "1 \u00b7 Read \u00b7 Budget page, $779.19 left this month",
+   "w": 1400,
+   "x": 0,
+   "y": 7000
+  },
+  "Screen-p3-10-2-whatif-skip.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "2 \u00b7 Ask \u00b7 \u201cWhat if I skip dining out?\u201d Now vs What if",
+   "w": 1400,
+   "x": 1560,
+   "y": 7000
+  },
+  "Screen-p3-10-3-whatif-buy.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "3 \u00b7 Ask \u00b7 \u201cWhat if I buy a $900 laptop?\u201d Hits the card limit",
+   "w": 1400,
+   "x": 3120,
+   "y": 7000
+  },
+  "Screen-p3-10-4-whatif-apply.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "4 \u00b7 Result \u00b7 User applies the scenario as a $212 dining limit",
+   "w": 1400,
+   "x": 4680,
+   "y": 7000
+  },
+  "Screen-p3-3-1-trial-read.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "1 \u00b7 Read \u00b7 Free trials calendar widget",
+   "w": 1400,
+   "x": 0,
+   "y": 1400
+  },
+  "Screen-p3-3-2-trial-act.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "2 \u00b7 Act \u00b7 Agent starts the trial, schedules auto-cancel",
+   "w": 1400,
+   "x": 1560,
+   "y": 1400
+  },
+  "Screen-p3-3-3-trial-result.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "3 \u00b7 Result \u00b7 Trial on Recurring, auto-cancel set",
+   "w": 1400,
+   "x": 3120,
+   "y": 1400
+  },
+  "Screen-p3-6-1-fraud-read.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "1 \u00b7 Read \u00b7 Suspicious charge notification",
+   "w": 1400,
+   "x": 0,
+   "y": 2800
+  },
+  "Screen-p3-6-2-fraud-act.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "2 \u00b7 Act \u00b7 Agent freezes, files the claim, orders a new card",
+   "w": 1400,
+   "x": 1560,
+   "y": 2800
+  },
+  "Screen-p3-6-3-fraud-result.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "3 \u00b7 Result \u00b7 Frozen card, replacement ordered",
+   "w": 1400,
+   "x": 3120,
+   "y": 2800
+  },
+  "Screen-p3-8-1-dg-read.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "1 \u00b7 Read \u00b7 Premium plan at $22.99/mo",
+   "w": 1400,
+   "x": 0,
+   "y": 4200
+  },
+  "Screen-p3-8-2-dg-act.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "2 \u00b7 Act \u00b7 Agent switches to the ad-supported tier",
+   "w": 1400,
+   "x": 1560,
+   "y": 4200
+  },
+  "Screen-p3-8-3-dg-result.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "3 \u00b7 Result \u00b7 Subscription at $6.99/mo",
+   "w": 1400,
+   "x": 3120,
+   "y": 4200
+  },
+  "Screen-p3-9-1-cancel-read.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "1 \u00b7 Read \u00b7 Vantage on Recurring, $9.99 a month",
+   "w": 1400,
+   "x": 0,
+   "y": 5600
+  },
+  "Screen-p3-9-2-cancel-ask.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "2 \u00b7 Act \u00b7 User asks the agent to cancel it",
+   "w": 1400,
+   "x": 1560,
+   "y": 5600
+  },
+  "Screen-p3-9-3-cancel-confirm.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "3 \u00b7 Approve \u00b7 Review the cancellation, nothing happens yet",
+   "w": 1400,
+   "x": 3120,
+   "y": 5600
+  },
+  "Screen-p3-9-4-cancel-run.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "4 \u00b7 Act \u00b7 Agent cancels in a secure browser, step by step",
+   "w": 1400,
+   "x": 4680,
+   "y": 5600
+  },
+  "Screen-p3-9-5-cancel-done.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "aictx",
+   "title": "5 \u00b7 Result \u00b7 Cancelled, proof saved, undo available",
+   "w": 1400,
+   "x": 6240,
+   "y": 5600
+  },
+  "Screen-rewards-category.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "3 \u00b7 5% category chosen",
+   "w": 1400,
+   "x": 3120,
+   "y": 9800
+  },
+  "Screen-rewards-redeem.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "2 \u00b7 Redeem points",
+   "w": 1400,
+   "x": 1560,
+   "y": 9800
+  },
+  "Screen-rewards.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "1 \u00b7 Rewards",
+   "w": 1400,
+   "x": 0,
+   "y": 9800
+  },
+  "Screen-settings.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "1 \u00b7 Settings \u00b7 profile, security, notifications, AI",
+   "w": 1400,
+   "x": 0,
+   "y": 15400
+  },
+  "Screen-subs-bill.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "2 \u00b7 Bill details panel",
+   "w": 1400,
+   "x": 1560,
+   "y": 5600
+  },
+  "Screen-subs-calendar.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "1 \u00b7 Payment calendar \u00b7 day selected",
+   "w": 1400,
+   "x": 0,
+   "y": 5600
+  },
+  "Screen-subs-confirm.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "3 \u00b7 Confirm cancellation",
+   "w": 1400,
+   "x": 3120,
+   "y": 4200
+  },
+  "Screen-subs-done.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "5 \u00b7 Cancelled \u00b7 toast with Undo",
+   "w": 1400,
+   "x": 6240,
+   "y": 4200
+  },
+  "Screen-subs-panel.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "2 \u00b7 Subscription details panel",
+   "w": 1400,
+   "x": 1560,
+   "y": 4200
+  },
+  "Screen-subs-proof.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "6 \u00b7 Cancelled state \u00b7 proof",
+   "w": 1400,
+   "x": 7800,
+   "y": 4200
+  },
+  "Screen-subs-running.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "4 \u00b7 Kernel run \u00b7 live browser and steps",
+   "w": 1400,
+   "x": 4680,
+   "y": 4200
+  },
+  "Screen-subs.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "1 \u00b7 Recurring \u00b7 subscriptions and bills",
+   "w": 1400,
+   "x": 0,
+   "y": 4200
+  },
+  "Screen-tx-detail.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "4 \u00b7 Transaction details panel",
+   "w": 1400,
+   "x": 4680,
+   "y": 2800
+  },
+  "Screen-tx-dining.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "3 \u00b7 Filtered to Dining",
+   "w": 1400,
+   "x": 3120,
+   "y": 2800
+  },
+  "Screen-tx-filter.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "2 \u00b7 Category filter menu",
+   "w": 1400,
+   "x": 1560,
+   "y": 2800
+  },
+  "Screen-tx-page2.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "8 \u00b7 Page 2 of results",
+   "w": 1400,
+   "x": 10920,
+   "y": 2800
+  },
+  "Screen-tx-picker.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "5 \u00b7 Change category \u00b7 picker",
+   "w": 1400,
+   "x": 6240,
+   "y": 2800
+  },
+  "Screen-tx-redeem.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "4 \u00b7 Redemption recorded in Transactions",
+   "w": 1400,
+   "x": 4680,
+   "y": 9800
+  },
+  "Screen-tx-review.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "7 \u00b7 Needs-review charge",
+   "w": 1400,
+   "x": 9360,
+   "y": 2800
+  },
+  "Screen-tx-saved.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "6 \u00b7 Category saved \u00b7 toast",
+   "w": 1400,
+   "x": 7800,
+   "y": 2800
+  },
+  "Screen-tx-topup.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "4 \u00b7 Recorded in Transactions \u00b7 inflow",
+   "w": 1400,
+   "x": 4680,
+   "y": 1400
+  },
+  "Screen-tx.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "1 \u00b7 Transactions \u00b7 chart and list",
+   "w": 1400,
+   "x": 0,
+   "y": 2800
+  },
+  "Screen-wallet-add.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "2 \u00b7 Top up sheet",
+   "w": 1400,
+   "x": 1560,
+   "y": 12600
+  },
+  "Screen-wallet-autoreload-menu.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "8 \u00b7 Choose the reload account \u00b7 dropdown",
+   "w": 1400,
+   "x": 10920,
+   "y": 12600
+  },
+  "Screen-wallet-autoreload-set.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "7 \u00b7 Configure auto reload \u00b7 dialog",
+   "w": 1400,
+   "x": 9360,
+   "y": 12600
+  },
+  "Screen-wallet-autoreload.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "9 \u00b7 Auto reload off \u00b7 dialog",
+   "w": 1400,
+   "x": 12480,
+   "y": 12600
+  },
+  "Screen-wallet-card.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "5 \u00b7 Debit card \u00b7 details shown",
+   "w": 1400,
+   "x": 6240,
+   "y": 12600
+  },
+  "Screen-wallet-frozen.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "6 \u00b7 Card frozen",
+   "w": 1400,
+   "x": 7800,
+   "y": 12600
+  },
+  "Screen-wallet-method.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "3 \u00b7 Linked account details",
+   "w": 1400,
+   "x": 3120,
+   "y": 12600
+  },
+  "Screen-wallet-remove.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "4 \u00b7 Remove a linked account \u00b7 confirm",
+   "w": 1400,
+   "x": 4680,
+   "y": 12600
+  },
+  "Screen-wallet.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "flows",
+   "title": "1 \u00b7 Wallet",
+   "w": 1400,
+   "x": 0,
+   "y": 12600
+  },
+  "Screen-ai-change.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "is_interactive": true,
+   "title": "AI change \u00b7 Budget (highlight + toast)",
+   "w": 1400,
+   "x": 1560,
+   "y": -44
+  }
+ },
+ "createdOnFiles": {
+  "at": "2026-10-08T17:19:05Z",
+  "v": 1
+ },
+ "designSystems": [],
+ "launch": {
+  "file": "Screen-home-sidebar.dc.html",
+  "view": "focused"
+ },
+ "notes": {
+  "dkt": {
+   "kind": "title1",
+   "maxW": 1400,
+   "page": "dockai",
+   "text": "Bottom dock layout \u00b7 PayPal AI chat open",
+   "w": 240,
+   "x": 0,
+   "y": -140
+  },
+  "fintro": {
+   "fill": "green",
+   "page": "flows",
+   "text": "Every screen of the Clean prototype, grouped by flow and read left to right. Each frame is the live prototype opened on that exact state. Numbers match the list beside each row.",
+   "w": 480,
+   "x": -560,
+   "y": -260
+  },
+  "fn0": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "flows",
+   "text": "Home is the starting point. PayPal AI opens beside the rail, not over the page, and answers with sources and next steps.\n\n1. Home\n2. Open PayPal AI \u00b7 starter prompts\n3. Ask \u00b7 answer with sources and actions",
+   "w": 480,
+   "x": -560,
+   "y": 0
+  },
+  "fn1": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "flows",
+   "text": "Move money in from the balance card. A sheet picks the amount; a toast confirms, the balance updates, and the top up is recorded in Transactions as a positive inflow.\n\n1. Home \u00b7 balance card\n2. Add money to PayPal\n3. Added \u00b7 toast and new balance\n4. Recorded in Transactions \u00b7 inflow",
+   "w": 480,
+   "x": -560,
+   "y": 1400
+  },
+  "fn10": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "flows",
+   "text": "The AI panel stays open beside whichever page the user is on, so answers can point at what is on screen.\n\n1. Dining \u00b7 on Transactions\n2. What\u2019s due \u00b7 on Recurring\n3. Reorder \u00b7 on Essentials\n4. Can I afford\u2026 \u00b7 on Wallet\n5. Cancel \u00b7 on Recurring",
+   "w": 480,
+   "x": -560,
+   "y": 14000
+  },
+  "fn11": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "flows",
+   "text": "The avatar at the bottom of the rail opens Settings: profile details, security, notification and PayPal AI preferences.\n\n1. Settings",
+   "w": 480,
+   "x": -560,
+   "y": 15400
+  },
+  "fn12": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "flows",
+   "text": "Budget is a rail page with two sections, Essentials and Spending: editable amounts, an Add category button under each, and an x to remove a row (with a confirm dialog). A summary ring shows what is left. PayPal AI can suggest limits in chat or on the page; nothing changes until the user applies it.\n\n1. Budget\n2. AI suggestions\n3. Suggest in chat\n4. Applied\n5. Add a category\n6. Remove a category\n7. Category details",
+   "w": 480,
+   "x": -560,
+   "y": 16800
+  },
+  "fn2": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "flows",
+   "text": "Find, filter and understand any transaction. Charges PayPal AI can\u2019t categorise get a review prompt.\n\n1. Transactions \u00b7 chart and list\n2. Category filter menu\n3. Filtered to Dining\n4. Transaction details panel\n5. Change category \u00b7 picker\n6. Category saved \u00b7 toast\n7. Needs-review charge\n8. Page 2 of results",
+   "w": 480,
+   "x": -560,
+   "y": 2800
+  },
+  "fn3": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "flows",
+   "text": "PayPal AI\u2019s agent (Kernel) cancels in a secure cloud browser, only after the user approves, and leaves proof and an undo.\n\n1. Recurring \u00b7 subscriptions and bills\n2. Subscription details panel\n3. Confirm cancellation\n4. Kernel run \u00b7 live browser and steps\n5. Cancelled \u00b7 toast with Undo\n6. Cancelled state \u00b7 proof",
+   "w": 480,
+   "x": -560,
+   "y": 4200
+  },
+  "fn4": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "flows",
+   "text": "See what is due by day, and inspect a bill (bills are tracked, never suggested for cancelling).\n\n1. Payment calendar \u00b7 day selected\n2. Bill details panel",
+   "w": 480,
+   "x": -560,
+   "y": 5600
+  },
+  "fn5": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "flows",
+   "text": "Select household items, review the order, and let the checkout agent place it with the partner store.\n\n1. Essentials \u00b7 items\n2. Review order\n3. Placing the order \u00b7 steps\n4. Order placed\n5. Order history \u00b7 Buy again",
+   "w": 480,
+   "x": -560,
+   "y": 7000
+  },
+  "fn6": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "flows",
+   "text": "Add a cash-back offer, pay with PayPal, receive cash back in 3\u20135 days.\n\n1. Offers gallery\n2. Offer details panel\n3. Offer added",
+   "w": 480,
+   "x": -560,
+   "y": 8400
+  },
+  "fn7": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "flows",
+   "text": "Check points, redeem them to balance (recorded in Transactions as an inflow), and choose the monthly 5% category.\n\n1. Rewards\n2. Redeem points\n3. 5% category chosen\n4. Redemption recorded in Transactions",
+   "w": 480,
+   "x": -560,
+   "y": 9800
+  },
+  "fn8": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "flows",
+   "text": "A month-by-month look at where the money went, with findings that lead to an action.\n\n1. Insights \u00b7 September\n2. Month menu\n3. Another month",
+   "w": 480,
+   "x": -560,
+   "y": 11200
+  },
+  "fn9": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "flows",
+   "text": "Balance, linked accounts and the debit card. Its own page, reached from the Wallet item in the rail.\n\n1. Wallet\n2. Top up sheet\n3. Linked account details\n4. Remove a linked account \u00b7 confirm\n5. Debit card \u00b7 details shown\n6. Card frozen\n7. Configure auto reload \u00b7 dialog\n8. Choose the reload account \u00b7 dropdown\n9. Auto reload off \u00b7 dialog",
+   "w": 480,
+   "x": -560,
+   "y": 12600
+  },
+  "ft0": {
+   "kind": "title1",
+   "maxW": 4520,
+   "page": "flows",
+   "text": "1. Getting oriented",
+   "w": 240,
+   "x": 0,
+   "y": -260
+  },
+  "ft1": {
+   "kind": "title1",
+   "maxW": 6080,
+   "page": "flows",
+   "text": "2. Add money",
+   "w": 240,
+   "x": 0,
+   "y": 1140
+  },
+  "ft10": {
+   "kind": "title1",
+   "maxW": 7640,
+   "page": "flows",
+   "text": "11. PayPal AI in context",
+   "w": 240,
+   "x": 0,
+   "y": 13740
+  },
+  "ft11": {
+   "kind": "title1",
+   "maxW": 1400,
+   "page": "flows",
+   "text": "12. Settings",
+   "w": 240,
+   "x": 0,
+   "y": 15140
+  },
+  "ft12": {
+   "kind": "title1",
+   "maxW": 1400,
+   "page": "flows",
+   "text": "13. Budgeting",
+   "w": 240,
+   "x": 0,
+   "y": 16540
+  },
+  "ft2": {
+   "kind": "title1",
+   "maxW": 8000,
+   "page": "flows",
+   "text": "3. Review spending",
+   "w": 240,
+   "x": 0,
+   "y": 2540
+  },
+  "ft3": {
+   "kind": "title1",
+   "maxW": 8000,
+   "page": "flows",
+   "text": "4. Cancel a subscription",
+   "w": 240,
+   "x": 0,
+   "y": 3940
+  },
+  "ft4": {
+   "kind": "title1",
+   "maxW": 2960,
+   "page": "flows",
+   "text": "5. Calendar and bills",
+   "w": 240,
+   "x": 0,
+   "y": 5340
+  },
+  "ft5": {
+   "kind": "title1",
+   "maxW": 7640,
+   "page": "flows",
+   "text": "6. Reorder essentials",
+   "w": 240,
+   "x": 0,
+   "y": 6740
+  },
+  "ft6": {
+   "kind": "title1",
+   "maxW": 4520,
+   "page": "flows",
+   "text": "7. Offers",
+   "w": 240,
+   "x": 0,
+   "y": 8140
+  },
+  "ft7": {
+   "kind": "title1",
+   "maxW": 6080,
+   "page": "flows",
+   "text": "8. Rewards",
+   "w": 240,
+   "x": 0,
+   "y": 9540
+  },
+  "ft8": {
+   "kind": "title1",
+   "maxW": 4520,
+   "page": "flows",
+   "text": "9. Insights",
+   "w": 240,
+   "x": 0,
+   "y": 10940
+  },
+  "ft9": {
+   "kind": "title1",
+   "maxW": 8000,
+   "page": "flows",
+   "text": "10. Wallet",
+   "w": 240,
+   "x": 0,
+   "y": 12340
+  },
+  "p3intro": {
+   "fill": "green",
+   "page": "aictx",
+   "text": "AI in context: the PayPal AI panel working next to real screens. Each flow pairs a passive Read screen with an agentic Act conversation, then the result.",
+   "w": 480,
+   "x": -560,
+   "y": -260
+  },
+  "p3n0": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "aictx",
+   "text": "The AI panel stays open beside whichever page the user is on, so answers can point at what is on screen. (Copy of the flow on the previous page.)\n\n1. Dining \u00b7 on Transactions\n2. What\u2019s due \u00b7 on Recurring",
+   "w": 480,
+   "x": -560,
+   "y": 0
+  },
+  "p3n2": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "aictx",
+   "text": "Read: a calendar widget of upcoming free trial expiry dates.\nAct: the user asks to start a trial without being charged; the agent starts it, pays with PayPal and schedules an automatic cancellation the day before the first $49.99 charge.\n\n1. Read \u00b7 Free trials calendar widget\n2. Act \u00b7 Agent starts the trial, schedules auto-cancel\n3. Result \u00b7 Trial on Recurring, auto-cancel set",
+   "w": 480,
+   "x": -560,
+   "y": 1400
+  },
+  "p3n5": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "aictx",
+   "text": "Read: a push notification about a suspicious $450 charge.\nAct: \u201cThat wasn\u2019t me.\u201d The agent freezes the debit card, files an unauthorized-transaction claim and orders a replacement card. The PayPal balance keeps working online meanwhile.\n\n1. Read \u00b7 Suspicious charge notification\n2. Act \u00b7 Agent freezes, files the claim, orders a new card\n3. Result \u00b7 Frozen card, replacement ordered",
+   "w": 480,
+   "x": -560,
+   "y": 2800
+  },
+  "p3n7": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "aictx",
+   "text": "Read: a list showing the user pays $22.99 a month for Cinebox Premium.\nAct: \u201cDowngrade my Cinebox to the $6.99 ad-supported tier.\u201d The agent changes the tier in the billing portal instead of cancelling.\n\n1. Read \u00b7 Premium plan at $22.99/mo\n2. Act \u00b7 Agent switches to the ad-supported tier\n3. Result \u00b7 Subscription at $6.99/mo",
+   "w": 480,
+   "x": -560,
+   "y": 4200
+  },
+  "p3n8": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "aictx",
+   "text": "Read: the subscription\u2019s details on Recurring.\nAct: \u201cCancel my Vantage subscription.\u201d The agent explains it will open the merchant\u2019s site in a secure browser, and nothing changes until the user approves.\nApprove: the user reviews and confirms in a dialog.\nAct: the agent works through the merchant\u2019s cancellation steps and the user watches each one.\nResult: Vantage is cancelled, a confirmation number and screenshot are saved, and Undo stays available.\n\n1. Read\n2. Ask\n3. Approve\n4. Run\n5. Result",
+   "w": 480,
+   "x": -560,
+   "y": 5600
+  },
+  "p3n9": {
+   "fill": "gray",
+   "maxH": 875,
+   "page": "aictx",
+   "text": "Read: the Budget page shows $779.19 left this month.\nAsk: \u201cWhat if I skip dining out for the rest of October?\u201d The agent projects to Oct 31 and shows Now beside What if, with the change in each row.\nAsk: \u201cWhat if I buy a $900 laptop today?\u201d The side-by-side shows it would pass the $3,000 card limit, and suggests an alternative.\nResult: the user applies the first scenario as a lower dining limit, and the Budget page reflects it.\n\n1. Read\n2. Skip dining\n3. Buy a laptop\n4. Apply",
+   "w": 480,
+   "x": -560,
+   "y": 7000
+  },
+  "p3t0": {
+   "kind": "title1",
+   "maxW": 7640,
+   "page": "aictx",
+   "text": "PayPal AI in context",
+   "w": 240,
+   "x": 0,
+   "y": -260
+  },
+  "p3t2": {
+   "kind": "title1",
+   "maxW": 4520,
+   "page": "aictx",
+   "text": "1. Subscription Trial Defense",
+   "w": 240,
+   "x": 0,
+   "y": 1140
+  },
+  "p3t5": {
+   "kind": "title1",
+   "maxW": 4520,
+   "page": "aictx",
+   "text": "6. Fraud Lock & Replace",
+   "w": 240,
+   "x": 0,
+   "y": 2540
+  },
+  "p3t7": {
+   "kind": "title1",
+   "maxW": 4520,
+   "page": "aictx",
+   "text": "11. Subscription Tier Downgrades",
+   "w": 240,
+   "x": 0,
+   "y": 3940
+  },
+  "p3t8": {
+   "kind": "title1",
+   "maxW": 1400,
+   "page": "aictx",
+   "text": "3. Subscription Cancellation",
+   "w": 240,
+   "x": 0,
+   "y": 5340
+  },
+  "p3t9": {
+   "kind": "title1",
+   "maxW": 1400,
+   "page": "aictx",
+   "text": "4. What-if Scenarios",
+   "w": 240,
+   "x": 0,
+   "y": 6740
+  },
+  "s0": {
+   "fill": "green",
+   "size": 24,
+   "text": "\u2605 Clean is the live prototype. Press Play. Earlier variations, flows and chat explorations moved to the design archive canvas: https://claude.ai/artifact/3vg9hQFaoBJtCFqjrvYM4h",
+   "w": 480,
+   "x": -560,
+   "y": 0
+  },
+  "t1": {
+   "kind": "title1",
+   "maxW": 3000,
+   "text": "Shared components",
+   "w": 240,
+   "x": 0,
+   "y": 980
+  }
+ },
+ "order": [
+  "Screen-home.dc.html",
+  "Screen-home-ai.dc.html",
+  "Screen-home-ai-dining.dc.html",
+  "Screen-home-add.dc.html",
+  "Screen-home-added.dc.html",
+  "Screen-tx.dc.html",
+  "Screen-tx-filter.dc.html",
+  "Screen-tx-dining.dc.html",
+  "Screen-tx-detail.dc.html",
+  "Screen-tx-picker.dc.html",
+  "Screen-tx-saved.dc.html",
+  "Screen-tx-review.dc.html",
+  "Screen-tx-page2.dc.html",
+  "Screen-subs.dc.html",
+  "Screen-subs-panel.dc.html",
+  "Screen-subs-confirm.dc.html",
+  "Screen-subs-running.dc.html",
+  "Screen-subs-done.dc.html",
+  "Screen-subs-proof.dc.html",
+  "Screen-subs-calendar.dc.html",
+  "Screen-subs-bill.dc.html",
+  "Screen-ess.dc.html",
+  "Screen-ess-sheet.dc.html",
+  "Screen-ess-running.dc.html",
+  "Screen-ess-done.dc.html",
+  "Screen-ess-history.dc.html",
+  "Screen-offers.dc.html",
+  "Screen-offers-detail.dc.html",
+  "Screen-offers-added.dc.html",
+  "Screen-rewards.dc.html",
+  "Screen-rewards-redeem.dc.html",
+  "Screen-rewards-category.dc.html",
+  "Screen-insights.dc.html",
+  "Screen-insights-menu.dc.html",
+  "Screen-insights-aug.dc.html",
+  "Screen-wallet.dc.html",
+  "Screen-wallet-add.dc.html",
+  "Screen-wallet-method.dc.html",
+  "Screen-wallet-remove.dc.html",
+  "Screen-wallet-card.dc.html",
+  "Screen-wallet-frozen.dc.html",
+  "Screen-wallet-autoreload.dc.html",
+  "Screen-ai-dining.dc.html",
+  "Screen-ai-due.dc.html",
+  "Screen-ai-reorder.dc.html",
+  "Screen-ai-tv.dc.html",
+  "Screen-ai-cancel.dc.html",
+  "Screen-home-2.dc.html",
+  "Arrow-1-1.dc.html",
+  "Arrow-1-2.dc.html",
+  "Arrow-2-1.dc.html",
+  "Arrow-2-2.dc.html",
+  "Arrow-3-1.dc.html",
+  "Arrow-3-2.dc.html",
+  "Arrow-3-3.dc.html",
+  "Arrow-3-4.dc.html",
+  "Arrow-3-5.dc.html",
+  "Arrow-4-1.dc.html",
+  "Arrow-4-2.dc.html",
+  "Arrow-4-3.dc.html",
+  "Arrow-4-4.dc.html",
+  "Arrow-4-5.dc.html",
+  "Arrow-5-1.dc.html",
+  "Arrow-6-1.dc.html",
+  "Arrow-6-2.dc.html",
+  "Arrow-6-3.dc.html",
+  "Arrow-6-4.dc.html",
+  "Arrow-7-1.dc.html",
+  "Arrow-7-2.dc.html",
+  "Arrow-8-1.dc.html",
+  "Arrow-8-2.dc.html",
+  "Arrow-9-1.dc.html",
+  "Arrow-9-2.dc.html",
+  "Arrow-10-1.dc.html",
+  "Arrow-10-2.dc.html",
+  "Arrow-10-3.dc.html",
+  "Arrow-10-4.dc.html",
+  "Arrow-10-5.dc.html",
+  "Arrow-10-6.dc.html",
+  "Arrow-11-1.dc.html",
+  "Arrow-11-2.dc.html",
+  "Arrow-11-3.dc.html",
+  "Arrow-11-4.dc.html",
+  "Arrow-3-6.dc.html",
+  "Arrow-3-7.dc.html",
+  "Screen-settings.dc.html",
+  "Screen-p3-1-1-ai-dining.dc.html",
+  "Arrow-p3-1-1.dc.html",
+  "Screen-p3-1-2-ai-due.dc.html",
+  "Arrow-p3-1-2.dc.html",
+  "Screen-p3-3-1-trial-read.dc.html",
+  "Arrow-p3-3-1.dc.html",
+  "Screen-p3-3-2-trial-act.dc.html",
+  "Arrow-p3-3-2.dc.html",
+  "Screen-p3-3-3-trial-result.dc.html",
+  "Screen-p3-6-1-fraud-read.dc.html",
+  "Arrow-p3-6-1.dc.html",
+  "Screen-p3-6-2-fraud-act.dc.html",
+  "Arrow-p3-6-2.dc.html",
+  "Screen-p3-6-3-fraud-result.dc.html",
+  "Screen-p3-8-1-dg-read.dc.html",
+  "Arrow-p3-8-1.dc.html",
+  "Screen-p3-8-2-dg-act.dc.html",
+  "Arrow-p3-8-2.dc.html",
+  "Screen-p3-8-3-dg-result.dc.html",
+  "Screen-tx-topup.dc.html",
+  "Arrow-2-3.dc.html",
+  "Screen-tx-redeem.dc.html",
+  "Arrow-8-3.dc.html",
+  "Screen-wallet-autoreload-set.dc.html",
+  "Arrow-10-7.dc.html",
+  "Screen-wallet-autoreload-menu.dc.html",
+  "Arrow-10-8.dc.html",
+  "Screen-budget.dc.html",
+  "Arrow-13-1.dc.html",
+  "Screen-budget-edit.dc.html",
+  "Arrow-13-2.dc.html",
+  "Screen-budget-ai.dc.html",
+  "Arrow-13-3.dc.html",
+  "Screen-budget-saved.dc.html",
+  "Screen-budget-add.dc.html",
+  "Arrow-13-4.dc.html",
+  "Screen-budget-rm.dc.html",
+  "Arrow-13-5.dc.html",
+  "Screen-budget-detail.dc.html",
+  "Arrow-13-6.dc.html",
+  "Screen-dk-home.dc.html",
+  "Screen-dk-wallet.dc.html",
+  "Screen-dk-tx.dc.html",
+  "Screen-dk-budget.dc.html",
+  "Screen-dk-subs.dc.html",
+  "Screen-dk-essentials.dc.html",
+  "Screen-dk-offers.dc.html",
+  "Screen-dk-rewards.dc.html",
+  "Screen-dk-insights.dc.html",
+  "Screen-dk-settings.dc.html",
+  "Screen-dk-tx-detail.dc.html",
+  "Screen-dk-budget-detail.dc.html",
+  "Screen-dk-subs-panel.dc.html",
+  "Screen-dk-subs-calendar.dc.html",
+  "Screen-dk-ess-sheet.dc.html",
+  "Screen-dk-ess-history.dc.html",
+  "Screen-dk-offers-detail.dc.html",
+  "Screen-dk-wallet-method.dc.html",
+  "Screen-dk-wallet-autoreload-set.dc.html",
+  "Screen-dk-budget-add.dc.html",
+  "Screen-p3-9-1-cancel-read.dc.html",
+  "Arrow-p3-9-1.dc.html",
+  "Screen-p3-9-2-cancel-ask.dc.html",
+  "Arrow-p3-9-2.dc.html",
+  "Screen-p3-9-3-cancel-confirm.dc.html",
+  "Arrow-p3-9-3.dc.html",
+  "Screen-p3-9-4-cancel-run.dc.html",
+  "Arrow-p3-9-4.dc.html",
+  "Screen-p3-9-5-cancel-done.dc.html",
+  "Screen-p3-10-1-whatif-read.dc.html",
+  "Arrow-p3-10-1.dc.html",
+  "Screen-p3-10-2-whatif-skip.dc.html",
+  "Arrow-p3-10-2.dc.html",
+  "Screen-p3-10-3-whatif-buy.dc.html",
+  "Arrow-p3-10-3.dc.html",
+  "Screen-p3-10-4-whatif-apply.dc.html",
+  "ProtoClean.dc.html",
+  "Icon.dc.html",
+  "Logo.dc.html",
+  "Product.dc.html",
+  "Screen-home-sidebar.dc.html",
+  "Screen-ai-change.dc.html"
+ ],
+ "pages": [
+  {
+   "id": "proto",
+   "name": "Prototype"
+  },
+  {
+   "id": "flows",
+   "name": "Flow map"
+  },
+  {
+   "id": "aictx",
+   "name": "AI in context"
+  },
+  {
+   "id": "dockai",
+   "name": "Dock + AI audit"
+  }
+ ],
+ "title": "PayPal \u00d7 AI \u2014 User flows v2"
 }
