@@ -13,7 +13,58 @@ Account. Essentials (reorders through a PayPal Store Sync merchant) and Rewards
 (PayPal Rewards points) use sample catalogs and points, because neither has a
 public API; their payments still post to the PayPal balance ledger.
 
-Built for the PayPal × AI hackathon. Localhost demo; deployment comes later.
+Built for the PayPal × AI hackathon. Runs locally or on Vercel; with no API keys it runs entirely on
+sample data, and each integration goes live as you add its key.
+
+## How we used PayPal
+
+PayPal's developer platform is the money layer. Everything below goes through the
+APIMatic-generated **PayPal Server SDK** (`@paypal/paypal-server-sdk`) against a PayPal
+**sandbox** account (`src/lib/services/paypal.ts`):
+
+- **Transaction Search** (`searchBalances`, `searchTransactions`): the live balance and activity on
+  Home, Wallet and Account (tagged "Live · PayPal Sandbox").
+- **Orders API** (`createOrder`, `captureOrder`): the Essentials checkout and the AI's
+  "Pay with PayPal" action create a real order, send the buyer to PayPal's approval page, and capture
+  the payment once approved.
+- **Subscriptions API** (`listSubscriptions`, `cancelSubscription`, `suspendSubscription`,
+  `activateSubscription`): list, cancel, pause and resume PayPal-billed subscriptions.
+
+Without credentials (`PAYPAL_USE_MOCK=true`, the default) the same calls are simulated, and the UI says so.
+PayPal Store Sync and PayPal Rewards have no public API, so Essentials' catalog and Rewards points are samples.
+
+## How we used AI
+
+- **PayPal AI assistant** (Claude via `@anthropic-ai/sdk`, `src/lib/agent/`): a tool-using agent that
+  answers questions about the user's money and takes actions: search and summarise spending,
+  what-if projections, categorise transactions, cancel or pause subscriptions, apply offers, set budget
+  limits, freeze a card, and pay with PayPal (Orders API). Every figure comes from a server-side tool, never from the model.
+- **TypeSafe Jev** guardrail (`src/lib/services/jev.ts`): every reply is fact-checked against the tool
+  results before it's shown; unsupported figures or transactions are removed, and the UI shows the verdict.
+  Jev also classifies intents and categorises transactions.
+- **Kernel** cloud browser: when a subscription isn't billed through PayPal, the agent cancels it on the
+  merchant's site in a real cloud browser and shows the replay and a screenshot as proof.
+- Actions show on the page: the changed row is highlighted ("Updated by PayPal AI") with a toast and Undo.
+- With no `ANTHROPIC_API_KEY` a deterministic rule-based assistant uses the same tools, so the demo still works.
+
+## Sponsor integrations and other tools
+
+| Tool | Used for |
+|---|---|
+| **PayPal developer platform** | Sandbox account, REST APIs: Orders, Subscriptions, Transaction Search |
+| **APIMatic** | The generated PayPal Server SDK (TypeScript) that all PayPal calls go through |
+| **Anthropic Claude** | The assistant and its tool loop |
+| **TypeSafe Jev** | Reply verification, intent classification, categorisation |
+| **Kernel** | Cloud-browser subscription cancellations |
+| **AG Grid / AG Charts (Community)** | Transactions and recurring tables; spending line, bar and donut charts |
+| **Next.js 16, React 19, Tailwind v4, TypeScript, Zod** | App framework, UI, validation |
+| **Claude Design** | The interactive prototype the UI follows (`design/`) |
+| **Unsplash** | Essentials product photos (credits below) |
+| **Vercel** | Hosting |
+
+Not used: Postman, Astro and Render. All merchant, bank and card names in the app are fictional.
+
+**Photo credits (Unsplash):** Christine Sandu, Gaana Srinivas, andrew davies, Tosan Dudun, Jonathan Cooper, Jim Luo.
 
 ## Quick start
 
@@ -34,6 +85,13 @@ git check-ignore -v .env     # sanity check: prints the .gitignore rule that hid
 With no keys at all, everything runs on deterministic mock data and a rule-based
 assistant, so the demo works for $0. Add keys one at a time to switch each
 integration to live mode; the dashboard's integrations widget shows which are live.
+
+### Run it against the PayPal sandbox
+
+1. In the [PayPal developer dashboard](https://developer.paypal.com/dashboard/) create a sandbox app and copy its client ID and secret.
+2. In `.env` (or Vercel → Settings → Environment Variables) set `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`,
+   `PAYPAL_ENVIRONMENT=sandbox` and `PAYPAL_USE_MOCK=false`, then restart or redeploy.
+3. Home shows the "Live · PayPal Sandbox" tag. To pay through the Orders API, allow pop-ups and approve with a sandbox buyer account.
 
 ## Stack
 
@@ -73,8 +131,8 @@ npx context-plugins install https://github.com/paypaldev/server-sdk-context-plug
 
 `/?alert=suspicious-charge` raises a PayPal AI chat bubble above the dock's AI
 button (any code can raise one with a `pfm:alert` CustomEvent). Pressing it
-opens the panel and starts the conversation. The app has no freeze-card or
-dispute tool, so the assistant answers from the data and says what it can't do.
+opens the panel and starts the conversation. The assistant then freezes the card, files the claim and
+orders a replacement (demo-only: the card controls are mocked).
 
 ## Usage limits
 
@@ -135,3 +193,7 @@ same PayPal Offers (one pending, one earned), and monthly category totals that
 match the design's Insights page. Every transaction carries a reconciled running
 balance (closing at $2,033.90), so the assistant and the guardrail can check
 numbers exactly.
+
+## License
+
+[MIT](LICENSE) © 2026 gabrielt0598-prog. Sample data and merchant names are fictional.
