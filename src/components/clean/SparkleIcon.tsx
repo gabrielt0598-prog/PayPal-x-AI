@@ -7,8 +7,8 @@ export function Sparkles({ size = 18, strokeWidth = 1.8, className }: { size?: n
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className={className}>
       {/* The top of the ring is cut where it passes behind the star, as in the logo. */}
-      <path d="M2 13A10 2.7 0 0 1 6.3 10.8M17.7 10.8A10 2.7 0 0 1 22 13" stroke="currentColor" strokeWidth={ring} strokeLinecap="round" opacity="0.85" />
-      <path d="M12 1.8c.7 5.6 1.9 8.6 4.6 10.2-2.7 1.6-3.9 4.6-4.6 10.2-.7-5.6-1.9-8.6-4.6-10.2C10.1 10.4 11.3 7.4 12 1.8z" fill="currentColor" />
+      <path d="M2 13A10 2.7 0 0 1 5.6 10.9M18.4 10.9A10 2.7 0 0 1 22 13" stroke="currentColor" strokeWidth={ring} strokeLinecap="round" opacity="0.85" />
+      <path d="M12 1.8C12.9 7.3 14.6 10.4 19.2 12C14.6 13.6 12.9 16.7 12 22.2C11.1 16.7 9.4 13.6 4.8 12C9.4 10.4 11.1 7.3 12 1.8z" fill="currentColor" />
       <path d="M2 13a10 2.7 0 0 0 20 0" stroke="currentColor" strokeWidth={ring} strokeLinecap="round" />
     </svg>
   );
