@@ -7,7 +7,7 @@ import { monthlyCost, unusedSubscriptions } from "@/lib/finance";
 import type { RecurringPayment } from "@/lib/types";
 import { useClean } from "../AppState";
 import { asOfDate, daysInMonth, ymOf } from "../data";
-import { Avatar, Btn, cx, daysUntil, Drawer, KV, money, monthName, Page, Panel, Pill, Section, shortDate, Skeleton } from "../ui";
+import { CountText, Avatar, Btn, cx, daysUntil, Drawer, KV, money, monthName, Page, Panel, Pill, Section, shortDate, Skeleton } from "../ui";
 import { ConfirmCancel, RunPanel, useCancelRun, type RunState } from "../recurring/CancelRun";
 
 const BILL_C = "#e8833a";
@@ -81,11 +81,11 @@ export function RecurringPage() {
             <section aria-label="Summary" className="flex flex-col gap-[22px] rounded-[20px] bg-surface p-5">
               <div className="flex flex-col gap-1.5">
                 <span className="text-[13px] font-medium text-muted">Monthly cost</span>
-                <span className="num text-[36px] font-semibold leading-[1.1] tracking-[-0.02em]">{money(total)}</span>
+                <span className="num text-[36px] font-semibold leading-[1.1] tracking-[-0.02em]"><CountText text={money(total)} /></span>
               </div>
               <div role="img" aria-label={sumAria} className="flex h-4 gap-[3px]">
-                <div className="min-w-1 rounded-md" style={{ flex: `${d.subsMonthly} 1 0`, background: SUB_C }} />
-                <div className="min-w-1 rounded-md" style={{ flex: `${d.billsMonthly} 1 0`, background: BILL_C }} />
+                <div className="m-bx min-w-1 rounded-md" style={{ flex: `${d.subsMonthly} 1 0`, background: SUB_C }} />
+                <div className="m-bx min-w-1 rounded-md" style={{ flex: `${d.billsMonthly} 1 0`, background: BILL_C }} />
               </div>
               <div className="flex flex-col gap-3.5 text-[15px]">
                 <div className="flex items-center gap-2.5">

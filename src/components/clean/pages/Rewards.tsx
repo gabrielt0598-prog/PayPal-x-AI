@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ArrowDown, ChevronLeft, ChevronRight, Trophy, Wallet } from "lucide-react";
 import { REWARD_CATS, useClean } from "../AppState";
 import { Logo, logoMark } from "../Logo";
-import { Card, cx, money, Pill, Section, shortDate } from "../ui";
+import { CountText, Card, cx, money, Pill, Section, shortDate } from "../ui";
 
 const markFor = (merchant: string) => logoMark(merchant) ?? "unknown";
 
@@ -50,7 +50,7 @@ export function RewardsPage() {
               <div className="flex flex-col gap-2">
                 <div className="flex flex-wrap items-baseline gap-2">
                   <span className="num whitespace-nowrap text-[40px] font-semibold leading-[1.1] tracking-[-0.02em]">
-                    {rewards.pts.toLocaleString("en-US")} <span className="text-lg font-medium text-muted">pts</span>
+                    <CountText text={rewards.pts.toLocaleString("en-US")} /> <span className="text-lg font-medium text-muted">pts</span>
                   </span>
                 </div>
                 <span className="text-sm text-muted">100 pts = $1</span>

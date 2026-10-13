@@ -12,7 +12,7 @@ import { useLiveBalance } from "../liveBalance";
 import { Logo, logoMark } from "../Logo";
 import { asOfDate, cumulative, daysInMonth, monthTotals, PREV_YEAR_MONTHLY, prevYm, ymOf } from "../data";
 import { TxDrawer, TxGrid } from "../TxTable";
-import { Avatar, Btn, Card, Modal, money, monthName, monthShort, Page, Pill, Section, Segmented, shortDate, Skeleton } from "../ui";
+import { CountText, Avatar, Btn, Card, Modal, money, monthName, monthShort, Page, Pill, Section, Segmented, shortDate, Skeleton } from "../ui";
 
 /** Merchant logo mark from the design, or a letter avatar for names without one. */
 function MerchantMark({ name }: { name: string }) {
@@ -98,7 +98,7 @@ export function HomePage() {
             <div className="flex flex-col gap-1.5 overflow-hidden rounded-[20px] bg-surface px-5 pb-1 pt-5">
               <div className="flex flex-wrap items-center gap-2.5">
                 <span className="flex flex-1 flex-wrap items-center gap-3">
-                  <span className="num text-[32px] font-semibold tracking-tight">{money(balance)}</span>
+                  <span className="num text-[32px] font-semibold tracking-tight"><CountText text={money(balance)} /></span>
                   {live && <Pill tone="acc">Live · PayPal Sandbox</Pill>}
                 </span>
                 <Btn small onClick={() => setMove("transfer")}>
@@ -131,7 +131,7 @@ export function HomePage() {
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex flex-1 flex-wrap items-baseline gap-2.5">
                   <span className="num text-2xl font-semibold">
-                    {money(range === "Month" ? d.spent : range === "3M" ? d.three.total : d.full.total)}
+                    <CountText text={money(range === "Month" ? d.spent : range === "3M" ? d.three.total : d.full.total)} />
                   </span>
                   {range === "Month" && d.prevAtToday > 0 && (
                     <Pill tone={d.delta > 0 ? "neg" : "pos"}>
@@ -171,11 +171,11 @@ export function HomePage() {
           <Section title="Budget">
             <Card>
               <span className="num text-2xl font-semibold leading-tight tracking-tight">
-                {money(left)}
+                <CountText text={money(left)} />
                 <span className="text-sm font-medium tracking-normal text-muted"> of {money(budgetTotal)} remaining</span>
               </span>
               <div role="img" aria-label={`Budget: ${money(left)} left of ${money(budgetTotal)}`} className="h-2 w-full overflow-hidden rounded-full bg-surface-3">
-                <div className={`anim-grow-x h-full rounded-full ${budget.spent > budgetTotal ? "bg-negative" : "bg-accent"}`} style={{ width: `${Math.min(100, budgetTotal ? (budget.spent / budgetTotal) * 100 : 0)}%` }} />
+                <div className={`m-bx h-full rounded-full ${budget.spent > budgetTotal ? "bg-negative" : "bg-accent"}`} style={{ width: `${Math.min(100, budgetTotal ? (budget.spent / budgetTotal) * 100 : 0)}%` }} />
               </div>
             </Card>
           </Section>
@@ -204,7 +204,7 @@ export function HomePage() {
             <Card className="gap-5">
               <div className="flex flex-wrap items-baseline gap-2">
                 <span className="num text-2xl font-semibold leading-tight tracking-tight whitespace-nowrap">
-                  {rewards.pts.toLocaleString("en-US")} <span className="text-sm font-medium text-muted">pts</span>
+                  <CountText text={rewards.pts.toLocaleString("en-US")} /> <span className="text-sm font-medium text-muted">pts</span>
                 </span>
                 {todayPts > 0 && <Pill tone="pos">+{todayPts.toLocaleString("en-US")} today</Pill>}
               </div>

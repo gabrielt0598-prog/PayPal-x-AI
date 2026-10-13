@@ -8,7 +8,7 @@ import type { Transaction } from "@/lib/types";
 import { niceCap, SpendBars, type SpendBar } from "../charts";
 import { asOfDate, daysInMonth, prevYm, ymOf } from "../data";
 import { TxDrawer, TxGrid, TxPager, useTxOverrides } from "../TxTable";
-import { Btn, Card, cx, money, money0, monthName, monthShort, Page, Section, Segmented, shortDate, Skeleton } from "../ui";
+import { CountText, Btn, Card, cx, money, money0, monthName, monthShort, Page, Section, Segmented, shortDate, Skeleton } from "../ui";
 
 const RANGES = ["1M", "3M", "1Y", "All"] as const;
 type Range = (typeof RANGES)[number];
@@ -149,7 +149,7 @@ export function TransactionsPage() {
         <Card className="flex-1">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex flex-1 flex-wrap items-baseline gap-x-2.5">
-              <span className="num text-2xl font-semibold">{money(chart.total)}</span>
+              <span className="num text-2xl font-semibold"><CountText text={money(chart.total)} /></span>
               <span className="text-sm text-muted">{chart.sub}</span>
             </div>
             <Segmented label="Range" value={range} options={RANGES} onChange={setRange} />
@@ -236,11 +236,11 @@ export function TransactionsPage() {
           <section aria-label="Summary" className="flex flex-col gap-[22px] rounded-[20px] bg-surface p-5">
             <div className="flex flex-col gap-0.5">
               <span className="text-[13px] text-faint">Spent · {scope}</span>
-              <span className="num text-[26px] font-semibold">{money(spent)}</span>
+              <span className="num text-[26px] font-semibold"><CountText text={money(spent)} /></span>
             </div>
             <div aria-hidden className="flex h-2 gap-[3px]">
               {catList.map(([n, v], i) => (
-                <div key={n} className="min-w-1 rounded" style={{ flex: `${Math.max(v, 0.0001)} 1 0`, background: SEG_COLORS[n === "Everything else" ? 4 : i] }} />
+                <div key={n} className="m-bx min-w-1 rounded" style={{ flex: `${Math.max(v, 0.0001)} 1 0`, background: SEG_COLORS[n === "Everything else" ? 4 : i] }} />
               ))}
             </div>
             <div className="flex flex-col gap-[13px]">

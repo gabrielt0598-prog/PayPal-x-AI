@@ -3,7 +3,7 @@
 // Primitives for the Clean design (design/clean/ProtoClean.dc.html): borderless
 // near-black cards, section headings outside cards, pill buttons, round avatars.
 
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { useEffect, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { X } from "lucide-react";
 
 export const cx = (...c: (string | number | false | null | undefined)[]) => c.filter((x): x is string => typeof x === "string" && x !== "").join(" ");
@@ -150,7 +150,7 @@ export function Drawer({ label, onClose, children, width = 380 }: { label: strin
     <aside
       aria-label={label}
       style={{ width }}
-      className="anim-slide-in-right fixed inset-y-2 right-2 z-40 flex max-w-[calc(100%-16px)] flex-col gap-3.5 overflow-y-auto rounded-[20px] border border-border-strong bg-surface p-5 shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
+      className="m-in-right fixed inset-y-2 right-2 z-40 flex max-w-[calc(100%-16px)] flex-col gap-3.5 overflow-y-auto rounded-[20px] border border-border-strong bg-surface p-5 shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
     >
       <div className="flex items-center">
         <span className="flex-1 text-[13px] font-medium text-faint">{label}</span>
@@ -182,12 +182,12 @@ export function Skeleton({ className }: { className?: string }) {
 
 export function Modal({ label, onClose, children }: { label: string; onClose: () => void; children: ReactNode }) {
   return (
-    <div className="anim-fade-in fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6" onClick={onClose}>
+    <div className="m-fade fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6" onClick={onClose}>
       <div
         role="dialog"
         aria-label={label}
         onClick={(e) => e.stopPropagation()}
-        className="anim-pop-in flex w-full max-w-[440px] flex-col gap-4 rounded-[20px] border border-border-strong bg-surface p-6 shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
+        className="m-pop flex w-full max-w-[440px] flex-col gap-4 rounded-[20px] border border-border-strong bg-surface p-6 shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
       >
         <div className="flex items-center">
           <h2 className="flex-1 text-xl font-semibold">{label}</h2>
@@ -198,5 +198,34 @@ export function Modal({ label, onClose, children }: { label: string; onClose: ()
         {children}
       </div>
     </div>
+  );
+}
+
+/**
+ * Counts the first number in `text` up from zero (800ms, ease-out) when it
+ * mounts, i.e. whenever you land on a page, and again if the text changes
+ * (live balance arriving). Everything else in the string stays as it is.
+ */
+export function CountText({ text }: { text: string }) {
+  const [c, setC] = useState(0);
+  useEffect(() => {
+    let raf = 0;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const t0 = performance.now();
+    const step = (now: number) => {
+      const p = reduced ? 1 : Math.min(1, (now - t0) / 800);
+      setC(1 - Math.pow(1 - p, 3));
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [text]);
+  if (c >= 1) return <>{text}</>;
+  return (
+    <>
+      {text.replace(/\d[\d,]*(\.\d+)?/, (m) =>
+        (parseFloat(m.replace(/,/g, "")) * c).toFixed((m.split(".")[1] ?? "").length).replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+      )}
+    </>
   );
 }

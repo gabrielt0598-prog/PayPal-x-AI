@@ -169,7 +169,7 @@ export function Assistant() {
   return (
     <aside
       aria-label="PayPal AI"
-      className="anim-slide-in-right fixed inset-0 z-40 flex flex-col overflow-hidden bg-surface lg:inset-y-2 lg:left-auto lg:right-2 lg:z-30 lg:w-[380px] lg:rounded-2xl lg:border lg:border-border-strong"
+      className="m-in-right fixed inset-0 z-40 flex flex-col overflow-hidden bg-surface lg:inset-y-2 lg:left-auto lg:right-2 lg:z-30 lg:w-[380px] lg:rounded-2xl lg:border lg:border-border-strong"
     >
       <header className="relative flex items-center gap-0.5 border-b border-border py-2.5 pl-4 pr-2">
         <span className="mr-2 flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-bg text-accent">
@@ -252,7 +252,7 @@ export function Assistant() {
 
         {messages.map((m) =>
           m.role === "user" ? (
-            <div key={m.id} className="anim-fade-up max-w-[min(80%,36em)] self-end whitespace-pre-wrap rounded-[18px_18px_4px_18px] bg-surface-3 px-4 py-2.5 text-sm leading-normal">
+            <div key={m.id} className="m-rise max-w-[min(80%,36em)] self-end whitespace-pre-wrap rounded-[18px_18px_4px_18px] bg-surface-3 px-4 py-2.5 text-sm leading-normal">
               {m.content}
             </div>
           ) : (
@@ -261,9 +261,9 @@ export function Assistant() {
         )}
 
         {loading && (
-          <div className="anim-fade-in flex items-center gap-3" role="status">
+          <div className="m-fade flex items-center gap-3" role="status">
             <AiAvatar />
-            <span className="anim-pulse text-sm text-faint">Reading your account…</span>
+            <span className="text-sm text-faint">Reading your account…</span>
           </div>
         )}
 

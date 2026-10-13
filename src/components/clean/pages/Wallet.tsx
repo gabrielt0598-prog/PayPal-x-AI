@@ -4,7 +4,7 @@ import { useState, type CSSProperties, type ReactNode } from "react";
 import { Building2, ChevronDown, CreditCard, Eye, EyeOff, Plus, Snowflake } from "lucide-react";
 import { useFinance } from "@/components/state/AppProviders";
 import { useClean } from "../AppState";
-import { Btn, cx, Drawer, Modal, money, Page, Pill, Skeleton } from "../ui";
+import { CountText, Btn, cx, Drawer, Modal, money, Page, Pill, Skeleton } from "../ui";
 import { useLiveBalance } from "../liveBalance";
 import { Rows, Toggle } from "./accountShared";
 
@@ -131,7 +131,7 @@ export function WalletPage() {
             <div className="flex flex-wrap items-center gap-4">
               <span className="flex flex-1 flex-col gap-1">
                 <span className="text-sm text-muted">PayPal balance</span>
-                <span className="num text-[32px] font-semibold leading-[1.1]">{money(bal)}</span>
+                <span className="num text-[32px] font-semibold leading-[1.1]"><CountText text={money(bal)} /></span>
               </span>
               <Btn onClick={() => setMove({ mode: "transfer", amt: 100 })}>Transfer</Btn>
               <Btn kind="primary" onClick={() => setMove({ mode: "add", amt: 100 })}>

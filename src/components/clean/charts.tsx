@@ -8,7 +8,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AgCharts } from "ag-charts-react";
 import { AllCommunityModule, ModuleRegistry, type AgChartOptions } from "ag-charts-community";
 import { compactUSD } from "./format";
-import { money } from "./ui";
+import { CountText, money } from "./ui";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -453,7 +453,7 @@ export function SvgDonut({ parts, size = 240, center, sub, aria }: { parts: { la
         </g>
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
-        <span className="num text-[30px] font-semibold">{center}</span>
+        <span className="num text-[30px] font-semibold"><CountText text={center} /></span>
         <span className="text-[13px] text-faint">{sub}</span>
       </div>
     </div>

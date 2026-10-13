@@ -272,8 +272,8 @@ export function EssentialsPage() {
       )}
 
       {sheetT && (
-        <div className="anim-fade-in fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6">
-          <div role="dialog" aria-labelledby="ess-sheet-title" aria-live="polite" className="anim-pop-in flex max-h-full w-full max-w-[540px] flex-col gap-3.5 overflow-y-auto rounded-[20px] border border-border-strong bg-surface p-6 pb-5 shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
+        <div className="m-fade fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6">
+          <div role="dialog" aria-labelledby="ess-sheet-title" aria-live="polite" className="m-pop flex max-h-full w-full max-w-[540px] flex-col gap-3.5 overflow-y-auto rounded-[20px] border border-border-strong bg-surface p-6 pb-5 shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
             <div className="flex items-center gap-2.5">
               <h2 id="ess-sheet-title" className="flex-1 text-xl font-semibold">{done ? "Order placed" : run ? "Checking out with PayPal…" : "Your order"}</h2>
               <Pill tone={done ? "pos" : run ? "acc" : "neu"}>{done ? "Completed" : run ? "● Store Sync" : MERCHANT}</Pill>

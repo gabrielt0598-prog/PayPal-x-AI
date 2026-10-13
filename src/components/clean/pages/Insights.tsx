@@ -236,7 +236,7 @@ function MoverBars({ state, months, category, current, color }: { state: NonNull
         return (
           <div key={m} className="flex h-full flex-1 flex-col items-center justify-end gap-1.5">
             <span className={cx("text-[10px]", last ? "font-semibold text-text" : "font-medium text-faint")}>{money0(vals[i])}</span>
-            <div className="anim-grow-y w-full rounded-t-md rounded-b-[2px]" style={{ height: `${(vals[i] / max) * 60}px`, background: last ? color : "var(--surface-3)" }} />
+            <div className="m-by w-full rounded-t-md rounded-b-[2px]" style={{ height: `${(vals[i] / max) * 60}px`, background: last ? color : "var(--surface-3)" }} />
             <span className="text-[11px] text-faint">{monthShort(m)}</span>
           </div>
         );
@@ -250,7 +250,7 @@ function Split({ parts }: { parts: { label: string; value: number; color: string
     <>
       <div aria-hidden className="flex h-3.5 gap-[3px]">
         {parts.map((p) => (
-          <div key={p.label} className="anim-grow-x min-w-1.5 rounded" style={{ flex: `${p.value} 1 0`, background: p.color }} />
+          <div key={p.label} className="m-bx min-w-1.5 rounded" style={{ flex: `${p.value} 1 0`, background: p.color }} />
         ))}
       </div>
       <div className="flex flex-col gap-2">

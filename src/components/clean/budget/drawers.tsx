@@ -30,7 +30,7 @@ function Trend({ ins }: { ins: BudInsights }) {
         {ins.bars.map((b) => (
           <div key={b.ym} className="flex h-full flex-1 flex-col items-stretch justify-end gap-1.5">
             <span className={cx("text-center text-[11px]", b.cur ? "font-semibold text-text" : "font-medium text-faint")}>{money0(b.v)}</span>
-            <div style={{ height: Math.max(4, (b.v / mx) * 72) }} className={cx("rounded-t-md rounded-b-sm", b.cur ? "bg-accent" : "bg-surface-3")} />
+            <div style={{ height: Math.max(4, (b.v / mx) * 72) }} className={cx("m-by rounded-t-md rounded-b-sm", b.cur ? "bg-accent" : "bg-surface-3")} />
           </div>
         ))}
       </div>
