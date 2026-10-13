@@ -6,7 +6,7 @@
 |---|---|
 | `Final.dc.html` | The frame. It mounts `ProtoClean` with the bottom dock and the PayPal AI panel (`screen="home-sidebar"`, `chat-dock="rail"`). |
 | `ProtoClean.dc.html` | The whole prototype: markup at the top, and `class Component extends DCLogic` with `renderVals()` at the bottom. It holds all screens and the sample data. |
-| `Icon.dc.html`, `Logo.dc.html` | The shared stroke-icon and merchant-logo components. |
+| `Icon.dc.html`, `Logo.dc.html`, `Product.dc.html` | The shared stroke-icon, merchant-logo and product-image components. |
 | `canvas.json` | The canvas layout. |
 
 The prototype runs on sample data. The Next.js app in `src/` implements the same design against the live PayPal SDK and Claude endpoints.

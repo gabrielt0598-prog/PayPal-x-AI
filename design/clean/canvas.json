@@ -6,7 +6,7 @@
       "expand": "fill",
       "h": 875,
       "is_interactive": true,
-      "title": "Final \u00b7 interactive prototype (bottom dock, PayPal AI opens from the right)",
+      "title": "Final",
       "w": 1400,
       "x": 0,
       "y": 0
@@ -33,6 +33,13 @@
       "w": 48,
       "x": 1580,
       "y": 1240
+    },
+    "Product.dc.html": {
+      "h": 170,
+      "title": "Component \u00b7 Product image",
+      "w": 170,
+      "x": 1660,
+      "y": 1240
     }
   },
   "createdOnFiles": {
@@ -49,7 +56,8 @@
     "Final.dc.html",
     "ProtoClean.dc.html",
     "Icon.dc.html",
-    "Logo.dc.html"
+    "Logo.dc.html",
+    "Product.dc.html"
   ],
   "pages": [],
   "title": "PayPal \u00d7 AI \u2014 User flows v2"
