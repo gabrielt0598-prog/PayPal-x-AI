@@ -5,11 +5,12 @@
 // (the page makes room for it). The page area is a size container, so grids
 // stack to one column whenever the content gets narrow.
 
-import type { ComponentType } from "react";
+import type { ComponentType, CSSProperties } from "react";
 import { Assistant } from "@/components/assistant/Assistant";
 import { useAssistantUI } from "@/components/state/AppProviders";
 import { CleanStateProvider, useClean, type PageId } from "./AppState";
-import { Dock } from "./Dock";
+import { useEffect, useState } from "react";
+import { Dock, type DockBubble } from "./Dock";
 import { BudgetPage } from "./pages/Budget";
 import { AccountPage } from "./pages/Account";
 import { EssentialsPage } from "./pages/Essentials";
@@ -36,19 +37,38 @@ function Frame() {
   const { page } = useClean();
   const { open: aiOpen } = useAssistantUI();
   const Current = PAGE[page];
+  const [bubble, setBubble] = useState<DockBubble | null>(null);
+
+  // Alerts arrive as a chat bubble above the PayPal AI button. Pressing it opens
+  // the panel and starts the conversation. Any part of the app can raise one with
+  //   window.dispatchEvent(new CustomEvent("pfm:alert", { detail: { title, body, prompt } }))
+  // and `/?alert=suspicious-charge` raises the demo alert for walkthroughs.
+  useEffect(() => {
+    const onAlert = (e: Event) => setBubble((e as CustomEvent<DockBubble>).detail);
+    window.addEventListener("pfm:alert", onAlert);
+    if (new URLSearchParams(window.location.search).get("alert") === "suspicious-charge") {
+      setBubble({
+        title: "Suspicious charge · $450.00",
+        body: "Voltmart Online charged your Debit Card ••4821. Was this you?",
+        prompt: "That wasn’t me. Voltmart Online charged my Debit Card $450.00. What can you do?",
+      });
+    }
+    return () => window.removeEventListener("pfm:alert", onAlert);
+  }, []);
+
   // --sec-gap is the space between page sections: 32px, or 16px while the AI
   // panel covers the right of the page.
   return (
     <div className="relative h-dvh min-h-[560px] w-full overflow-hidden">
       <main
         key={page}
-        style={{ "--sec-gap": aiOpen ? "16px" : "32px" } as React.CSSProperties}
+        style={{ "--sec-gap": aiOpen ? "16px" : "32px" } as CSSProperties}
         className={`@container h-full min-w-0 overflow-y-auto px-4 pb-28 pt-7 sm:px-20 ${aiOpen ? "lg:pr-[396px]" : ""}`}
       >
         <Current />
       </main>
       <Assistant />
-      <Dock />
+      <Dock bubble={bubble} onBubble={() => setBubble(null)} />
     </div>
   );
 }

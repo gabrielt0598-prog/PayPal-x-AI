@@ -1,15 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowLeftRight, ChartLine, CircleDollarSign, Gift, Landmark, List, Plus, Repeat, Trophy } from "lucide-react";
+import { ArrowLeftRight, Plus } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
-import { eligibleOffers, recurringSummary, upcomingCharges } from "@/lib/finance";
+import { eligibleOffers, upcomingCharges } from "@/lib/finance";
 import type { Transaction } from "@/lib/types";
 import { useClean } from "../AppState";
 import { Bars, CompareLine } from "../charts";
-import { asOfDate, cashbackIn, cumulative, daysInMonth, monthTotals, prevYm, ymOf } from "../data";
+import { useBudgetTotal } from "../budgetTotal";
+import { asOfDate, cumulative, daysInMonth, monthTotals, prevYm, ymOf } from "../data";
 import { TxDrawer, TxGrid } from "../TxTable";
-import { amt, Avatar, Btn, Card, daysUntil, IconTile, Modal, money, monthName, monthShort, Page, Pill, Section, Segmented, shortDate, Skeleton } from "../ui";
+import { amt, Avatar, Btn, Card, Modal, money, monthName, monthShort, Page, Pill, Section, Segmented, shortDate, Skeleton } from "../ui";
 
 const RANGES = ["Month", "3M", "Year"] as const;
 
@@ -17,6 +18,7 @@ export function HomePage() {
   const { state, loading } = useFinance();
   const { openAssistant } = useAssistantUI();
   const { go, rewards, moveMoney, toast } = useClean();
+  const budgetTotal = useBudgetTotal();
   const [range, setRange] = useState<(typeof RANGES)[number]>("Month");
   const [sel, setSel] = useState<Transaction | null>(null);
   const [move, setMove] = useState<"add" | "transfer" | null>(null);
@@ -41,7 +43,6 @@ export function HomePage() {
       return { label: shortDate(start), title: `Week of ${shortDate(start)}`, value, current: i === 12, showLabel: i % 4 === 0 };
     });
     const months = [...new Set(state.transactions.map((t) => ymOf(t.date)))].sort().map((m) => ({ label: monthShort(m), title: monthName(m), value: monthTotals(state, m).spend, current: m === ym }));
-    const sum = recurringSummary(state.recurring);
     return {
       ym,
       pym,
@@ -54,12 +55,10 @@ export function HomePage() {
       weeks,
       months,
       totals: monthTotals(state, ym),
-      cashback: cashbackIn(state, ym),
-      recurringMonthly: sum.totalMonthly,
       upcoming: upcomingCharges(state.recurring, state.asOf, 14).slice(0, 4),
       recent: [...state.transactions].reverse().filter((t) => t.category !== "Transfers" && t.category !== "Cashback").slice(0, 4),
       offers: eligibleOffers(state)
-        .filter((e) => e.best)
+        .filter((e) => e.offer.status === "available")
         .sort((a, b) => (b.best?.cashback ?? 0) - (a.best?.cashback ?? 0)),
       today,
     };
@@ -67,7 +66,10 @@ export function HomePage() {
 
   if (loading || !state || !d) return <HomeSkeleton />;
   const p = state.userProfile;
-  const best = d.offers[0];
+  const newOffers = d.offers.slice(0, 2);
+  const left = budgetTotal - d.spent;
+  const earnedToday = rewards.log.filter((l) => l.date === d.today && l.pts > 0);
+  const todayPts = earnedToday.reduce((a, l) => a + l.pts, 0);
   const hour = Number(state.asOf.slice(11, 13));
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
@@ -82,9 +84,6 @@ export function HomePage() {
                   <span className="num text-[32px] font-semibold tracking-tight">{money(p.paypalBalance)}</span>
                   {p.autoReload.enabled && <Pill tone="pos">Auto-reload on</Pill>}
                 </span>
-                <Btn small onClick={() => go("account")}>
-                  <List size={14} /> Details
-                </Btn>
                 <Btn small onClick={() => setMove("transfer")}>
                   <ArrowLeftRight size={14} /> Transfer
                 </Btn>
@@ -143,72 +142,15 @@ export function HomePage() {
         </div>
 
         <aside aria-label="Widgets" className="flex min-w-0 flex-col gap-[var(--sec-gap,32px)]">
-          {best?.best && (
-            <Section title="Offers for you">
-              <Card>
-                <div className="flex items-start gap-3.5">
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-bg text-accent">
-                    <Gift size={18} />
-                  </span>
-                  <div className="flex min-w-0 flex-col gap-1">
-                    <span className="text-[17px] font-semibold leading-snug">
-                      {best.offer.title.split(" on ")[0]} at {best.offer.merchant}
-                    </span>
-                    <span className="text-sm leading-normal text-muted">
-                      Matches your {money(-best.best.transaction.amount)} purchase on {shortDate(best.best.transaction.date)}. Earns {money(best.best.cashback)} back, through {shortDate(best.offer.validUntil)}.
-                    </span>
-                  </div>
-                </div>
-                <Btn kind="primary" className="w-full" onClick={() => openAssistant(`Apply the "${best.offer.title}" offer`)}>
-                  Add offer
-                </Btn>
-                {d.offers.length > 1 && (
-                  <Btn kind="link" className="self-start" onClick={() => go("offers")}>
-                    {d.offers.length - 1} more offers →
-                  </Btn>
-                )}
-              </Card>
-            </Section>
-          )}
-
-          <Section title="Cash back">
+          <Section title="Budget">
             <Card>
-              <div className="flex items-start gap-3.5">
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-bg text-accent">
-                  <Trophy size={20} />
-                </span>
-                <div className="flex min-w-0 flex-col gap-0.5">
-                  <span className="num text-2xl font-semibold leading-tight">{money(rewards.pts / 100)}</span>
-                  <span className="text-[13px] text-faint">
-                    {rewards.pts.toLocaleString("en-US")} pts ready · {rewards.pending.toLocaleString("en-US")} pending
-                  </span>
-                </div>
+              <span className="num text-2xl font-semibold leading-tight tracking-tight">
+                {money(left)}
+                <span className="text-sm font-medium tracking-normal text-muted"> of {money(budgetTotal)} remaining</span>
+              </span>
+              <div role="img" aria-label={`Budget: ${money(left)} left of ${money(budgetTotal)}`} className="h-2 w-full overflow-hidden rounded-full bg-surface-3">
+                <div className={`h-full rounded-full ${d.spent > budgetTotal ? "bg-negative" : "bg-accent"}`} style={{ width: `${Math.min(100, budgetTotal ? (d.spent / budgetTotal) * 100 : 0)}%` }} />
               </div>
-              <RewardsProgress />
-              <Btn kind="primary" className="w-full" onClick={() => go("rewards")}>
-                Redeem
-              </Btn>
-            </Card>
-          </Section>
-
-          <Section title={`${monthName(d.ym)} so far`}>
-            <Card flush>
-              {(
-                [
-                  [ChartLine, "Spent", money(d.totals.spend), () => go("transactions")],
-                  [Landmark, "Income", money(d.totals.income), () => go("transactions")],
-                  [CircleDollarSign, "Cash back", money(d.cashback), () => go("offers")],
-                  [Repeat, "Recurring", `${money(d.recurringMonthly)}/mo`, () => go("recurring")],
-                ] as const
-              ).map(([Icon, k, v, fn], i) => (
-                <button key={k} type="button" onClick={fn} className={`flex w-full items-center gap-3 px-5 py-3.5 text-left hover:bg-white/[0.03] ${i ? "border-t border-border" : ""}`}>
-                  <IconTile>
-                    <Icon size={16} />
-                  </IconTile>
-                  <span className="min-w-0 flex-1 text-[15px]">{k}</span>
-                  <span className="num whitespace-nowrap text-[15px]">{v}</span>
-                </button>
-              ))}
             </Card>
           </Section>
 
@@ -219,9 +161,7 @@ export function HomePage() {
                   <Avatar name={r.merchant} />
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                     <span className="truncate text-[15px]">{r.merchant}</span>
-                    <span className="text-[13px] text-faint">
-                      {shortDate(r.nextChargeDate)} · in {daysUntil(d.today, r.nextChargeDate)} days
-                    </span>
+                    <span className="text-[13px] text-faint">{shortDate(r.nextChargeDate)}</span>
                   </span>
                   <span className="num text-[15px]">
                     {r.kind === "variable" ? "~" : ""}
@@ -231,6 +171,65 @@ export function HomePage() {
                 </button>
               ))}
               {d.upcoming.length === 0 && <p className="px-5 py-4 text-sm text-muted">Nothing due in the next two weeks.</p>}
+            </Card>
+          </Section>
+
+          <Section title="Cash back">
+            <Card className="gap-5">
+              <div className="flex flex-wrap items-baseline gap-2">
+                <span className="num text-2xl font-semibold leading-tight tracking-tight whitespace-nowrap">
+                  {rewards.pts.toLocaleString("en-US")} <span className="text-sm font-medium text-muted">pts</span>
+                </span>
+                {todayPts > 0 && <Pill tone="pos">+{todayPts.toLocaleString("en-US")} today</Pill>}
+              </div>
+              {earnedToday.length > 0 && (
+                <div className="flex flex-col">
+                  {earnedToday.slice(0, 2).map((l, i) => (
+                    <div key={`${l.date}-${i}`} className="flex items-center gap-3 py-[13px]">
+                      <Avatar name={l.label} />
+                      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                        <span className="truncate text-[15px]">{l.label.split(" · ")[0]}</span>
+                        <span className="truncate text-[13px] text-faint">
+                          {shortDate(l.date)} · {l.label.split(" · ").slice(1).join(" · ") || "Cash back"}
+                        </span>
+                      </span>
+                      <span className="num whitespace-nowrap text-sm font-semibold text-positive">+{l.pts.toLocaleString("en-US")} pts</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="-mt-1">
+                <Btn kind="link" onClick={() => go("rewards")}>
+                  View points →
+                </Btn>
+              </div>
+            </Card>
+          </Section>
+
+          <Section title="New offers">
+            <Card flush>
+              {newOffers.map(({ offer }) => (
+                <div key={offer.id} className="flex items-center gap-3 px-5 py-[13px]">
+                  <button type="button" onClick={() => go("offers")} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                    <Avatar name={offer.merchant} />
+                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                      <span className="truncate text-[15px]">{offer.merchant}</span>
+                      <span className="truncate text-[13px] text-faint">
+                        {offer.title.split(" on ")[0]} · ends {shortDate(offer.validUntil)}
+                      </span>
+                    </span>
+                  </button>
+                  <Btn small onClick={() => openAssistant(`Apply the "${offer.title}" offer`)}>
+                    Add offer
+                  </Btn>
+                </div>
+              ))}
+              {newOffers.length === 0 && <p className="px-5 py-4 text-sm text-muted">No new offers right now.</p>}
+              <div className="px-5 pb-3 pt-1.5">
+                <Btn kind="link" onClick={() => go("offers")}>
+                  See all offers →
+                </Btn>
+              </div>
             </Card>
           </Section>
         </aside>
