@@ -62,7 +62,7 @@ PayPal Store Sync and PayPal Rewards have no public API, so Essentials' catalog 
 | **Unsplash** | Essentials product photos (credits below) |
 | **Vercel** | Hosting |
 
-Not used: Postman, Astro and Render. All merchant, bank and card names in the app are fictional.
+All merchant, bank and card names in the app are fictional.
 
 **Photo credits (Unsplash):** Christine Sandu, Gaana Srinivas, andrew davies, Tosan Dudun, Jonathan Cooper, Jim Luo.
 

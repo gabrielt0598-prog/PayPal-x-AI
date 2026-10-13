@@ -1,6 +1,6 @@
 # Design source
 
-`design/clean/` holds the source of the **Final** interactive prototype (bottom dock navigation, PayPal AI opening from the right). It was built on a Claude Design canvas: https://claude.ai/artifact/CdBoA7hyMswMBAkvLigb31.
+`design/clean/` holds the source of the **Final** interactive prototype (bottom dock navigation, PayPal AI opening from the right).
 
 | File | What it is |
 |---|---|
