@@ -101,9 +101,9 @@ function LineFrame({
   const areaPts = [...solid, ...(tail ? tail.slice(1) : [])];
   const area = areaPts.length ? `${path(areaPts)} L${px(endIdx).toFixed(2)} 100 L${px(areaPts[0][0]).toFixed(2)} 100 Z` : "";
 
-  // The left-to-right reveal on mount, skipped for reduced motion.
+  // The left-to-right reveal on mount (plays regardless of the OS setting; ?motion=off skips it).
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (document.documentElement.dataset.motion === "off") return;
     svgRef.current?.animate([{ clipPath: "inset(-12px 100% -12px -12px)" }, { clipPath: "inset(-12px)" }], { duration: 1000, delay: 150, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "backwards" });
   }, []);
 

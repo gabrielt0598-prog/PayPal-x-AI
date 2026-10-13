@@ -41,6 +41,10 @@ function Frame() {
   const { state, loading } = useFinance();
   const Current = PAGE[page];
   const [bubble, setBubble] = useState<DockBubble | null>(null);
+  // ?motion=off turns every animation off (the app animates regardless of the OS reduced-motion setting).
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("motion") === "off") document.documentElement.dataset.motion = "off";
+  }, []);
   // Bring a row PayPal AI just changed into view.
   useEffect(() => {
     if (!flash) return;

@@ -120,9 +120,8 @@ button:not(:disabled):active { transform: scale(0.97); }
 div:has(> .m-by):nth-child(3n + 2) > .m-by { animation-delay: 150ms; }
 div:has(> .m-by):nth-child(3n) > .m-by { animation-delay: 200ms; }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0s !important; transition-duration: 0.01ms !important; }
-}
+/* Motion plays on every device, whatever the OS animation setting says. Opt out with ?motion=off. */
+html[data-motion="off"] *, html[data-motion="off"] *::before, html[data-motion="off"] *::after { animation: none !important; transition: none !important; }
 
 :focus-visible {
   outline: 2px solid var(--accent);

@@ -213,7 +213,7 @@ export function CountText({ text, once }: { text: string; once?: boolean }) {
     // `once`: count up when it first appears; later changes (editing a limit) just show the new value.
     if (once && played.current) return;
     let raf = 0;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = document.documentElement.dataset.motion === "off";
     const t0 = performance.now();
     const step = (now: number) => {
       const p = reduced ? 1 : Math.min(1, (now - t0) / 800);
