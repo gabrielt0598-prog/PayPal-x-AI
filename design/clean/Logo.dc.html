@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Merchant logo</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<span style="display: inline-flex; width: {{size}}px; height: {{size}}px; flex-shrink: 0" role="img" aria-label="{{label}}">
+<svg width="100%" height="100%" viewBox="0 0 48 48" fill="none">
+<sc-if value="{{is.thistle}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#d94a3d"></circle><circle cx="24" cy="24" r="14" stroke="#fff" stroke-width="3"></circle><path d="M17 18.5h14M24 18.5V32" stroke="#fff" stroke-width="3.6" stroke-linecap="round"></path></sc-if>
+<sc-if value="{{is.ember}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#1e3a2f"></circle><ellipse cx="24" cy="24" rx="9" ry="14" transform="rotate(35 24 24)" fill="#f6e7c8"></ellipse><path d="M16.5 31c5-2 9-6 15-14" stroke="#1e3a2f" stroke-width="2.6" stroke-linecap="round"></path></sc-if>
+<sc-if value="{{is.plateful}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#f2542d"></circle><circle cx="24" cy="24" r="13" stroke="#fff" stroke-width="3"></circle><circle cx="24" cy="24" r="6" fill="#fff"></circle></sc-if>
+<sc-if value="{{is.corevale}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#0d4f8b"></circle><path d="M24 10 38 24 24 38 10 24z" fill="#fff"></path><path d="M24 17 31 24 24 31 17 24z" fill="#0d4f8b"></path></sc-if>
+<sc-if value="{{is.hopline}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#111"></circle><circle cx="15" cy="33" r="4" fill="#fff"></circle><circle cx="33" cy="15" r="4" stroke="#fff" stroke-width="3"></circle><path d="M15 29c0-9 18-3 18-10" stroke="#fff" stroke-width="3" stroke-linecap="round"></path></sc-if>
+<sc-if value="{{is.acme}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#2f6f6f"></circle><path d="M14 34 24 12l10 22" stroke="#fff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"></path><path d="M18.5 27h11" stroke="#fff" stroke-width="3.6" stroke-linecap="round"></path></sc-if>
+<sc-if value="{{is.parkside}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#566a7c"></circle><rect x="12" y="21" width="11" height="16" fill="#fff"></rect><rect x="25" y="13" width="11" height="24" fill="#cfd8e0"></rect><path d="M15.5 25h4M15.5 30h4M28.5 18h4M28.5 23h4M28.5 28h4" stroke="#566a7c" stroke-width="2"></path></sc-if>
+<sc-if value="{{is.sonora}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#6d3df5"></circle><rect x="12" y="22" width="5.5" height="13" rx="2.75" fill="#fff"></rect><rect x="21.2" y="13" width="5.5" height="22" rx="2.75" fill="#fff"></rect><rect x="30.5" y="18" width="5.5" height="17" rx="2.75" fill="#fff"></rect></sc-if>
+<sc-if value="{{is.copper}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#b8662e"></circle><path d="M9 35 20 16l5.5 8.5L30 18l9 17z" fill="#fff"></path></sc-if>
+<sc-if value="{{is.brightgrid}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#f5b400"></circle><path d="M27 8 14 26h9l-2 14 13-19h-9z" fill="#1b1b1b"></path></sc-if>
+<sc-if value="{{is.greenfold}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#2f8f4e"></circle><path d="M24 38V21" stroke="#fff" stroke-width="3" stroke-linecap="round"></path><path d="M24 23c-9 0-12-5-12-11 9 0 12 5 12 11z" fill="#fff"></path><path d="M24 28c8 0 11-4 11-10-8 0-11 4-11 10z" fill="#cdeccf"></path></sc-if>
+<sc-if value="{{is.lilia}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#6b3a2a"></circle><path d="M24 36c-6-4-7-12-3-22 4 10 3 18 3 22z" fill="#fff"></path><path d="M24 36c6-4 7-12 3-22-4 10-3 18-3 22z" fill="#f1d9c8"></path><path d="M13 24c4 1 8 5 11 12M35 24c-4 1-8 5-11 12" stroke="#fff" stroke-width="2.6" stroke-linecap="round"></path></sc-if>
+<sc-if value="{{is.tidyloop}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#1d9b7a"></circle><path d="M35 24a11 11 0 1 1-3.4-7.9" stroke="#fff" stroke-width="3.6" stroke-linecap="round"></path><path d="M33 11v8h-8" stroke="#fff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"></path></sc-if>
+<sc-if value="{{is.kitebird}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#1c2e8a"></circle><path d="M24 8 35 21 24 32 13 21z" fill="#fff"></path><path d="M24 8v24" stroke="#1c2e8a" stroke-width="1.6"></path><path d="M24 32c0 4-4 4-4 8" stroke="#fff" stroke-width="2.4" stroke-linecap="round"></path></sc-if>
+<sc-if value="{{is.vantage}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#5b2bd0"></circle><path d="M12 15l12 20 12-20" stroke="#fff" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round"></path></sc-if>
+<sc-if value="{{is.parlo}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#5cc12b"></circle><path d="M12 13h24v17H26l-8 7v-7h-6z" fill="#fff"></path><circle cx="19" cy="21.5" r="2.1" fill="#5cc12b"></circle><circle cx="29" cy="21.5" r="2.1" fill="#5cc12b"></circle></sc-if>
+<sc-if value="{{is.pixelforge}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#c01b2c"></circle><rect x="11" y="11" width="12" height="12" fill="#fff"></rect><rect x="25" y="25" width="12" height="12" fill="#fff"></rect><rect x="25" y="11" width="12" height="12" fill="#fff" fill-opacity=".45"></rect><rect x="11" y="25" width="12" height="12" fill="#fff" fill-opacity=".45"></rect></sc-if>
+<sc-if value="{{is.sable}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#1f1f23"></circle><path d="M31 12a13 13 0 1 0 0 24 10 10 0 0 1 0-24z" fill="#fff"></path></sc-if>
+<sc-if value="{{is.frameline}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#8b5cf6"></circle><path d="M13 20v-7h7M35 20v-7h-7M13 28v7h7M35 28v7h-7" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="24" cy="24" r="3.4" fill="#fff"></circle></sc-if>
+<sc-if value="{{is.forge}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#1a1a2e"></circle><rect x="8" y="20" width="5" height="8" rx="1.5" fill="#ff8a3d"></rect><rect x="35" y="20" width="5" height="8" rx="1.5" fill="#ff8a3d"></rect><rect x="14" y="16" width="5" height="16" rx="1.5" fill="#ff8a3d"></rect><rect x="29" y="16" width="5" height="16" rx="1.5" fill="#ff8a3d"></rect><rect x="19" y="22.5" width="10" height="3" fill="#ff8a3d"></rect></sc-if>
+<sc-if value="{{is.reelhouse}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#d61f1f"></circle><circle cx="24" cy="24" r="14" fill="#fff"></circle><circle cx="24" cy="16" r="3.2" fill="#d61f1f"></circle><circle cx="32" cy="24" r="3.2" fill="#d61f1f"></circle><circle cx="24" cy="32" r="3.2" fill="#d61f1f"></circle><circle cx="16" cy="24" r="3.2" fill="#d61f1f"></circle><circle cx="24" cy="24" r="2.4" fill="#d61f1f"></circle></sc-if>
+<sc-if value="{{is.cinebox}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#0f172a"></circle><rect x="11" y="21" width="26" height="16" rx="2" fill="#fff"></rect><path d="M11 15l26-4 1 7-26 4z" fill="#ff4d4f"></path><path d="M18 13.8l4 5.8M26 12.6l4 5.8" stroke="#0f172a" stroke-width="2"></path></sc-if>
+<sc-if value="{{is.cartly}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#f08a24"></circle><path d="M13 17h22l-2.2 17H15.2z" fill="#fff"></path><path d="M19 17a5 5 0 0 1 10 0" stroke="#fff" stroke-width="3" stroke-linecap="round"></path><path d="M18.5 26c3.5 3 7.5 3 11 0" stroke="#f08a24" stroke-width="2.6" stroke-linecap="round"></path></sc-if>
+<sc-if value="{{is.paypal}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#0070e0"></circle><path d="M17 36V12h8.5a7 7 0 0 1 0 14H20" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"></path></sc-if>
+<sc-if value="{{is.various}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#3a3b42"></circle><circle cx="14" cy="24" r="3.2" fill="#fff"></circle><circle cx="24" cy="24" r="3.2" fill="#fff"></circle><circle cx="34" cy="24" r="3.2" fill="#fff"></circle></sc-if>
+<sc-if value="{{is.unknown}}" hint-placeholder-val="{{false}}"><circle cx="24" cy="24" r="24" fill="#4b5563"></circle><path d="M19 19a5 5 0 1 1 7 4.6c-1.4.8-2 1.8-2 3.4M24 33h.01" stroke="#fff" stroke-width="3.4" stroke-linecap="round"></path></sc-if>
+</svg>
+</span>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mark":{"editor":"enum","default":"thistle","options":["thistle","ember","plateful","corevale","hopline","acme","parkside","sonora","copper","brightgrid","greenfold","lilia","tidyloop","kitebird","vantage","parlo","pixelforge","sable","frameline","forge","reelhouse","cinebox","cartly","paypal","various","unknown"]},"size":{"editor":"int","default":34,"min":16,"max":96},"$preview":{"width":48,"height":48}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const name = this.props.mark ?? 'unknown';
+    return { is: { [name]: true }, size: this.props.size ?? 34, label: name + ' logo' };
+  }
+}
+</script>
+</body>
+</html>
