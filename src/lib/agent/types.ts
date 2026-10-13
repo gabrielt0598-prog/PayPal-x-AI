@@ -93,6 +93,26 @@ export type AgentAction =
       amountLabel: string;
       mode: Mode;
     }
+  | {
+      type: "subscription_paused";
+      recurringId: string;
+      merchant: string;
+      plan: string;
+      /** true = paused, false = resumed. */
+      paused: boolean;
+      amountLabel: string;
+      nextChargeLabel: string;
+      channel: "paypal_subscriptions_api" | "local_store";
+    }
+  | {
+      /** Applied on the client (budget limits live in the browser): the card writes it and tints the Budget row. */
+      type: "budget_limit_set";
+      key: string;
+      itemId: string;
+      label: string;
+      limit: number;
+      limitLabel: string;
+    }
   | { type: "steps_completed"; steps: RailStep[] }
   | { type: "what_if_compare"; title: string; compare: CompareTable }
   | { type: "fact_remembered"; key: string; value: string }

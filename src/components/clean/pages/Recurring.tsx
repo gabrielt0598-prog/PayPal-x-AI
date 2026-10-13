@@ -169,6 +169,7 @@ const COLS = "grid w-full grid-cols-[minmax(0,3fr)_minmax(84px,1fr)_minmax(84px,
 
 /** Subscriptions / bills table (design: 4-column grid, 10 rows per page with a pager). */
 function PaymentTable({ title, count, rows, today, selected, onOpen }: { title: string; count: number; rows: RecurringPayment[]; today: string; selected?: string; onOpen: (r: RecurringPayment) => void }) {
+  const { flash } = useClean();
   const [page, setPage] = useState(0);
   const pages = Math.max(1, Math.ceil(rows.length / PAGE));
   const p = Math.min(page, pages - 1);
@@ -188,18 +189,19 @@ function PaymentTable({ title, count, rows, today, selected, onOpen }: { title: 
           const cancelled = r.status === "cancelled";
           const left = daysUntil(today, r.nextChargeDate);
           return (
-            <button key={r.id} type="button" onClick={() => !trial && onOpen(r)} className={cx(COLS, "py-[13px] text-left", trial ? "cursor-default" : "cursor-pointer", selected === r.id && "bg-accent-bg")}>
+            <button key={r.id} type="button" onClick={() => !trial && onOpen(r)} className={cx(COLS, "py-[13px] text-left", trial ? "cursor-default" : "cursor-pointer", selected === r.id && "bg-accent-bg", flash?.page === "recurring" && flash.ids.includes(r.id) && "m-ai-flash")}>
               <span className="flex min-w-0 items-center gap-3">
                 <Avatar name={r.merchant} size={34} />
                 <span className="flex min-w-0 flex-col gap-0.5">
                   <span className="flex min-w-0 items-center gap-2">
                     <span className={cx("truncate text-[15px]", cancelled && "text-faint line-through")}>{r.merchant}</span>
                     {trial && <Pill tone="acc">Free trial</Pill>}
+                    {flash?.page === "recurring" && flash.ids.includes(r.id) && <Pill tone="acc" className="m-pop">✦ Updated by PayPal AI</Pill>}
                   </span>
                   <span className="truncate text-[13px] text-faint">{trial || isBill(r) ? r.plan : `${r.plan} · monthly`}</span>
                 </span>
               </span>
-              <span className={cx("whitespace-nowrap text-sm", cancelled ? "text-negative" : left <= 7 ? "font-medium text-accent" : "text-text")}>{cancelled ? "Cancelled" : shortDate(r.nextChargeDate)}</span>
+              <span className={cx("whitespace-nowrap text-sm", cancelled ? "text-negative" : left <= 7 ? "font-medium text-accent" : "text-text")}>{cancelled ? "Cancelled" : r.status === "paused" ? "Paused" : shortDate(r.nextChargeDate)}</span>
               <span className="whitespace-nowrap text-sm">{sinceLabel(r.since)}</span>
               <span className={cx("num whitespace-nowrap text-[15px]", cancelled && "text-faint line-through")}>{money(r.amount)}</span>
             </button>
@@ -343,7 +345,7 @@ function PaymentDrawer({ r, unused, today, conf, run, onStop, onAskCancel, onRes
   const paid = r.since ? Math.max(1, (Number(today.slice(0, 4)) - Number(r.since.slice(0, 4))) * 12 + Number(today.slice(5, 7)) - Number(r.since.slice(5, 7)) + (Number(today.slice(8, 10)) >= (r.billingDay ?? 1) ? 1 : 0)) : 0;
   const method = state?.transactions.findLast((t) => t.recurringId === r.id)?.method;
   const remind = () => toast("Reminder set", `We’ll nudge you 2 days before ${r.merchant} is due on ${shortDate(r.nextChargeDate)}`);
-  const statusPill = cancelled ? <Pill tone="neg">Cancelled</Pill> : <Pill tone={unused ? "warn" : daysLeft <= 7 ? "acc" : "neu"}>{unused ? "Unused 30+ days" : daysLeft <= 7 ? `Renews in ${daysLeft} day${daysLeft === 1 ? "" : "s"}` : "Active"}</Pill>;
+  const statusPill = cancelled ? <Pill tone="neg">Cancelled</Pill> : r.status === "paused" ? <Pill tone="warn">Paused</Pill> : <Pill tone={unused ? "warn" : daysLeft <= 7 ? "acc" : "neu"}>{unused ? "Unused 30+ days" : daysLeft <= 7 ? `Renews in ${daysLeft} day${daysLeft === 1 ? "" : "s"}` : "Active"}</Pill>;
   const kernel = r.cancelChannel === "kernel_browser";
   return (
     <Drawer label={run ? "Cancellation" : bill ? "Essential bill" : "Subscription"} onClose={onClose}>

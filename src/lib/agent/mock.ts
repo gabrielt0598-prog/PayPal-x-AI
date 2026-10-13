@@ -73,6 +73,24 @@ export async function mockAgent(ctx: ToolContext): Promise<string> {
     return "Happy to model that. Try \"What if I skip dining out for the rest of the month?\" or \"What if I buy a $900 laptop?\"";
   }
 
+  // 1c. Budget limits: "set my dining limit to $212".
+  const limitMatch = /\b(set|change|make|lower|raise)\b[^$]*\b(budget|limit)\b[^$]*\$\s*([\d,]+)|\b(set|change|make)\b[^$]*\$\s*([\d,]+)[^$]*\b(budget|limit)\b/i.exec(m);
+  if (limitMatch) {
+    const amt = Number((limitMatch[3] ?? limitMatch[5]).replace(/,/g, ""));
+    const category = /dining|restaurant|shopping|grocer|transport|subscri|bills?|utilit/i.exec(lower)?.[0];
+    if (category && Number.isFinite(amt)) return cite(await call("set_budget_limit", { category, limit: amt }));
+  }
+
+  // 1d. Pause / resume a subscription (before the cancel rule below).
+  if (/\b(pause|suspend|resume|unpause|reactivate)\b/i.test(lower)) {
+    const list = await call("list_recurring", {});
+    const paused = await call("list_recurring", { status: "paused" });
+    const items = [...((list.items as { id: string; merchant: string; kind: string }[]) ?? []), ...((paused.items as { id: string; merchant: string; kind: string }[]) ?? [])];
+    const target = items.find((i) => i.kind === "subscription" && lower.includes(i.merchant.toLowerCase()));
+    if (target) return cite(await call("pause_subscription", { recurring_id: target.id, paused: !/\b(resume|unpause|reactivate)\b/i.test(lower) }));
+    return "Which subscription should I pause or resume? Tell me its name.";
+  }
+
   // 2. Cancel a subscription (or explain why it can't be).
   if (/\b(cancel|unsubscribe|stop paying)\b/i.test(lower) || hint?.intent === "cancel_subscription") {
     const list = await call("list_recurring", { status: "active" });

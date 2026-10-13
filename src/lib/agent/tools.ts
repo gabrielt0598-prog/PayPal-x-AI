@@ -128,6 +128,28 @@ export const TOOLS: Anthropic.Tool[] = [
     },
   },
   {
+    name: "pause_subscription",
+    description:
+      "Pause (paused=true) or resume (paused=false) a subscription through PayPal's Subscriptions API. A paused subscription is not charged until it is resumed. Only subscriptions can be paused, not bills or rent. Prefer this over cancelling when the user wants a break.",
+    input_schema: {
+      type: "object",
+      properties: { recurring_id: { type: "string" }, paused: { type: "boolean", description: "true to pause, false to resume" } },
+      required: ["recurring_id", "paused"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "set_budget_limit",
+    description:
+      "Set the monthly budget limit for one budget category. The change is applied on the user's Budget page and highlighted there. Categories: Bills & Utilities, Dining & Drinks, Shopping, Groceries, Transport, Subscriptions. Only use an amount the user stated.",
+    input_schema: {
+      type: "object",
+      properties: { category: { type: "string", description: "Category name, e.g. Dining" }, limit: { type: "number", description: "New monthly limit in USD, 0 to 99999" } },
+      required: ["category", "limit"],
+      additionalProperties: false,
+    },
+  },
+  {
     name: "pay_with_paypal",
     description:
       "Starts a PayPal payment through the Orders API: creates the order and shows the user an approval card. The user approves it with PayPal and the payment is captured; nothing is charged until they do. Use when the user asks you to pay for something with PayPal, e.g. 'pay for my Essentials order' (the default Essentials order is Cloudsoft toilet paper, Scrubwell sponges and a Purelather soap refill from Harbor & Home, $52.43 with tax). Only call it with an amount the user stated or that this default order gives you.",
@@ -784,6 +806,54 @@ async function freezeCard(input: Record<string, unknown>): Promise<ToolOutput> {
   };
 }
 
+async function pauseSubscription(input: Record<string, unknown>, ctx: ToolContext): Promise<ToolOutput> {
+  const id = str(input.recurring_id) ?? "";
+  const paused = input.paused !== false;
+  const sub = getState().recurring.find((r) => r.id === id);
+  if (!sub) return { summary: `No recurring payment with id ${id}. Call list_recurring to find the right id.`, error: "not_found" };
+  const r = await paypal.setSubscriptionPaused(id, paused, `${paused ? "Paused" : "Resumed"} by user via PayPal AI`);
+  if (!r.ok) return { summary: r.error ?? `${sub.merchant} could not be ${paused ? "paused" : "resumed"}.`, error: "not_changed" };
+  const amountLabel = formatUSD(sub.amount);
+  ctx.actions.push({
+    type: "subscription_paused",
+    recurringId: id,
+    merchant: sub.merchant,
+    plan: sub.plan,
+    paused,
+    amountLabel,
+    nextChargeLabel: sub.nextChargeDate,
+    channel: r.channel === "paypal_api" ? "paypal_subscriptions_api" : "local_store",
+  });
+  return {
+    summary: paused
+      ? `Done. I paused ${sub.merchant} (${sub.plan}). You won't be charged ${amountLabel} until you resume it.${r.channel === "local_store" ? " Simulated: no PayPal subscription id (I-...) for this item, so only the local copy changed." : ""}`
+      : `Done. ${sub.merchant} is active again. Next charge ${sub.nextChargeDate}, ${amountLabel}.`,
+    status: paused ? "paused" : "active",
+    merchant: sub.merchant,
+  };
+}
+
+/** Budget category names the user may say, mapped to the Budget page's item ids. */
+const BUDGET_ITEMS: { id: string; label: string; test: RegExp }[] = [
+  { id: "essential", label: "Bills & Utilities", test: /bills?|utilit|essential/i },
+  { id: "dining", label: "Dining & Drinks", test: /dining|restaurant|eating|food|drinks?/i },
+  { id: "shopping", label: "Shopping", test: /shopping|shop/i },
+  { id: "groceries", label: "Groceries", test: /grocer/i },
+  { id: "transport", label: "Transport", test: /transport|rides?|commut/i },
+  { id: "subs", label: "Subscriptions", test: /subscri/i },
+];
+
+async function setBudgetLimit(input: Record<string, unknown>, ctx: ToolContext): Promise<ToolOutput> {
+  const cat = str(input.category) ?? "";
+  const item = BUDGET_ITEMS.find((b) => b.test.test(cat));
+  if (!item) return { summary: `I couldn't match "${cat}" to a budget category. They are: ${BUDGET_ITEMS.map((b) => b.label).join(", ")}.`, error: "unknown_category" };
+  const limit = Math.round(Number(input.limit));
+  if (!Number.isFinite(limit) || limit < 0 || limit > 99_999) return { summary: "I need a monthly limit between $0 and $99,999.", error: "invalid_limit" };
+  const limitLabel = formatUSD(limit);
+  ctx.actions.push({ type: "budget_limit_set", key: `${item.id}-${limit}-${Date.now()}`, itemId: item.id, label: item.label, limit, limitLabel });
+  return { summary: `Done. I set your ${item.label} limit to ${limitLabel} a month and highlighted it on your Budget page. If it would push your category limits over your total monthly budget, the page keeps the old limit and says so.`, category: item.label, limit: limitLabel };
+}
+
 async function payWithPaypal(input: Record<string, unknown>, ctx: ToolContext): Promise<ToolOutput> {
   const amount = Math.round(Number(input.amount) * 100) / 100;
   const merchant = typeof input.merchant === "string" && input.merchant.trim() ? input.merchant.trim().slice(0, 60) : "Harbor & Home";
@@ -837,6 +907,8 @@ export async function executeTool(name: string, rawInput: unknown, ctx: ToolCont
       case "categorize_transactions": output = await categorizeTransactions(input, ctx); break;
       case "list_recurring": output = await listRecurring(input); break;
       case "cancel_subscription": output = await cancelSubscription(input, ctx); break;
+      case "pause_subscription": output = await pauseSubscription(input, ctx); break;
+      case "set_budget_limit": output = await setBudgetLimit(input, ctx); break;
       case "pay_with_paypal": output = await payWithPaypal(input, ctx); break;
       case "freeze_card": output = await freezeCard(input); break;
       case "report_unauthorized_charge": output = await reportUnauthorized(input, ctx); break;

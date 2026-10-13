@@ -56,6 +56,17 @@ export function cancelRecurring(id: string): Result<RecurringPayment> {
   return { ok: true, value: r };
 }
 
+export function setRecurringPaused(id: string, paused: boolean): Result<RecurringPayment> {
+  const r = getState().recurring.find((x) => x.id === id);
+  if (!r) return { ok: false, error: `No recurring payment with id ${id}` };
+  if (r.kind !== "subscription") return { ok: false, error: `${r.merchant} (${r.plan}) is a ${r.kind} and cannot be paused` };
+  if (r.status === "cancelled") return { ok: false, error: `${r.merchant} is cancelled` };
+  if (paused && r.status === "paused") return { ok: false, error: `${r.merchant} is already paused` };
+  if (!paused && r.status !== "paused") return { ok: false, error: `${r.merchant} is not paused` };
+  r.status = paused ? "paused" : "active";
+  return { ok: true, value: r };
+}
+
 export function applyOffer(
   offerId: string,
   transactionId?: string,

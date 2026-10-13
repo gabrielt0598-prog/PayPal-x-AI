@@ -184,6 +184,8 @@ export interface PayPalService {
    * open (status PAYER_ACTION_REQUIRED); mock mode returns a simulated order that needs no approval.
    */
   createOrder(input: CreateOrderInput): Promise<OrderResult>;
+  /** Subscriptions API: suspends (pause) or activates (resume) a subscription (mock: updates the store). */
+  setSubscriptionPaused(recurringId: string, paused: boolean, reason: string): Promise<{ ok: boolean; error?: string; channel?: "paypal_api" | "local_store"; note?: string }>;
   /** Orders API: captures an approved order (mock: returns a simulated capture). */
   captureOrder(orderId: string): Promise<CaptureResult>;
 }

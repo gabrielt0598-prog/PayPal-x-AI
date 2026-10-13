@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFinance } from "@/components/state/AppProviders";
 import { useClean } from "@/components/clean/AppState";
 import { completeOrder } from "@/components/clean/paypalOrder";
+import { DEFAULT_STATE, loadBudget, saveBudget } from "@/components/clean/budget/model";
+import { money } from "@/components/clean/ui";
 import { ArrowUpRight, BadgePercent, Brain, CheckCircle2, ShieldQuestion, Tags } from "lucide-react";
 import type { AgentAction, RailStep } from "@/lib/agent/types";
 import { CompareCard } from "./CompareCard";
@@ -71,6 +73,87 @@ function CancelledCard({ action }: { action: CancelledAction }) {
           <img src={action.screenshotDataUrl} alt={`${action.merchant} cancellation confirmation (enlarged)`} className="max-h-full max-w-full rounded-lg shadow-2xl" />
         </div>
       ) : null}
+    </div>
+  );
+}
+
+type PausedAction = Extract<AgentAction, { type: "subscription_paused" }>;
+type BudgetAction = Extract<AgentAction, { type: "budget_limit_set" }>;
+
+/** Actions are applied once per card, even if the chat re-renders. */
+const applied = new Set<string>();
+
+/** A subscription paused or resumed through PayPal's Subscriptions API. Tints the row on Recurring and offers Undo. */
+function SubscriptionPausedCard({ action }: { action: PausedAction }) {
+  const { flashChange, toast } = useClean();
+  const { refresh } = useFinance();
+  const key = `${action.recurringId}-${action.paused}`;
+  const ran = useRef(false);
+  useEffect(() => {
+    if (ran.current) return;
+    ran.current = true;
+    if (applied.has(key)) return;
+    applied.add(key);
+    flashChange("recurring", [action.recurringId]);
+    toast(action.paused ? `${action.merchant} paused` : `${action.merchant} is active again`, action.paused ? `No ${action.amountLabel} charge until you resume` : `Next charge ${action.nextChargeLabel} · ${action.amountLabel}`, {
+      undo: async () => {
+        await fetch(`/api/paypal/subscriptions/${encodeURIComponent(action.recurringId)}/pause`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ paused: !action.paused }) });
+        void refresh();
+      },
+    });
+  }, [key, action, flashChange, toast, refresh]);
+  return (
+    <div className={`${card} border-positive/30 bg-positive-bg`}>
+      <div className="flex items-center gap-2 font-medium text-positive">
+        <CheckCircle2 size={15} /> {action.merchant} {action.paused ? "paused" : "resumed"}
+      </div>
+      <div className="mt-1 text-muted">
+        {action.plan} · {action.paused ? `no ${action.amountLabel} charge until you resume` : `next charge ${action.nextChargeLabel}`} ·{" "}
+        {action.channel === "paypal_subscriptions_api" ? "PayPal Subscriptions API" : "simulated"}
+      </div>
+    </div>
+  );
+}
+
+/** A budget limit the agent set. Budget limits live in the browser, so the card writes it, tints the row and offers Undo. */
+function BudgetChangeCard({ action }: { action: BudgetAction }) {
+  const { flashChange, toast } = useClean();
+  const ran = useRef(false);
+  const [result, setResult] = useState<{ from: number; error?: string }>();
+  useEffect(() => {
+    if (ran.current) return;
+    ran.current = true;
+    if (applied.has(action.key)) return;
+    applied.add(action.key);
+    const b = loadBudget() ?? DEFAULT_STATE;
+    const from = b.limits[action.itemId] ?? 0;
+    const alloc = Object.values(b.limits).reduce((a, n) => a + n, 0);
+    if (alloc - from + action.limit > b.total) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reports the outcome of applying the change once on mount
+      setResult({ from, error: `That would put your category limits over your ${money(b.total)} monthly budget, so ${action.label} stays at ${money(from)}.` });
+      return;
+    }
+    saveBudget({ ...b, limits: { ...b.limits, [action.itemId]: action.limit } });
+    window.dispatchEvent(new Event("budget:changed"));
+    flashChange("budget", [action.itemId]);
+    setResult({ from });
+    toast(`PayPal AI updated ${action.label}`, `${money(from)} → ${action.limitLabel} · saved to Budget`, {
+      undo: () => {
+        const cur = loadBudget() ?? DEFAULT_STATE;
+        saveBudget({ ...cur, limits: { ...cur.limits, [action.itemId]: from } });
+        window.dispatchEvent(new Event("budget:changed"));
+      },
+    });
+  }, [action, flashChange, toast]);
+  if (!result) return null;
+  return result.error ? (
+    <div role="alert" className={`${card} border-warning/30 bg-warning-bg text-warning`}>{result.error}</div>
+  ) : (
+    <div className={`${card} border-positive/30 bg-positive-bg`}>
+      <div className="flex items-center gap-2 font-medium text-positive">
+        <CheckCircle2 size={15} /> {action.label} limit set
+      </div>
+      <div className="mt-1 text-muted">{money(result.from)} → {action.limitLabel} · saved to Budget</div>
     </div>
   );
 }
@@ -168,6 +251,10 @@ export function ActionCard({
           <div className="mt-1 text-muted">Applied to {action.transactionId} · new balance {action.newBalanceLabel}</div>
         </div>
       );
+    case "subscription_paused":
+      return <SubscriptionPausedCard action={action} />;
+    case "budget_limit_set":
+      return <BudgetChangeCard action={action} />;
     case "paypal_payment":
       return <PayPalPaymentCard action={action} />;
     case "steps_completed":

@@ -32,7 +32,7 @@ type Err = { id: string; v: string; over: number; cap: number };
 
 export function BudgetPage() {
   const { state, loading } = useFinance();
-  const { toast } = useClean();
+  const { toast, flash } = useClean();
   const [bud, setBud] = useState<BudState>(DEFAULT_STATE);
   const [ready, setReady] = useState(false);
   const [sel, setSel] = useState<string | null>(null);
@@ -55,8 +55,16 @@ export function BudgetPage() {
   // The assistant (or anything else) can raise the AI suggestions banner with a window event.
   useEffect(() => {
     const on = () => setAiOn(true);
+    const reload = () => {
+      const saved = loadBudget();
+      if (saved) setBud(saved);
+    };
     window.addEventListener("budget:suggest-limits", on);
-    return () => window.removeEventListener("budget:suggest-limits", on);
+    window.addEventListener("budget:changed", reload);
+    return () => {
+      window.removeEventListener("budget:suggest-limits", on);
+      window.removeEventListener("budget:changed", reload);
+    };
   }, []);
   useEffect(() => {
     if (!menu) return;
@@ -186,7 +194,7 @@ export function BudgetPage() {
         <BudHead />
         {withTotal && <BudgetRowView total row={totalRow} onOpen={() => setSel("total")} />}
         {list.map((r) => (
-          <BudgetRowView key={r.item.id} row={r} suggestion={aiOn && sugs[r.item.id] !== undefined && sugs[r.item.id] !== r.lim ? sugs[r.item.id] : undefined} onAccept={() => accept(r.item.id)} onOpen={() => setSel(r.item.id)} />
+          <BudgetRowView key={r.item.id} row={r} flash={flash?.page === "budget" && flash.ids.includes(r.item.id)} suggestion={aiOn && sugs[r.item.id] !== undefined && sugs[r.item.id] !== r.lim ? sugs[r.item.id] : undefined} onAccept={() => accept(r.item.id)} onOpen={() => setSel(r.item.id)} />
         ))}
       </div>
     </Card>

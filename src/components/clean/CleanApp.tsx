@@ -36,11 +36,17 @@ const PAGE: Record<PageId, ComponentType> = {
 };
 
 function Frame() {
-  const { page } = useClean();
+  const { page, flash } = useClean();
   const { open: aiOpen, closeAssistant } = useAssistantUI();
   const { state, loading } = useFinance();
   const Current = PAGE[page];
   const [bubble, setBubble] = useState<DockBubble | null>(null);
+  // Bring a row PayPal AI just changed into view.
+  useEffect(() => {
+    if (!flash) return;
+    const id = requestAnimationFrame(() => document.querySelector(".m-ai-flash")?.scrollIntoView({ block: "center", behavior: "smooth" }));
+    return () => cancelAnimationFrame(id);
+  }, [flash]);
   const closeRef = useRef(closeAssistant);
   useEffect(() => {
     closeRef.current = closeAssistant;

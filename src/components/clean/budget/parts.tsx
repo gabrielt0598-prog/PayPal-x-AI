@@ -92,12 +92,12 @@ export function BudHead() {
   );
 }
 
-export function BudgetRowView({ row, total, suggestion, onOpen, onAccept }: { row: BudRow; total?: boolean; suggestion?: number; onOpen: () => void; onAccept?: () => void }) {
+export function BudgetRowView({ row, total, suggestion, flash, onOpen, onAccept }: { row: BudRow; total?: boolean; suggestion?: number; flash?: boolean; onOpen: () => void; onAccept?: () => void }) {
   const { item, sp, lim, left, status } = row;
   const Icon = ICONS[total ? "target" : item.icon];
   const rem = `${left < 0 ? "−" : ""}${money(Math.abs(left))}`;
   return (
-    <div role="row" className={cx(GRID, "py-[13px]")}>
+    <div role="row" className={cx(GRID, "py-[13px]", flash && "m-ai-flash")}>
       <button type="button" onClick={onOpen} aria-label={`${item.name} details`} className="flex min-w-0 items-center gap-3 whitespace-nowrap text-left">
         <span className="@max-[560px]:hidden">
           <IconTile size={32}>
@@ -108,6 +108,7 @@ export function BudgetRowView({ row, total, suggestion, onOpen, onAccept }: { ro
       </button>
       <span className="flex min-w-0 flex-col items-start gap-1.5">
         <span className="flex h-10 items-center text-[15px]">{money(lim)}</span>
+        {flash && <span className="m-pop inline-flex h-[22px] items-center whitespace-nowrap rounded-full border border-accent/45 bg-accent-bg px-2.5 text-xs font-medium text-accent">✦ Updated by PayPal AI</span>}
         {suggestion !== undefined && onAccept && (
           <button type="button" onClick={onAccept} aria-label={`Use suggested ${money(suggestion)} for ${item.name}`} className="rounded-full bg-accent-bg px-2.5 py-1 text-xs font-medium text-accent">
             AI suggests {money(suggestion)}

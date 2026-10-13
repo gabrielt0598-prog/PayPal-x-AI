@@ -61,6 +61,9 @@ const TOAST_COLORS: Record<ToastKind, [string, string, string, string, string]> 
 interface CleanState {
   page: PageId;
   go: (p: PageId) => void;
+  /** Rows PayPal AI just changed (page + ids): the page tints them and tags "Updated by PayPal AI" until you leave it. */
+  flash: { page: PageId; ids: string[] } | null;
+  flashChange: (page: PageId, ids: string[]) => void;
   toast: (title: string, sub?: string, opts?: ToastOpts) => void;
   dismissToast: (id?: number) => void;
   moveMoney: (kind: MoneyMove, amount: number, merchant?: string) => Promise<boolean>;
@@ -94,13 +97,17 @@ export function CleanStateProvider({ children }: { children: ReactNode }) {
   const { refresh, state } = useFinance();
   const [page, setPage] = useState<PageId>("home");
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [flash, setFlash] = useState<{ page: PageId; ids: string[] } | null>(null);
   const [pts, setPts] = useState(1845);
   const [cat, setCat] = useState<RewardCat>("Restaurants");
   const [log, setLog] = useState<RewardsLog[]>(SEED_LOG);
   const tid = useRef(0);
 
   useEffect(() => {
-    const sync = () => setPage(pageFromHash());
+    const sync = () => {
+      setPage(pageFromHash());
+      setFlash(null);
+    };
     sync();
     window.addEventListener("hashchange", sync);
     return () => window.removeEventListener("hashchange", sync);
@@ -108,8 +115,11 @@ export function CleanStateProvider({ children }: { children: ReactNode }) {
 
   const go = useCallback((p: PageId) => {
     setPage(p);
+    setFlash(null);
     if (window.location.hash.slice(1) !== p) history.replaceState(null, "", `#${p}`);
   }, []);
+
+  const flashChange = useCallback((p: PageId, ids: string[]) => setFlash({ page: p, ids }), []);
 
   const toast = useCallback((title: string, sub?: string, opts?: ToastOpts) => {
     const id = ++tid.current;
@@ -153,6 +163,8 @@ export function CleanStateProvider({ children }: { children: ReactNode }) {
     () => ({
       page,
       go,
+      flash,
+      flashChange,
       toast,
       dismissToast,
       moveMoney,
@@ -169,7 +181,7 @@ export function CleanStateProvider({ children }: { children: ReactNode }) {
         redeem,
       },
     }),
-    [page, go, toast, dismissToast, moveMoney, pts, cat, log, redeem, asOf],
+    [page, go, flash, flashChange, toast, dismissToast, moveMoney, pts, cat, log, redeem, asOf],
   );
 
   return (

@@ -9,6 +9,7 @@
 //            TransactionSearchController.searchBalances      -> getBalance
 //            SubscriptionsController.listSubscriptions       -> listRecurring
 //            SubscriptionsController.cancelSubscription      -> cancelSubscription
+//            SubscriptionsController.suspendSubscription / activateSubscription -> setSubscriptionPaused
 //            OrdersController.createOrder / captureOrder     -> createOrder / captureOrder (Essentials checkout, PayPal AI)
 //   mock = delegate to the in-memory store (src/lib/store.ts), seeded from src/lib/mock-data.ts.
 //
@@ -42,7 +43,7 @@ import {
 } from "@paypal/paypal-server-sdk";
 import type { Subscription, TransactionDetails } from "@paypal/paypal-server-sdk";
 import { inRange } from "../finance";
-import { cancelRecurring, getState } from "../store";
+import { cancelRecurring, getState, setRecurringPaused } from "../store";
 import type { BillingCycle, PaymentMethod, RecurringPayment, Transaction } from "../types";
 import type { PayPalService, ServiceMode } from "./contracts";
 import { categorizeByRules } from "./categorize-rules";
@@ -254,6 +255,26 @@ export const paypal: PayPalService = {
         ? { note: "No PayPal subscription id (I-...) for this item; cancelled in the local store only." }
         : {}),
     };
+  },
+
+  async setSubscriptionPaused(recurringId, paused, reason) {
+    const isPayPalId = /^I-[A-Z0-9]+$/i.test(recurringId);
+    if (paypalMode() === "live" && isPayPalId) {
+      try {
+        const subs = new SubscriptionsController(sdk());
+        if (paused) await subs.suspendSubscription({ id: recurringId, body: { reason: reason.slice(0, 128) || "Paused by user" } });
+        else await subs.activateSubscription({ id: recurringId, body: { reason: reason.slice(0, 128) || "Resumed by user" } });
+      } catch (err) {
+        const error = describe(err);
+        console.error("[paypal] setSubscriptionPaused failed:", error);
+        return { ok: false, error, channel: "paypal_api" };
+      }
+      setRecurringPaused(recurringId, paused); // mirror into the store when the id is also known there (ignored otherwise)
+      return { ok: true, channel: "paypal_api" };
+    }
+    const r = setRecurringPaused(recurringId, paused);
+    if (!r.ok) return { ok: false, error: r.error };
+    return { ok: true, channel: "local_store" };
   },
 
   async createOrder({ amount, description, returnUrl, cancelUrl }) {
