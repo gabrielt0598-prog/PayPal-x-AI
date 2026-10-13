@@ -19,7 +19,7 @@ interface UIMessage {
 
 // Starter pills: short label -> the full prompt sent to the real agent. Ordered as a walkthrough of what the app does:
 // a verified what-if, an analysis, changes on the page, PayPal Subscriptions and Orders API actions, a cloud-browser
-// cancellation (Kernel), and a fraud response.
+// cancellation (Kernel), and a PayPal offer.
 const STARTERS: [string, string][] = [
   ["What if I skip dining?", "What if I skip dining out for the rest of the month?"],
   ["Unused subscriptions", "Which subscriptions am I not using?"],
@@ -27,7 +27,7 @@ const STARTERS: [string, string][] = [
   ["Pause Kitebird+", "Pause my Kitebird+ subscription"],
   ["Pay for Essentials", "Pay for my Essentials order with PayPal"],
   ["Cancel Vantage", "Cancel my Vantage subscription"],
-  ["That wasn’t me", "That wasn’t me. Voltmart Online charged my Debit Card $450.00. What can you do?"],
+  ["Best offer", "Apply my best offer"],
 ];
 
 const FOLLOW_DEFAULT = ["Pay for my Essentials order with PayPal", "Which subscriptions am I not using?", "Apply my best offer"];

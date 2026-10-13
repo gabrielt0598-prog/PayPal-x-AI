@@ -2182,7 +2182,7 @@ class Component extends DCLogic {
       chat: { empty: !curChat, has: !!curChat, title: curChat ? curChat.title : 'New chat', query: S.chatQuery, typing: S.typing, msgs,
         historyOpen: S.historyOpen, historyAria: S.historyOpen ? 'true' : 'false', history: histGroups,
         prompts: PROMPTS.map(([icon, q, meta]) => ({ icon, q, meta, pick: startChat(q) })),
-        starters: [['What if I skip dining?', 'What if I skip dining out for the rest of October?'], ['Set dining limit to $212', 'Set my dining limit to $212'], ['Pay for Essentials', 'Pay for my Essentials order with PayPal'], ['Cancel Vantage', 'Cancel my Vantage subscription'], ['That wasn’t me', 'That wasn’t me. Voltmart Online charged my Debit Card $450.00.'], ['What’s due soon', PROMPTS[1][1]]].map(([label, q]) => ({ label, pick: startChat(q) })),
+        starters: [['What if I skip dining?', 'What if I skip dining out for the rest of October?'], ['Set dining limit to $212', 'Set my dining limit to $212'], ['Pay for Essentials', 'Pay for my Essentials order with PayPal'], ['Cancel Vantage', 'Cancel my Vantage subscription'], ['Best offer', PROMPTS[3][1]], ['What’s due soon', PROMPTS[1][1]]].map(([label, q]) => ({ label, pick: startChat(q) })),
         followups: follow.map((q) => ({ q, pick: () => this.sendChat(q) })) },
       onChatInput: (e) => this.setState({ chatQuery: e.target.value }),
       onChatKey: (e) => { if (e.key === 'Enter') { e.preventDefault(); this.sendChat(this.state.chatQuery); } },
