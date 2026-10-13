@@ -133,13 +133,13 @@ export function InsightsPage() {
               sub={`spent in ${monthShort(ym)}`}
               aria={`${monthName(ym)} spending by category: ${d.cats.rows.map((r) => `${r.name} ${money(r.spend)}`).join(", ")}.`}
             />
-            <div className="flex min-w-0 flex-[1_1_280px] flex-col">
+            <div className="flex min-w-0 flex-[1_1_360px] flex-col">
               {d.cats.rows.map((r, i) => {
                 const p = r.prev ? ((r.spend - r.prev) / r.prev) * 100 : null;
                 return (
                   <div key={r.name} className={cx("flex h-[38px] items-center gap-3", i && "border-t border-border")}>
                     <span className="size-2.5 shrink-0 rounded-full" style={{ background: CAT_COLORS[i] }} />
-                    <span className="min-w-0 flex-1 truncate text-sm font-medium">{r.name}</span>
+                    <span className="min-w-0 flex-1 whitespace-nowrap text-sm font-medium">{r.name}</span>
                     <span className="num w-[84px] text-right text-sm font-medium">{money(r.spend)}</span>
                     <span className="w-10 text-right text-xs text-faint">{Math.round((r.spend / d.cats.total) * 100)}%</span>
                     <span className="flex w-16 justify-end">

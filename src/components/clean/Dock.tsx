@@ -99,8 +99,9 @@ export function Dock({ bubble, onBubble }: { bubble?: DockBubble | null; onBubbl
             aria-label="Ask PayPal AI"
             title="Ask PayPal AI"
             className={cx(
-              "flex size-14 items-center justify-center rounded-full border border-border-strong shadow-[0_12px_32px_rgba(0,0,0,0.45)] backdrop-blur-[18px]",
-              aiOpen ? "bg-white text-[#0a0a0a]" : "bg-accent-bg text-accent",
+              "flex size-14 items-center justify-center rounded-full border backdrop-blur-[18px]",
+              !aiOpen && "border-border-strong shadow-[0_12px_32px_rgba(0,0,0,0.45)]",
+              aiOpen ? "border-accent bg-accent text-[#0a0a0a] shadow-[0_0_0_4px_var(--accent-bg),0_12px_32px_rgba(0,0,0,0.45)]" : "bg-accent-bg text-accent",
             )}
           >
             <Sparkles size={28} />

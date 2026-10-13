@@ -138,7 +138,7 @@ export function TransactionsPage() {
   const byCat = new Map<string, number>();
   for (const t of debits) byCat.set(t.category, (byCat.get(t.category) ?? 0) - t.amount);
   const sorted = [...byCat.entries()].sort((a, b) => b[1] - a[1]);
-  const catList: [string, number][] = sorted.length > 5 ? [...sorted.slice(0, 4), ["Other", sorted.slice(4).reduce((a, c) => a + c[1], 0)]] : sorted;
+  const catList: [string, number][] = sorted.length > 5 ? [...sorted.slice(0, 4), ["Everything else", sorted.slice(4).reduce((a, c) => a + c[1], 0)]] : sorted;
   const dates = base.map((t) => t.date.slice(0, 10)).sort();
   const scope = [date === "all" ? (dates.length ? `${shortDate(dates[0])} – ${shortDate(dates[dates.length - 1])}` : "All dates") : DATES.find((x) => x[0] === date)![1], q && `“${q}”`].filter(Boolean).join(" · ");
   const dateActive = date !== "all";
@@ -240,14 +240,14 @@ export function TransactionsPage() {
             </div>
             <div aria-hidden className="flex h-2 gap-[3px]">
               {catList.map(([n, v], i) => (
-                <div key={n} className="min-w-1 rounded" style={{ flex: `${Math.max(v, 0.0001)} 1 0`, background: SEG_COLORS[n === "Other" ? 4 : i] }} />
+                <div key={n} className="min-w-1 rounded" style={{ flex: `${Math.max(v, 0.0001)} 1 0`, background: SEG_COLORS[n === "Everything else" ? 4 : i] }} />
               ))}
             </div>
             <div className="flex flex-col gap-[13px]">
               {catList.length === 0 && <span className="text-sm text-muted">No spending in this view</span>}
               {catList.map(([n, v], i) => (
                 <div key={n} className="flex items-center gap-2.5 text-sm">
-                  <span className="size-2 shrink-0 rounded-full" style={{ background: SEG_COLORS[n === "Other" ? 4 : i] }} />
+                  <span className="size-2 shrink-0 rounded-full" style={{ background: SEG_COLORS[n === "Everything else" ? 4 : i] }} />
                   <span className="min-w-0 flex-1">{n}</span>
                   <span className="w-10 text-right text-faint">{Math.round((v / Math.max(spent, 1)) * 100)}%</span>
                   <span className="num w-[84px] text-right">{money(v)}</span>

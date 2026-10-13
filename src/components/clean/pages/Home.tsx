@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowLeftRight, Plus } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import { eligibleOffers, upcomingCharges } from "@/lib/finance";
@@ -8,6 +8,7 @@ import type { Transaction } from "@/lib/types";
 import { useClean } from "../AppState";
 import { Bars, CompareLine } from "../charts";
 import { useBudgetSummary } from "../budgetTotal";
+import { useLiveBalance } from "../liveBalance";
 import { asOfDate, cumulative, daysInMonth, monthTotals, prevYm, ymOf } from "../data";
 import { TxDrawer, TxGrid } from "../TxTable";
 import { amt, Avatar, Btn, Card, Modal, money, monthName, monthShort, Page, Pill, Section, Segmented, shortDate, Skeleton } from "../ui";
@@ -24,21 +25,7 @@ export function HomePage() {
   const [sel, setSel] = useState<Transaction | null>(null);
   const [move, setMove] = useState<"add" | "transfer" | null>(null);
   // Live PayPal sandbox balance and transactions, read through the Server SDK (null = sample data).
-  const [live, setLive] = useState<{ balance: number; transactions: Transaction[] } | null>(null);
-  const storeBalance = state?.userProfile.paypalBalance;
-  useEffect(() => {
-    let off = false;
-    fetch("/api/paypal/home", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j: { mode?: string; balance?: number; transactions?: Transaction[] } | null) => {
-        if (off) return;
-        setLive(j?.mode === "live" && typeof j.balance === "number" && Array.isArray(j.transactions) ? { balance: j.balance, transactions: j.transactions } : null);
-      })
-      .catch(() => !off && setLive(null));
-    return () => {
-      off = true;
-    };
-  }, [storeBalance]);
+  const live = useLiveBalance(state?.userProfile.paypalBalance);
 
   const d = useMemo(() => {
     if (!state) return null;

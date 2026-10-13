@@ -95,10 +95,22 @@ export interface BudInsights {
   avg: number;
   bars: { ym: string; v: number; cur: boolean }[];
   txs: Transaction[];
-  merchants: { name: string; total: number; count: number; share: number }[];
+  /** Largest single purchase this month and its share of the month's spend on this line. */
+  big: { tx: Transaction; share: number } | null;
 }
 
-/** 3-month average, 3-bar trend, recent transactions and top merchants for one line. */
+/** Suggested monthly limit: average of the last full months, rounded to $10. */
+export function suggestLimit(txns: Transaction[], cat: Category | undefined, ym: string, fullMonths: Set<string>): number | undefined {
+  if (!cat) return undefined;
+  const p1 = prevYm(ym);
+  const prior = [p1, prevYm(p1), prevYm(prevYm(p1))].filter((m) => fullMonths.has(m));
+  if (!prior.length) return undefined;
+  const avg = prior.reduce((a, m) => a + spentIn(txns, cat, m), 0) / prior.length;
+  const s = Math.round(avg / 10) * 10;
+  return s > 0 ? s : undefined;
+}
+
+/** 3-month average, 3-bar trend, recent transactions and biggest purchase for one line. */
 export function insightsFor(txns: Transaction[], cat: Category | undefined, ym: string, fullMonths: Set<string>): BudInsights {
   const p1 = prevYm(ym);
   const p2 = prevYm(p1);
@@ -109,16 +121,7 @@ export function insightsFor(txns: Transaction[], cat: Category | undefined, ym: 
   const cur = monthSpends(txns, cat, ym);
   const txs = cur.slice().sort((a, b) => b.date.localeCompare(a.date)).slice(0, 4);
   const total = cur.reduce((a, t) => a - t.amount, 0);
-  const by = new Map<string, { total: number; count: number }>();
-  for (const t of cur) {
-    const m = by.get(t.merchant) ?? { total: 0, count: 0 };
-    m.total += -t.amount;
-    m.count += 1;
-    by.set(t.merchant, m);
-  }
-  const merchants = [...by.entries()]
-    .map(([name, m]) => ({ name, total: r2(m.total), count: m.count, share: total ? m.total / total : 0 }))
-    .sort((a, b) => b.total - a.total)
-    .slice(0, 3);
-  return { avg, bars, txs, merchants };
+  const top = cur.slice().sort((a, b) => a.amount - b.amount)[0];
+  const big = top && total ? { tx: top, share: -top.amount / total } : null;
+  return { avg, bars, txs, big };
 }
