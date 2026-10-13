@@ -13,6 +13,7 @@ import { Logo, logoMark } from "../Logo";
 import { asOfDate, cumulative, daysInMonth, monthTotals, PREV_YEAR_MONTHLY, prevYm, ymOf } from "../data";
 import { TxDrawer, TxGrid } from "../TxTable";
 import { CountText, Avatar, Btn, Card, Modal, money, monthName, monthShort, Page, Pill, Section, Segmented, shortDate, Skeleton } from "../ui";
+import { TransferModal } from "../TransferModal";
 
 /** Merchant logo mark from the design, or a letter avatar for names without one. */
 function MerchantMark({ name }: { name: string }) {
@@ -262,14 +263,23 @@ export function HomePage() {
       </div>
 
       {sel && <TxDrawer tx={sel} onClose={() => setSel(null)} />}
-      {move && (
+      {move === "add" && (
         <MoveMoneyModal
-          kind={move}
           bank={p.linkedBank}
           balance={balance}
           onClose={() => setMove(null)}
           onConfirm={async (n) => {
-            if (await moveMoney(move, n)) toast(move === "add" ? `${money(n)} added from ${p.linkedBank}` : `${money(n)} sent to ${p.linkedBank}`, move === "add" ? "Available in your PayPal balance now" : "Arrives in 1–3 business days");
+            if (await moveMoney("add", n)) toast(`${money(n)} added from ${p.linkedBank}`, "Available in your PayPal balance now");
+            setMove(null);
+          }}
+        />
+      )}
+      {move === "transfer" && (
+        <TransferModal
+          balance={balance}
+          onClose={() => setMove(null)}
+          onConfirm={async (peer, n, note) => {
+            if (await moveMoney("transfer", n, peer, note)) toast(`${money(n)} sent to ${peer}`, "Delivered instantly · from your PayPal balance");
             setMove(null);
           }}
         />
@@ -278,13 +288,13 @@ export function HomePage() {
   );
 }
 
-function MoveMoneyModal({ kind, bank, balance, onClose, onConfirm }: { kind: "add" | "transfer"; bank: string; balance: number; onClose: () => void; onConfirm: (n: number) => Promise<void> }) {
+function MoveMoneyModal({ bank, balance, onClose, onConfirm }: { bank: string; balance: number; onClose: () => void; onConfirm: (n: number) => Promise<void> }) {
   const [n, setN] = useState(100);
   const [busy, setBusy] = useState(false);
-  const after = kind === "add" ? balance + n : balance - n;
+  const after = balance + n;
   const chips = [50, 100, 250, 500];
   return (
-    <Modal label={kind === "add" ? "Top up" : "Transfer to bank"} onClose={onClose}>
+    <Modal label="Top up" onClose={onClose}>
       <div className="flex flex-col gap-1">
         <span className="text-xs text-faint">Amount</span>
         <span className="num text-[40px] font-semibold tracking-tight">{money(n)}</span>
@@ -298,12 +308,12 @@ function MoveMoneyModal({ kind, bank, balance, onClose, onConfirm }: { kind: "ad
       </div>
       <div className="rounded-xl bg-surface-2 px-3.5">
         <div className="flex py-3 text-[13px]">
-          <span className="flex-1 text-muted">{kind === "add" ? "From" : "To"}</span>
+          <span className="flex-1 text-muted">From</span>
           <span className="font-medium">{bank}</span>
         </div>
         <div className="flex border-t border-border py-3 text-[13px]">
           <span className="flex-1 text-muted">Arrives</span>
-          <span className="font-medium">{kind === "add" ? "Instantly" : "1–3 business days"}</span>
+          <span className="font-medium">Instantly</span>
         </div>
         <div className="flex border-t border-border py-3 text-[13px]">
           <span className="flex-1 text-muted">Balance after</span>
@@ -314,13 +324,13 @@ function MoveMoneyModal({ kind, bank, balance, onClose, onConfirm }: { kind: "ad
         <Btn onClick={onClose}>Cancel</Btn>
         <Btn
           kind="primary"
-          disabled={busy || (kind === "transfer" && n > balance)}
+          disabled={busy}
           onClick={async () => {
             setBusy(true);
             await onConfirm(n);
           }}
         >
-          {kind === "add" ? `Top up ${money(n)}` : `Transfer ${money(n)}`}
+          Top up {money(n)}
         </Btn>
       </div>
     </Modal>

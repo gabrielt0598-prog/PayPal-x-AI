@@ -17,29 +17,35 @@ interface UIMessage {
   error?: boolean;
 }
 
-// Starter pills: short label (as in the design) -> the full prompt sent to the real agent.
+// Starter pills: short label -> the full prompt sent to the real agent. Ordered as a walkthrough of what the app does:
+// a verified what-if, an analysis, changes on the page, PayPal Subscriptions and Orders API actions, a cloud-browser
+// cancellation (Kernel), and a fraud response.
 const STARTERS: [string, string][] = [
-  ["Dining last month", "How much did I spend on dining last month?"],
-  ["Unused subscriptions", "Which subscriptions am I not using?"],
-  ["Cancel Vantage", "Cancel my Vantage subscription"],
-  ["Best offer", "Apply my best offer"],
   ["What if I skip dining?", "What if I skip dining out for the rest of the month?"],
-  ["Budget check", "Am I on track with my budget this month?"],
+  ["Unused subscriptions", "Which subscriptions am I not using?"],
+  ["Set dining limit to $212", "Set my dining limit to $212"],
+  ["Pause Kitebird+", "Pause my Kitebird+ subscription"],
+  ["Pay for Essentials", "Pay for my Essentials order with PayPal"],
+  ["Cancel Vantage", "Cancel my Vantage subscription"],
+  ["That wasn’t me", "That wasn’t me. Voltmart Online charged my Debit Card $450.00. What can you do?"],
 ];
 
-const FOLLOW_DEFAULT = ["How much did I spend on dining last month?", "Which subscriptions am I not using?", "Apply my best offer"];
+const FOLLOW_DEFAULT = ["Pay for my Essentials order with PayPal", "Which subscriptions am I not using?", "Apply my best offer"];
 
 /** Follow-up chips derived from what the reply was about (its actions, then the tools it used). */
 function followUps(r?: AgentResponse): string[] {
   if (!r) return FOLLOW_DEFAULT;
   const types = new Set(r.actions.map((a) => a.type));
   const tools = new Set((r.toolResults ?? []).map((t) => t.tool));
-  if (types.has("what_if_compare") || tools.has("what_if")) return ["What if I also skip shopping?", "What if I buy a $900 laptop?"];
+  if (types.has("what_if_compare") || tools.has("what_if")) return ["Set my dining limit to $212", "What if I buy a $900 laptop?"];
+  if (types.has("budget_limit_set")) return ["Pause my Kitebird+ subscription", "Pay for my Essentials order with PayPal"];
+  if (types.has("subscription_paused")) return ["Pay for my Essentials order with PayPal", "Cancel my Vantage subscription"];
+  if (types.has("paypal_payment")) return ["Which subscriptions am I not using?", "Apply my best offer"];
   if (types.has("cancellation_preview")) return ["Which subscriptions am I not using?"];
-  if (types.has("subscription_cancelled")) return ["Which subscriptions am I not using?", "Apply my best offer"];
-  if (types.has("offer_applied")) return ["Which subscriptions am I not using?", "How much did I spend on dining last month?"];
+  if (types.has("subscription_cancelled")) return ["Pay for my Essentials order with PayPal", "Apply my best offer"];
+  if (types.has("offer_applied")) return ["Which subscriptions am I not using?", "What if I skip dining out for the rest of the month?"];
   if (types.has("fact_remembered")) return ["Am I on track with my budget this month?", "What if I skip dining out for the rest of the month?"];
-  if ([...tools].some((t) => /subscri/i.test(t))) return ["Cancel my Vantage subscription", "Apply my best offer"];
+  if ([...tools].some((t) => /subscri/i.test(t))) return ["Pause my Kitebird+ subscription", "Cancel my Vantage subscription"];
   if ([...tools].some((t) => /offer/i.test(t))) return ["Which subscriptions am I not using?", "What if I skip dining out for the rest of the month?"];
   return FOLLOW_DEFAULT;
 }

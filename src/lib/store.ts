@@ -123,13 +123,14 @@ export type MoneyMove = "add" | "transfer" | "rewards" | "purchase";
  * Demo helper behind the balance card's Top up / Transfer buttons, rewards
  * redemption and Store Sync reorders. Posts one ledger entry and moves the balance.
  */
-export function moveMoney(kind: MoneyMove, amount: number, merchant?: string) {
+export function moveMoney(kind: MoneyMove, amount: number, merchant?: string, note?: string) {
   const state = getState();
   const bank = state.userProfile.linkedBank;
   const abs = r2(Math.abs(amount));
   const entry: Record<MoneyMove, Omit<Transaction, "id" | "balanceAfter" | "date" | "status">> = {
     add: { merchant: bank, description: "Top up from bank", amount: abs, category: "Transfers", method: "bank_transfer" },
-    transfer: { merchant: bank, description: "Transfer to bank", amount: -abs, category: "Transfers", method: "bank_transfer" },
+    // Transfer = send to another person from the PayPal balance (peer to peer), so `merchant` is the recipient.
+    transfer: { merchant: merchant ?? "Maya Chen", description: note || `Sent to ${merchant ?? "Maya Chen"}`, amount: -abs, category: "Transfers", method: "paypal_balance" },
     rewards: { merchant: "PayPal Rewards", description: "Rewards points redeemed as cash back", amount: abs, category: "Cashback", method: "paypal_offer" },
     purchase: { merchant: merchant ?? "Store Sync merchant", description: "Reorder via PayPal Store Sync", amount: -abs, category: "Shopping", method: "paypal_balance" },
   };

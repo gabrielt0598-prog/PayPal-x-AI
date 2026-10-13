@@ -7,6 +7,7 @@ import { useClean } from "../AppState";
 import { CountText, Btn, cx, Drawer, Modal, money, Page, Pill, Skeleton } from "../ui";
 import { useLiveBalance } from "../liveBalance";
 import { Rows, Toggle } from "./accountShared";
+import { TransferModal } from "../TransferModal";
 
 interface PM {
   id: string;
@@ -258,8 +259,19 @@ export function WalletPage() {
         </Modal>
       )}
 
-      {move && (
-        <Modal label={move.mode === "add" ? "Top up PayPal" : "Transfer to your bank"} onClose={() => setMove(null)}>
+      {move?.mode === "transfer" && (
+        <TransferModal
+          balance={bal}
+          onClose={() => setMove(null)}
+          onConfirm={async (peer, n, note) => {
+            setMove(null);
+            if (await moveMoney("transfer", n, peer, note)) toast(`${money(n)} sent to ${peer}`, "Delivered instantly · from your PayPal balance");
+          }}
+        />
+      )}
+
+      {move?.mode === "add" && (
+        <Modal label="Top up PayPal" onClose={() => setMove(null)}>
           <div className="flex flex-col gap-1">
             <span className="text-xs text-faint">Amount</span>
             <span className="num text-[40px] font-semibold tracking-tight">{money(move.amt)}</span>
@@ -273,22 +285,21 @@ export function WalletPage() {
           </div>
           <Rows
             rows={[
-              ["From", move.mode === "add" ? p.linkedBank : `PayPal balance · ${money(bal)}`],
-              ["To", move.mode === "add" ? "PayPal balance" : p.linkedBank],
-              ["Arrives", move.mode === "add" ? "Instantly" : "1–3 business days · free"],
-              ["Balance after", <b key="a" className="num font-semibold">{money(bal + (move.mode === "add" ? move.amt : -move.amt))}</b>],
+              ["From", p.linkedBank],
+              ["To", "PayPal balance"],
+              ["Arrives", "Instantly"],
+              ["Balance after", <b key="a" className="num font-semibold">{money(bal + move.amt)}</b>],
             ]}
           />
           <div className="flex flex-wrap justify-end gap-2">
             <Btn onClick={() => setMove(null)}>Cancel</Btn>
             <Btn
               kind="primary"
-              disabled={move.mode === "transfer" && move.amt > bal}
               onClick={async () => {
                 const m = move;
                 setMove(null);
-                if (!(await moveMoney(m.mode, m.amt))) return;
-                toast(m.mode === "add" ? `${money(m.amt)} added to PayPal` : `${money(m.amt)} transfer started`, m.mode === "add" ? `From ${p.linkedBank} · available now` : `To ${p.linkedBank} · arrives in 1–3 business days`);
+                if (!(await moveMoney("add", m.amt))) return;
+                toast(`${money(m.amt)} added to PayPal`, `From ${p.linkedBank} · available now`);
               }}
             >
               {ctaLabel(move)}

@@ -66,7 +66,7 @@ interface CleanState {
   flashChange: (page: PageId, ids: string[]) => void;
   toast: (title: string, sub?: string, opts?: ToastOpts) => void;
   dismissToast: (id?: number) => void;
-  moveMoney: (kind: MoneyMove, amount: number, merchant?: string) => Promise<boolean>;
+  moveMoney: (kind: MoneyMove, amount: number, merchant?: string, note?: string) => Promise<boolean>;
   rewards: {
     pts: number;
     cat: RewardCat;
@@ -129,9 +129,9 @@ export function CleanStateProvider({ children }: { children: ReactNode }) {
   const dismissToast = useCallback((id?: number) => setToasts((t) => (id === undefined ? [] : t.filter((x) => x.id !== id))), []);
 
   const moveMoney = useCallback(
-    async (kind: MoneyMove, amount: number, merchant?: string) => {
+    async (kind: MoneyMove, amount: number, merchant?: string, note?: string) => {
       try {
-        const res = await fetch("/api/demo/move-money", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind, amount, merchant }) });
+        const res = await fetch("/api/demo/move-money", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind, amount, merchant, note }) });
         if (!res.ok) throw new Error(String(res.status));
         await refresh();
         return true;
