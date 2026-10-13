@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Check, ChevronDown, Search, Sparkles, X } from "lucide-react";
+import { Check, ChevronDown, Search, X } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import { categoryBreakdown, isSpend } from "@/lib/finance";
 import type { Category, Transaction } from "@/lib/types";
@@ -9,6 +9,7 @@ import { Bars, type Bar } from "../charts";
 import { asOfDate, incomeOut, monthTotals, prevYm, ymOf } from "../data";
 import { TxDrawer, TxGrid } from "../TxTable";
 import { Btn, Card, cx, money, monthName, monthShort, Page, Section, Segmented, shortDate, Skeleton } from "../ui";
+import { Sparkles } from "../SparkleIcon";
 
 const RANGES = ["1M", "3M", "All"] as const;
 const DATES = [

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
-import { Calendar, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import { r2 } from "@/lib/finance";
 import { useClean } from "../AppState";
@@ -9,6 +9,7 @@ import { Donut } from "../charts";
 import { CAT_COLORS, cashbackIn, dataMonths, monthBounds, monthCategories, monthTotals, prevYm, ymOf } from "../data";
 import { Btn, Card, cx, money, money0, monthName, monthShort, Page, Pill, Skeleton } from "../ui";
 import { Menu, MenuItem } from "./Transactions";
+import { Sparkles } from "../SparkleIcon";
 
 const fmtPct = (p: number) => (Math.abs(p) < 0.05 ? "0.0%" : `${p > 0 ? "+" : "−"}${Math.abs(p).toFixed(1)}%`);
 

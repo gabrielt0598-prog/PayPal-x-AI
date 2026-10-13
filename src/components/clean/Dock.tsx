@@ -6,10 +6,11 @@
 // button announces an event (e.g. a suspicious charge); pressing it opens the
 // panel and starts the conversation.
 
-import { ChartLine, Gift, House, List, Repeat, ShoppingCart, Sparkles, Target, Trophy, type LucideIcon } from "lucide-react";
+import { ChartLine, Gift, House, List, Repeat, ShoppingCart, Target, Trophy, type LucideIcon } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import { useClean, type PageId } from "./AppState";
 import { cx } from "./ui";
+import { Sparkles } from "./SparkleIcon";
 
 export const NAV: [string, LucideIcon, PageId][] = [
   ["Home", House, "home"],
@@ -102,10 +103,7 @@ export function Dock({ bubble, onBubble }: { bubble?: DockBubble | null; onBubbl
               aiOpen ? "bg-white text-[#0a0a0a]" : "bg-accent-bg text-accent",
             )}
           >
-            {/* The sparkle glyph sits ~2/24 high in its box; nudge it to the optical centre. */}
-            <span className="flex translate-y-[2.3px]">
-              <Sparkles size={28} strokeWidth={1.8} />
-            </span>
+            <Sparkles size={28} />
           </button>
         </div>
       </div>

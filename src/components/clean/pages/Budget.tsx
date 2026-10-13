@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Calendar, ChevronLeft, ChevronRight, Plus, Sparkles, X } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Plus, X } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import { useClean } from "../AppState";
 import { asOfDate, daysInMonth, dataMonths, ymOf } from "../data";
@@ -22,6 +22,7 @@ import {
 } from "../budget/model";
 import { BudHead, BudgetRowView, Ring } from "../budget/parts";
 import { Btn, Card, money, monthName, Page, Pill, Section, Skeleton } from "../ui";
+import { Sparkles } from "../SparkleIcon";
 
 const SEC_NAME: Record<BudSection, string> = { ess: "Essentials", spend: "Expenses" };
 const FOOTNOTE = "Your PayPal card has no spending limit. It works as long as your balance covers the purchase, so this budget is your own monthly target.";

@@ -1,12 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowUp, Brain, ChartLine, ChevronDown, Gift, Repeat, ShieldCheck, ShieldAlert, Sparkles, SquarePen, Tags, X, type LucideIcon } from "lucide-react";
+import { ArrowUp, Brain, ChartLine, ChevronDown, Gift, Repeat, ShieldCheck, ShieldAlert, SquarePen, Tags, X, type LucideIcon } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import type { AgentResponse } from "@/lib/agent/types";
 import type { MemoryFact } from "@/lib/services/contracts";
 import { ActionList } from "./ActionCards";
 import { Markdown } from "./Markdown";
+import { Sparkles } from "@/components/clean/SparkleIcon";
 
 interface UIMessage {
   id: string;

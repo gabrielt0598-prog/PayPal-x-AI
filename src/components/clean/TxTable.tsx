@@ -4,12 +4,12 @@
 
 import { useMemo } from "react";
 import type { CellClassParams, ColDef, ICellRendererParams } from "ag-grid-community";
-import { Sparkles } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import { METHOD_LABEL } from "./format";
 import type { Offer, Transaction } from "@/lib/types";
 import { Grid } from "./Grid";
 import { amt, Avatar, Btn, cx, Drawer, KV, money, Panel, Pill, shortDate } from "./ui";
+import { Sparkles } from "./SparkleIcon";
 
 /** Cash back tied to a purchase, shown under the merchant as on the Clean design. */
 function cashLine(t: Transaction, offers: Offer[], all: Transaction[]) {
