@@ -87,7 +87,6 @@ export function HomePage() {
               <div className="flex flex-wrap items-center gap-2.5">
                 <span className="flex flex-1 flex-wrap items-center gap-3">
                   <span className="num text-[32px] font-semibold tracking-tight">{money(balance)}</span>
-                  {p.autoReload.enabled && <Pill tone="pos">Auto-reload on</Pill>}
                   {live && <Pill tone="acc">Live · PayPal Sandbox</Pill>}
                 </span>
                 <Btn small onClick={() => setMove("transfer")}>
@@ -105,7 +104,7 @@ export function HomePage() {
                 USD · Debit card ••{p.card.last4}
               </button>
               <div className="-mx-5 mt-4">
-                <TxGrid rows={d.recent} selected={sel?.id} onOpen={setSel} />
+                <TxGrid rows={d.recent} selected={sel?.id} onOpen={setSel} cash={false} />
                 <div className="px-5 pb-3 pt-1.5">
                   <Btn kind="link" onClick={() => go("transactions")}>
                     See all transactions →
