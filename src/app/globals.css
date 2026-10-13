@@ -104,6 +104,9 @@ button:not(:disabled):active { transform: scale(0.97); }
 .page-enter > * > :nth-child(5) { animation-delay: 200ms; }
 .page-enter > * > :nth-child(n + 6) { animation-delay: 250ms; }
 
+.m-step { animation: m-rise var(--m-slow) var(--m-ease) var(--d, 0ms) backwards; }
+.m-step .m-av { animation: m-pop 320ms var(--m-ease) var(--d, 0ms) backwards; }
+.m-step .m-line { transform-origin: top center; animation: m-grow-y 360ms var(--m-ease) calc(var(--d, 0ms) + 200ms) backwards; }
 .m-rise { animation: m-rise var(--m-med) var(--m-ease) backwards; }
 .m-fade { animation: m-fade var(--m-med) ease backwards; }
 .m-pop { animation: m-pop var(--m-med) var(--m-ease) backwards; }

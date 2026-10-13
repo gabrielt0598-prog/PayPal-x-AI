@@ -43,6 +43,13 @@ export async function mockAgent(ctx: ToolContext): Promise<string> {
     }
   }
 
+  // 1a-ii. Pay with PayPal (Orders API). The default Essentials order is the three items selected on the Essentials page.
+  if (/\bpay\b.*\b(essentials|order)\b|\bpay\b.*\bwith paypal\b/i.test(lower)) {
+    const stated = /\$\s*\d/.test(m) ? parseSalary(m) : undefined;
+    const amount = stated ?? 52.43;
+    return cite(await call("pay_with_paypal", { amount, merchant: "Harbor & Home", description: stated ? "PayPal payment" : "Essentials order: Cloudsoft toilet paper, Scrubwell sponges, Purelather refill" }));
+  }
+
   // 1a. Card controls: fraud report ("that wasn't me") or freeze / unfreeze.
   if (/wasn.?t me|not me\b|didn.?t (make|authori[sz]e)|unauthori[sz]ed|fraud/i.test(lower)) {
     const amount = parseSalary(m);

@@ -13,6 +13,8 @@ export interface ChatMessage {
 export interface AgentRequest {
   sessionId: string;
   messages: ChatMessage[];
+  /** Origin of this request (https://host), used for PayPal's return URLs. */
+  origin?: string;
 }
 
 type Mode = "live" | "mock";
@@ -24,6 +26,8 @@ export interface RailStep {
   sub?: string;
   /** Right-hand status, e.g. "Done", "Submitted", "Ordered". */
   status: string;
+  /** Defaults to "done". A "current" step shows a live dot, a "pending" one is greyed out. */
+  state?: "done" | "current" | "pending";
 }
 
 /** "Now vs What if" comparison table. Every string comes from the what_if tool result. */
@@ -77,6 +81,17 @@ export type AgentAction =
       transactionId: string;
       creditTransactionId: string;
       newBalanceLabel: string;
+    }
+  | {
+      type: "paypal_payment";
+      /** Orders API order, already created: the card collects the payer's approval and captures it. */
+      orderId: string;
+      approveUrl?: string;
+      merchant: string;
+      description: string;
+      amount: number;
+      amountLabel: string;
+      mode: Mode;
     }
   | { type: "steps_completed"; steps: RailStep[] }
   | { type: "what_if_compare"; title: string; compare: CompareTable }

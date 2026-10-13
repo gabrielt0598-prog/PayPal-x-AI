@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   while (messages.length > 1 && messages[0].role !== "user") messages.shift();
 
   try {
-    return Response.json(await runAgent({ sessionId, messages }));
+    return Response.json(await runAgent({ sessionId, messages, origin: new URL(request.url).origin }));
   } catch (e) {
     if (e instanceof Anthropic.APIError) {
       console.error("[agent] Anthropic error", e.status, e.message);

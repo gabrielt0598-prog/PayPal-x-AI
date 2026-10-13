@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useFinance } from "@/components/state/AppProviders";
+import { useClean } from "@/components/clean/AppState";
+import { completeOrder } from "@/components/clean/paypalOrder";
 import { ArrowUpRight, BadgePercent, Brain, CheckCircle2, ShieldQuestion, Tags } from "lucide-react";
 import type { AgentAction, RailStep } from "@/lib/agent/types";
 import { CompareCard } from "./CompareCard";
@@ -72,6 +75,59 @@ function CancelledCard({ action }: { action: CancelledAction }) {
   );
 }
 
+type PaymentAction = Extract<AgentAction, { type: "paypal_payment" }>;
+
+/**
+ * An Orders API payment the agent started. The order exists; the user approves it with PayPal (a popup in live mode,
+ * simulated otherwise), then it is captured and booked. The steps fill in as each stage finishes.
+ */
+function PayPalPaymentCard({ action }: { action: PaymentAction }) {
+  const { moveMoney, toast } = useClean();
+  const { refresh } = useFinance();
+  const [phase, setPhase] = useState<"ready" | "approving" | "capturing" | "done">("ready");
+  const [captureId, setCaptureId] = useState<string>();
+  const [error, setError] = useState<string>();
+  const simulated = action.mode === "mock";
+
+  const pay = async () => {
+    setError(undefined);
+    try {
+      const cap = await completeOrder({ orderId: action.orderId, approveUrl: action.approveUrl, onStage: (s) => setPhase(s === "approving" ? "approving" : "capturing") });
+      setCaptureId(cap.captureId);
+      if (await moveMoney("purchase", action.amount, action.merchant)) {
+        setPhase("done");
+        toast("Paid with PayPal", `${action.amountLabel} · Order ${action.orderId}`);
+        void refresh();
+      } else setPhase("ready");
+    } catch (e) {
+      setPhase("ready");
+      setError(e instanceof Error ? e.message : "The payment was not completed");
+    }
+  };
+
+  const approved = phase === "capturing" || phase === "done";
+  const steps: RailStep[] = [
+    { title: "Order created", sub: `Orders API · createOrder · ID **${action.orderId}**${simulated ? " · simulated" : ""}`, status: "Created" },
+    approved
+      ? { title: "You approved it", sub: "Approved with PayPal", status: "Approved" }
+      : { title: "Your approval", sub: phase === "approving" ? "Approve the payment in the PayPal window" : `Pay **${action.amountLabel}** to ${action.merchant}`, status: phase === "approving" ? "Waiting" : "Needed", state: "current" },
+    phase === "done"
+      ? { title: "Payment captured", sub: `Orders API · captureOrder${captureId ? ` · Capture **${captureId}**` : ""}`, status: action.amountLabel }
+      : { title: "Payment captured", sub: "Orders API · captureOrder", status: phase === "capturing" ? "Capturing" : "Pending", state: phase === "capturing" ? "current" : "pending" },
+  ];
+  return (
+    <div className="flex flex-col gap-2.5">
+      <StepRail steps={steps} />
+      {error ? <div role="alert" className="text-[12px] text-negative">{error}</div> : null}
+      {phase === "ready" || phase === "approving" ? (
+        <button type="button" onClick={() => void pay()} disabled={phase === "approving"} className="h-9 self-start rounded-full border border-white bg-white px-3.5 text-[13px] font-medium text-[#0a0a0a] transition disabled:cursor-not-allowed disabled:opacity-40">
+          {phase === "approving" ? "Waiting for PayPal…" : `Approve with PayPal · ${action.amountLabel}`}
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
 export function ActionCard({
   action,
   canAnswer,
@@ -112,6 +168,8 @@ export function ActionCard({
           <div className="mt-1 text-muted">Applied to {action.transactionId} · new balance {action.newBalanceLabel}</div>
         </div>
       );
+    case "paypal_payment":
+      return <PayPalPaymentCard action={action} />;
     case "steps_completed":
       return <StepRail steps={action.steps} />;
     case "what_if_compare":

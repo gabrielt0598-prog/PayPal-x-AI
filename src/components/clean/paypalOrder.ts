@@ -38,6 +38,15 @@ function approve(url: string): Promise<void> {
   });
 }
 
+/** Collects the payer's approval for an order that already exists, then captures it. */
+export async function completeOrder(input: { orderId: string; approveUrl?: string; onStage?: (stage: OrderStage) => void }): Promise<{ captureId?: string }> {
+  input.onStage?.("approving");
+  if (input.approveUrl) await approve(input.approveUrl);
+  else await new Promise((r) => setTimeout(r, 900));
+  input.onStage?.("capturing");
+  return post<{ captureId?: string }>(`/api/paypal/orders/${encodeURIComponent(input.orderId)}/capture`);
+}
+
 /**
  * Pays `amount` USD through the Orders API. `onStage` fires as each step starts; `onOrder` fires once the order exists
  * (with its id) so the UI can show it while the payer approves.
@@ -52,10 +61,6 @@ export async function payWithPayPal(input: {
   const order = await post<{ orderId: string; approveUrl?: string }>("/api/paypal/orders", { amount: input.amount, description: input.description });
   const simulated = !order.approveUrl;
   input.onOrder?.({ orderId: order.orderId, simulated });
-  input.onStage?.("approving");
-  if (order.approveUrl) await approve(order.approveUrl);
-  else await new Promise((r) => setTimeout(r, 900));
-  input.onStage?.("capturing");
-  const cap = await post<{ captureId?: string }>(`/api/paypal/orders/${encodeURIComponent(order.orderId)}/capture`);
+  const cap = await completeOrder({ orderId: order.orderId, approveUrl: order.approveUrl, onStage: input.onStage });
   return { orderId: order.orderId, captureId: cap.captureId, simulated };
 }

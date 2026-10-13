@@ -127,7 +127,7 @@ export async function runAgent(req: AgentRequest): Promise<AgentResponse> {
   while (history.length > 1 && history[0].role !== "user") history.shift();
   const latest = [...history].reverse().find((m) => m.role === "user")?.content ?? "";
   const facts = await memory.list(req.sessionId);
-  const ctx: ToolContext = { sessionId: req.sessionId, latestUserMessage: latest, actions: [], results: [] };
+  const ctx: ToolContext = { sessionId: req.sessionId, latestUserMessage: latest, origin: req.origin, actions: [], results: [] };
 
   // 1. Evidence retrieval + Jev reranking. A failure only means "no pre-retrieved evidence": tools still work.
   let retrieval = emptyRetrieval();

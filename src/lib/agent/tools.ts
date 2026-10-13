@@ -28,6 +28,8 @@ import type { AgentAction, CompareTable } from "./types";
 export interface ToolContext {
   sessionId: string;
   latestUserMessage: string;
+  /** Origin of the request, for PayPal return URLs. */
+  origin?: string;
   /** Intent Jev already produced alongside evidence reranking (saves a second Jev call in the rule-based agent). */
   intent?: IntentResult;
   actions: AgentAction[];
@@ -122,6 +124,21 @@ export const TOOLS: Anthropic.Tool[] = [
       type: "object",
       properties: { recurring_id: { type: "string" }, confirmed: { type: "boolean" } },
       required: ["recurring_id", "confirmed"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "pay_with_paypal",
+    description:
+      "Starts a PayPal payment through the Orders API: creates the order and shows the user an approval card. The user approves it with PayPal and the payment is captured; nothing is charged until they do. Use when the user asks you to pay for something with PayPal, e.g. 'pay for my Essentials order' (the default Essentials order is Cloudsoft toilet paper, Scrubwell sponges and a Purelather soap refill from Harbor & Home, $52.43 with tax). Only call it with an amount the user stated or that this default order gives you.",
+    input_schema: {
+      type: "object",
+      properties: {
+        amount: { type: "number", description: "Total in USD, 0.01 to 10000" },
+        merchant: { type: "string", description: "Who is being paid, e.g. Harbor & Home" },
+        description: { type: "string", description: "What the payment is for, shown on the order" },
+      },
+      required: ["amount", "merchant", "description"],
       additionalProperties: false,
     },
   },
@@ -767,6 +784,25 @@ async function freezeCard(input: Record<string, unknown>): Promise<ToolOutput> {
   };
 }
 
+async function payWithPaypal(input: Record<string, unknown>, ctx: ToolContext): Promise<ToolOutput> {
+  const amount = Math.round(Number(input.amount) * 100) / 100;
+  const merchant = typeof input.merchant === "string" && input.merchant.trim() ? input.merchant.trim().slice(0, 60) : "Harbor & Home";
+  const description = typeof input.description === "string" && input.description.trim() ? input.description.trim().slice(0, 100) : `Payment to ${merchant}`;
+  if (!Number.isFinite(amount) || amount <= 0 || amount > 10_000) return { summary: "I need an amount between $0.01 and $10,000 to start a PayPal payment.", error: "invalid_amount" };
+  const origin = ctx.origin ?? "http://localhost:3000";
+  const r = await paypal.createOrder({ amount, description: `${merchant} · ${description}`, returnUrl: `${origin}/paypal/return?result=approved`, cancelUrl: `${origin}/paypal/return?result=cancelled` });
+  if (!r.ok || !r.orderId) return { summary: `PayPal could not create the order${r.error ? `: ${r.error}` : ""}. Nothing was charged.`, error: "order_failed" };
+  const money = formatUSD(amount);
+  ctx.actions.push({ type: "paypal_payment", orderId: r.orderId, approveUrl: r.approveUrl, merchant, description, amount, amountLabel: money, mode: r.channel === "paypal_api" ? "live" : "mock" });
+  return {
+    summary: `I created PayPal order ${r.orderId} for ${money} to ${merchant} (${description}). Press Approve with PayPal below to pay it; the payment is only captured after you approve, so nothing has been charged yet.${r.channel === "simulated" ? " Simulated: PayPal credentials are not configured." : ""}`,
+    orderId: r.orderId,
+    amount: money,
+    merchant,
+    status: r.status ?? "CREATED",
+  };
+}
+
 async function reportUnauthorized(input: Record<string, unknown>, ctx: ToolContext): Promise<ToolOutput> {
   const merchant = typeof input.merchant === "string" && input.merchant.trim() ? input.merchant.trim() : "Unknown merchant";
   const amount = Number(input.amount);
@@ -801,6 +837,7 @@ export async function executeTool(name: string, rawInput: unknown, ctx: ToolCont
       case "categorize_transactions": output = await categorizeTransactions(input, ctx); break;
       case "list_recurring": output = await listRecurring(input); break;
       case "cancel_subscription": output = await cancelSubscription(input, ctx); break;
+      case "pay_with_paypal": output = await payWithPaypal(input, ctx); break;
       case "freeze_card": output = await freezeCard(input); break;
       case "report_unauthorized_charge": output = await reportUnauthorized(input, ctx); break;
       case "list_offers": output = await listOffers(); break;
