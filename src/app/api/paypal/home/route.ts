@@ -9,7 +9,7 @@ import { limit } from "@/lib/services/limits";
 // GET /api/paypal/home -> { mode, balance, currency, transactions, demoDelta }
 // What the Home page shows for the PayPal balance and recent transactions.
 //   live: the sandbox balance and transactions read through the APIMatic PayPal Server SDK, plus whatever the
-//         demo itself has posted on top (Add money, Transfer, rewards cash-out, simulated spend), so those
+//         demo itself has posted on top (Top up, Transfer, rewards cash-out, simulated spend), so those
 //         buttons still move the number: balance = sandbox balance + demoDelta.
 //   mock: { mode: "mock" } and the page keeps using the sample data from /api/state.
 export async function GET(req: Request) {

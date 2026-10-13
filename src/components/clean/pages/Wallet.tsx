@@ -259,7 +259,7 @@ export function WalletPage() {
       )}
 
       {move && (
-        <Modal label={move.mode === "add" ? "Add money to PayPal" : "Transfer to your bank"} onClose={() => setMove(null)}>
+        <Modal label={move.mode === "add" ? "Top up PayPal" : "Transfer to your bank"} onClose={() => setMove(null)}>
           <div className="flex flex-col gap-1">
             <span className="text-xs text-faint">Amount</span>
             <span className="num text-[40px] font-semibold tracking-tight">{money(move.amt)}</span>
@@ -368,5 +368,5 @@ export function WalletPage() {
 }
 
 function ctaLabel(m: { mode: "add" | "transfer"; amt: number }) {
-  return `${m.mode === "add" ? "Add" : "Transfer"} ${money(m.amt)}`;
+  return `${m.mode === "add" ? "Top up" : "Transfer"} ${money(m.amt)}`;
 }

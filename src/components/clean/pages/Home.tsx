@@ -100,7 +100,7 @@ export function HomePage() {
                   <ArrowLeftRight size={14} /> Transfer
                 </Btn>
                 <Btn small kind="primary" onClick={() => setMove("add")}>
-                  <Plus size={14} /> Add money
+                  <Plus size={14} /> Top up
                 </Btn>
               </div>
               <button type="button" onClick={() => go("account")} className="mt-1 flex items-center gap-2 self-start text-[15px] text-muted hover:text-text">
@@ -265,7 +265,7 @@ function MoveMoneyModal({ kind, bank, balance, onClose, onConfirm }: { kind: "ad
   const after = kind === "add" ? balance + n : balance - n;
   const chips = [50, 100, 250, 500];
   return (
-    <Modal label={kind === "add" ? "Add money" : "Transfer to bank"} onClose={onClose}>
+    <Modal label={kind === "add" ? "Top up" : "Transfer to bank"} onClose={onClose}>
       <div className="flex flex-col gap-1">
         <span className="text-xs text-faint">Amount</span>
         <span className="num text-[40px] font-semibold tracking-tight">{money(n)}</span>
@@ -301,7 +301,7 @@ function MoveMoneyModal({ kind, bank, balance, onClose, onConfirm }: { kind: "ad
             await onConfirm(n);
           }}
         >
-          {kind === "add" ? `Add ${money(n)}` : `Transfer ${money(n)}`}
+          {kind === "add" ? `Top up ${money(n)}` : `Transfer ${money(n)}`}
         </Btn>
       </div>
     </Modal>

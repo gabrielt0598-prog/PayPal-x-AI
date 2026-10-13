@@ -279,7 +279,7 @@ for (const d of drafts) {
     const amount = r2(keep - balance);
     if (Math.abs(amount) >= 0.01) {
       balance = r2(balance + amount);
-      ledger.push({ id: nextId(), date: when, merchant: userProfile.linkedBank, description: amount < 0 ? "Transfer to savings" : "Add money from bank", amount, category: "Transfers", method: "bank_transfer", status: "completed", balanceAfter: balance });
+      ledger.push({ id: nextId(), date: when, merchant: userProfile.linkedBank, description: amount < 0 ? "Transfer to savings" : "Top up from bank", amount, category: "Transfers", method: "bank_transfer", status: "completed", balanceAfter: balance });
     }
   }
   balance = r2(balance + d.amount);

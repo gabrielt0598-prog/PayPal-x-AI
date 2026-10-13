@@ -126,7 +126,7 @@ export function recategorize(transactionId: string, category: Category): Result<
 export type MoneyMove = "add" | "transfer" | "rewards" | "purchase";
 
 /**
- * Demo helper behind the balance card's Add money / Transfer buttons, rewards
+ * Demo helper behind the balance card's Top up / Transfer buttons, rewards
  * redemption and Store Sync reorders. Posts one ledger entry and moves the balance.
  */
 export function moveMoney(kind: MoneyMove, amount: number, merchant?: string) {
@@ -134,7 +134,7 @@ export function moveMoney(kind: MoneyMove, amount: number, merchant?: string) {
   const bank = state.userProfile.linkedBank;
   const abs = r2(Math.abs(amount));
   const entry: Record<MoneyMove, Omit<Transaction, "id" | "balanceAfter" | "date" | "status">> = {
-    add: { merchant: bank, description: "Add money from bank", amount: abs, category: "Transfers", method: "bank_transfer" },
+    add: { merchant: bank, description: "Top up from bank", amount: abs, category: "Transfers", method: "bank_transfer" },
     transfer: { merchant: bank, description: "Transfer to bank", amount: -abs, category: "Transfers", method: "bank_transfer" },
     rewards: { merchant: "PayPal Rewards", description: "Rewards points redeemed as cash back", amount: abs, category: "Cashback", method: "paypal_offer" },
     purchase: { merchant: merchant ?? "Store Sync merchant", description: "Reorder via PayPal Store Sync", amount: -abs, category: "Shopping", method: "paypal_balance" },
@@ -164,7 +164,7 @@ export function reportUnauthorizedCharge(merchant: string, amount: number) {
   return { last4, merchant, amount: Math.abs(amount), claimId: `PP-U-${77310 + claimSeq - 1}`, replacementDays: "5 to 7" };
 }
 
-/** How far the demo has moved the balance from its seed (Add money, Transfer, rewards cash-out, simulated spend). */
+/** How far the demo has moved the balance from its seed (Top up, Transfer, rewards cash-out, simulated spend). */
 export function demoBalanceDelta() {
   return r2(getState().userProfile.paypalBalance - createSeedState().userProfile.paypalBalance);
 }

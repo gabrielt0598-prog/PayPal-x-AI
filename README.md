@@ -110,7 +110,7 @@ src/
     api/state                GET snapshot / DELETE reset (demo store)
     api/agent                POST chat → Claude tool loop → Jev guardrail
     api/{paypal,jev,kernel,zapier,memory,demo,integrations}/…
-    api/demo/move-money      Add money / Transfer / rewards cash-out / Store Sync reorder
+    api/demo/move-money      Top up / Transfer / rewards cash-out / Store Sync reorder
     api/demo/offers          add or remove an offer (Added state)
   components/
     clean/                   Final design: bottom dock, pages (incl. Budget), charts, UI primitives

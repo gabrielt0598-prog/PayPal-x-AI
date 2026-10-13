@@ -2,7 +2,7 @@
 
 // UI state for the Clean shell: current page (synced to the URL hash), the
 // side panel's expanded state, toasts, PayPal Rewards points, and the demo
-// money-movement endpoint behind Add money / Transfer / Redeem / Reorder.
+// money-movement endpoint behind Top up / Transfer / Redeem / Reorder.
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Check, X } from "lucide-react";

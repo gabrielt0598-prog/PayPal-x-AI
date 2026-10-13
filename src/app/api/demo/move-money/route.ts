@@ -11,7 +11,7 @@ const Body = z.object({
 
 // POST /api/demo/move-money { kind, amount, merchant? }
 //   -> { transaction, balanceBefore, balanceAfter, crossedBelowThreshold, zapier }
-// Backs Add money / Transfer on the balance card, rewards redemption and Store Sync reorders.
+// Backs Top up / Transfer on the balance card, rewards redemption and Store Sync reorders.
 export async function POST(req: Request) {
   const body = await parseBody(req, Body);
   if ("response" in body) return body.response;
