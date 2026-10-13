@@ -4,7 +4,7 @@
 // to the Clean tokens: transparent background, faint labels, hairline grid,
 // PayPal blue for the current period.
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AgCharts } from "ag-charts-react";
 import { AllCommunityModule, ModuleRegistry, type AgChartOptions } from "ag-charts-community";
 import { compactUSD } from "./format";
@@ -55,44 +55,114 @@ function Legend({ items }: { items: { label: string; kind: "solid" | "dashed" }[
   );
 }
 
-/** Cumulative spend this month (area) vs the whole of last month (dashed). */
-export function CompareLine({ cur, prev, days, today, curLabel, prevLabel }: { cur: number[]; prev: number[]; days: number; today: number; curLabel: string; prevLabel: string }) {
-  const font = useFont();
-  const options = useMemo(() => {
-    const base = baseOf(font);
-    const data = Array.from({ length: days }, (_, i) => ({ day: i + 1, cur: i < cur.length ? cur[i] : undefined, prev: prev[i] }));
-    const tip = (label: string) => ({
-      renderer: ({ datum, yKey }: { datum: Record<string, number>; yKey: string }) => ({ heading: `Day ${datum.day}`, data: [{ label, value: money(datum[yKey]) }] }),
-    });
-    return {
-      ...base,
-      data,
-      series: [
-        { type: "line", xKey: "day", yKey: "prev", yName: prevLabel, stroke: INK, strokeWidth: 1.5, lineDash: [4, 4], marker: { enabled: false }, tooltip: tip(prevLabel) },
-        {
-          type: "area",
-          xKey: "day",
-          yKey: "cur",
-          yName: curLabel,
-          fill: BLUE,
-          fillOpacity: 0.14,
-          stroke: BLUE,
-          strokeWidth: 2.5,
-          marker: { enabled: true, size: 0, itemStyler: ({ datum }: { datum: { day: number } }) => (datum.day === today ? { size: 10, fill: BLUE, stroke: "#0a0a0a", strokeWidth: 2 } : { size: 0 }) },
-          tooltip: tip(curLabel),
-        },
-      ],
-      axes: {
-        x: { type: "number", position: "bottom", min: 1, max: days, interval: { values: [1, 8, 15, 22, 29].filter((d) => d <= days) }, label: { color: INK, fontSize: 11 }, gridLine: { enabled: false } },
-        y: usdAxis,
-      },
-    } as unknown as AgChartOptions;
-  }, [cur, prev, days, today, curLabel, prevLabel, font]);
+/** Cumulative spend this month (filled line) vs the whole of last month (dashed), with a day tooltip. */
+export function CompareLine({
+  cur,
+  prev,
+  days,
+  today,
+  curLabel,
+  prevLabel,
+  monthAbbr,
+  prevAbbr,
+}: {
+  cur: number[];
+  prev: number[];
+  days: number;
+  today: number;
+  curLabel: string;
+  prevLabel: string;
+  /** Short month names for the axis and tooltip ("Oct", "Sep"); default to the first three letters of the labels. */
+  monthAbbr?: string;
+  prevAbbr?: string;
+}) {
+  const cm = monthAbbr ?? curLabel.slice(0, 3);
+  const pm = prevAbbr ?? prevLabel.slice(0, 3);
+  const n = Math.max(days, 2);
+  const todayIdx = Math.min(Math.max(today, 1), cur.length || 1) - 1;
+  const [hover, setHover] = useState<number | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  const step = 1000 * Math.max(1, Math.ceil(Math.max(1, Math.ceil(Math.max(...cur, ...prev, 0) / 1000)) / 4));
+  const yMax = Math.max(step, Math.ceil(Math.max(...cur, ...prev, 0) / step) * step);
+  const ticks = Array.from({ length: yMax / step + 1 }, (_, k) => k * step);
+  const px = (i: number) => (i / (n - 1)) * 100;
+  const py = (v: number) => 100 - (v / yMax) * 100;
+  const path = (vals: number[]) => vals.map((v, i) => `${i ? "L" : "M"}${px(i).toFixed(2)} ${py(v).toFixed(2)}`).join(" ");
+  const curPts = cur.slice(0, todayIdx + 1);
+  const tx = px(todayIdx);
+  const area = curPts.length ? `${path(curPts)} L${tx.toFixed(2)} 100 L0 100 Z` : "";
+
+  // The left-to-right reveal on mount, skipped for reduced motion.
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    svgRef.current?.animate([{ clipPath: "inset(-12px 100% -12px -12px)" }, { clipPath: "inset(-12px)" }], { duration: 1000, delay: 150, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "backwards" });
+  }, []);
+
+  const idx = hover ?? todayIdx;
+  const ax = px(idx);
+  const hasCur = idx <= todayIdx;
+  const pv = prev[Math.min(idx, prev.length - 1)] ?? 0;
+  const cv = hasCur ? cur[idx] : undefined;
+  const flip = ax > 60;
+  const anchorY = py(cv ?? pv);
+  const main = cv === undefined ? money(pv) : idx === todayIdx ? `${money(cv)} today` : `${money(cv)} on ${cm} ${idx + 1}`;
+  const sub = cv === undefined ? `${pm} ${idx + 1}` : `${pm} ${idx + 1} was ${money(pv)}`;
+  const xs = [1, 8, 15, 22, 29].filter((d) => d <= days);
+
+  const at = (clientX: number, el: HTMLElement) => {
+    const r = el.getBoundingClientRect();
+    return Math.min(n - 1, Math.max(0, Math.round(((clientX - r.left) / (r.width || 1)) * (n - 1))));
+  };
+  const onKey = (e: React.KeyboardEvent) => {
+    const d = e.key === "ArrowLeft" ? -1 : e.key === "ArrowRight" ? 1 : e.key === "Home" ? -n : e.key === "End" ? n : 0;
+    if (!d) return;
+    e.preventDefault();
+    setHover(Math.min(n - 1, Math.max(0, idx + d)));
+  };
 
   return (
-    <div className="flex flex-col gap-2">
-      <div role="img" aria-label={`${curLabel}: ${money(cur[cur.length - 1] ?? 0)} so far. ${prevLabel}: ${money(prev[prev.length - 1] ?? 0)} for the month.`} className="h-[230px]">
-        <AgCharts options={options} style={{ height: "100%" }} />
+    <>
+      <div
+        role="group"
+        tabIndex={0}
+        aria-label={`${curLabel}: ${money(cur[cur.length - 1] ?? 0)} so far. ${prevLabel}: ${money(prev[prev.length - 1] ?? 0)} for the month. ${main}; ${sub}. Use the arrow keys to move between days.`}
+        onPointerMove={(e) => setHover(at(e.clientX, e.currentTarget))}
+        onPointerLeave={() => setHover(null)}
+        onBlur={() => setHover(null)}
+        onKeyDown={onKey}
+        className="relative ml-12 mt-3 h-[200px] rounded-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+      >
+        {ticks.map((v, i) => (
+          <div key={v} className={`absolute inset-x-0 h-0 border-t ${i ? "border-dashed border-border" : "border-solid border-border-strong"}`} style={{ bottom: `${(v / yMax) * 100}%` }}>
+            <span className="absolute right-full top-0 mr-2.5 -translate-y-1/2 whitespace-nowrap text-[11px] text-faint">{v ? `$${v / 1000}k` : "$0"}</span>
+          </div>
+        ))}
+        <svg ref={svgRef} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden className="absolute inset-0 size-full overflow-visible">
+          <path d={area} className="fill-chart opacity-[0.14]" />
+          <path d={path(prev)} fill="none" className="stroke-faint" strokeWidth={1.5} strokeDasharray="4 4" vectorEffect="non-scaling-stroke" />
+          <path d={path(curPts)} fill="none" className="stroke-chart" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        </svg>
+        <div className="pointer-events-none absolute inset-y-0 border-l border-dashed border-border-strong" style={{ left: `${ax.toFixed(2)}%` }} />
+        <span className="pointer-events-none absolute size-2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-faint bg-surface" style={{ left: `${ax.toFixed(2)}%`, top: `${py(pv).toFixed(2)}%` }} />
+        {cv !== undefined && (
+          <span className="pointer-events-none absolute size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-chart shadow-[0_0_0_3px_var(--surface)]" style={{ left: `${ax.toFixed(2)}%`, top: `${py(cv).toFixed(2)}%` }} />
+        )}
+        <div
+          aria-hidden
+          className={`pointer-events-none absolute z-[6] flex flex-col gap-px whitespace-nowrap rounded-[10px] border border-border bg-surface-2 px-2.5 py-1.5 ${flip ? "-translate-x-full" : ""}`}
+          style={{ left: `calc(${ax.toFixed(2)}% ${flip ? "-" : "+"} 14px)`, top: `calc(${anchorY.toFixed(2)}% + 14px)` }}
+        >
+          <span className="num text-[13px] font-semibold">{main}</span>
+          <span className="text-[11px] text-faint">{sub}</span>
+        </div>
+      </div>
+      <div className="relative ml-12 h-[18px]" aria-hidden>
+        {xs.map((d, k) => (
+          <span key={d} className="absolute top-1 whitespace-nowrap text-[11px] text-faint" style={{ left: `${px(d - 1).toFixed(2)}%`, transform: `translateX(${k === 0 ? "0" : k === xs.length - 1 ? "-100%" : "-50%"})` }}>
+            {cm} {d}
+          </span>
+        ))}
       </div>
       <Legend
         items={[
@@ -100,7 +170,7 @@ export function CompareLine({ cur, prev, days, today, curLabel, prevLabel }: { c
           { label: prevLabel, kind: "dashed" },
         ]}
       />
-    </div>
+    </>
   );
 }
 

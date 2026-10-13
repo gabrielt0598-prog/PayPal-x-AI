@@ -11,7 +11,7 @@ import { useBudgetSummary } from "../budgetTotal";
 import { useLiveBalance } from "../liveBalance";
 import { asOfDate, cumulative, daysInMonth, monthTotals, prevYm, ymOf } from "../data";
 import { TxDrawer, TxGrid } from "../TxTable";
-import { amt, Avatar, Btn, Card, Modal, money, monthName, monthShort, Page, Pill, Section, Segmented, shortDate, Skeleton } from "../ui";
+import { Avatar, Btn, Card, Modal, money, monthName, monthShort, Page, Pill, Section, Segmented, shortDate, Skeleton } from "../ui";
 
 const RANGES = ["Month", "3M", "Year"] as const;
 
@@ -117,26 +117,21 @@ export function HomePage() {
           <Section title="Spending">
             <Card>
               <div className="flex flex-wrap items-center gap-3">
-                <div className="flex flex-1 flex-col gap-0.5">
-                  <span className="text-[13px] font-medium text-muted">
-                    {range === "Month" ? `Spent in ${monthName(d.ym)} vs ${monthName(d.pym)}` : range === "3M" ? "Weekly spend · last 13 weeks" : "Monthly spend"}
+                <div className="flex flex-1 flex-wrap items-baseline gap-2.5">
+                  <span className="num text-2xl font-semibold">
+                    {money(range === "Month" ? d.spent : range === "3M" ? d.weeks.reduce((a, w) => a + w.value, 0) : d.months.reduce((a, m) => a + m.value, 0))}
                   </span>
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <span className="num text-2xl font-semibold">
-                      {money(range === "Month" ? d.spent : range === "3M" ? d.weeks.reduce((a, w) => a + w.value, 0) : d.months.reduce((a, m) => a + m.value, 0))}
-                    </span>
-                    {range === "Month" && (
-                      <Pill tone={d.delta > 0 ? "neg" : "pos"}>
-                        {d.delta > 0 ? "+" : "−"}
-                        {amt(d.delta)} vs {monthShort(d.pym)} {d.day}
-                      </Pill>
-                    )}
-                  </div>
+                  {range === "Month" && d.prevAtToday > 0 && (
+                    <Pill tone={d.delta > 0 ? "neg" : "pos"}>
+                      {d.delta > 0 ? "+" : "−"}
+                      {Math.abs((d.delta / d.prevAtToday) * 100).toFixed(1)}%
+                    </Pill>
+                  )}
                 </div>
                 <Segmented label="Range" value={range} options={RANGES} onChange={setRange} />
               </div>
               {range === "Month" ? (
-                <CompareLine cur={d.cur} prev={d.prev} days={daysInMonth(d.ym)} today={d.day} curLabel={`${monthName(d.ym)} to date`} prevLabel={monthName(d.pym)} />
+                <CompareLine cur={d.cur} prev={d.prev} days={daysInMonth(d.ym)} today={d.day} curLabel={`${monthName(d.ym)} to date`} prevLabel={monthName(d.pym)} monthAbbr={monthShort(d.ym)} prevAbbr={monthShort(d.pym)} />
               ) : range === "3M" ? (
                 <Bars bars={d.weeks} aria="Weekly spend for the last 13 weeks" />
               ) : (
