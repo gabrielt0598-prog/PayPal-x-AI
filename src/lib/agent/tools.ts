@@ -19,7 +19,7 @@ import {
   spendByYear,
   unusedSubscriptions,
 } from "@/lib/finance";
-import { applyOffer, cancelRecurring, getState, recategorize, reportUnauthorizedCharge, setCardFrozen } from "@/lib/store";
+import { applyOffer, cancelRecurring, demoBalanceDelta, getState, recategorize, reportUnauthorizedCharge, setCardFrozen } from "@/lib/store";
 import { jev, kernel, memory, paypal } from "@/lib/services";
 import { CATEGORIES, type Category, type RecurringPayment, type Transaction } from "@/lib/types";
 import type { IntentResult } from "@/lib/services/contracts";
@@ -289,11 +289,15 @@ async function overview(): Promise<ToolOutput> {
   const today = s.asOf.slice(0, 10);
   const mtd = periodTotals(s.transactions, `${today.slice(0, 7)}-01`, today);
   const rs = recurringSummary(s.recurring);
+  // With PayPal live, the balance is the sandbox balance read through the Server SDK (plus what the demo moved), the same figure Home shows.
+  const live = await paypal.getBalance();
+  const balance = live.mode === "live" ? r2(live.balance + demoBalanceDelta()) : p.paypalBalance;
   return {
-    summary: `Balance ${formatUSD(p.paypalBalance)}. Month to date: income ${formatUSD(mtd.income)}, spend ${formatUSD(mtd.spend)}, net ${formatUSD(mtd.net)}. Recurring: ${formatUSD(rs.totalMonthly)}/mo across ${rs.activeCount} active payments (${formatUSD(rs.subscriptionsMonthly)}/mo in ${rs.subscriptionCount} subscriptions).`,
+    summary: `Balance ${formatUSD(balance)}${live.mode === "live" ? " (live PayPal sandbox)" : ""}. Month to date: income ${formatUSD(mtd.income)}, spend ${formatUSD(mtd.spend)}, net ${formatUSD(mtd.net)}. Recurring: ${formatUSD(rs.totalMonthly)}/mo across ${rs.activeCount} active payments (${formatUSD(rs.subscriptionsMonthly)}/mo in ${rs.subscriptionCount} subscriptions).`,
     asOf: today,
     user: p.name,
-    balance: formatUSD(p.paypalBalance),
+    balance: formatUSD(balance),
+    balanceSource: live.mode === "live" ? "PayPal sandbox (live, via the PayPal Server SDK)" : "sample data",
     card: `${p.card.product} ending ${p.card.last4}`,
     autoReload: p.autoReload.enabled
       ? `On: reloads ${formatUSD(p.autoReload.reloadAmount)} from ${p.autoReload.fundingSource} when balance drops below ${formatUSD(p.autoReload.threshold)}`

@@ -163,3 +163,8 @@ export function reportUnauthorizedCharge(merchant: string, amount: number) {
   claimSeq += 1;
   return { last4, merchant, amount: Math.abs(amount), claimId: `PP-U-${77310 + claimSeq - 1}`, replacementDays: "5 to 7" };
 }
+
+/** How far the demo has moved the balance from its seed (Add money, Transfer, rewards cash-out, simulated spend). */
+export function demoBalanceDelta() {
+  return r2(getState().userProfile.paypalBalance - createSeedState().userProfile.paypalBalance);
+}

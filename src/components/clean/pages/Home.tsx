@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeftRight, Plus } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import { eligibleOffers, upcomingCharges } from "@/lib/finance";
@@ -23,6 +23,22 @@ export function HomePage() {
   const [range, setRange] = useState<(typeof RANGES)[number]>("Month");
   const [sel, setSel] = useState<Transaction | null>(null);
   const [move, setMove] = useState<"add" | "transfer" | null>(null);
+  // Live PayPal sandbox balance and transactions, read through the Server SDK (null = sample data).
+  const [live, setLive] = useState<{ balance: number; transactions: Transaction[] } | null>(null);
+  const storeBalance = state?.userProfile.paypalBalance;
+  useEffect(() => {
+    let off = false;
+    fetch("/api/paypal/home", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j: { mode?: string; balance?: number; transactions?: Transaction[] } | null) => {
+        if (off) return;
+        setLive(j?.mode === "live" && typeof j.balance === "number" && Array.isArray(j.transactions) ? { balance: j.balance, transactions: j.transactions } : null);
+      })
+      .catch(() => !off && setLive(null));
+    return () => {
+      off = true;
+    };
+  }, [storeBalance]);
 
   const d = useMemo(() => {
     if (!state) return null;
@@ -57,16 +73,17 @@ export function HomePage() {
       months,
       totals: monthTotals(state, ym),
       upcoming: upcomingCharges(state.recurring, state.asOf, 14).slice(0, 4),
-      recent: [...state.transactions].reverse().filter((t) => t.category !== "Transfers" && t.category !== "Cashback").slice(0, 4),
+      recent: (live?.transactions ?? [...state.transactions].reverse()).filter((t) => t.category !== "Transfers" && t.category !== "Cashback").slice(0, 4),
       offers: eligibleOffers(state)
         .filter((e) => e.offer.status === "available")
         .sort((a, b) => (b.best?.cashback ?? 0) - (a.best?.cashback ?? 0)),
       today,
     };
-  }, [state]);
+  }, [state, live]);
 
   if (loading || !state || !d) return <HomeSkeleton />;
   const p = state.userProfile;
+  const balance = live?.balance ?? p.paypalBalance;
   const newOffers = d.offers.slice(0, 2);
   const left = budgetTotal - budget.spent;
   const earnedToday = rewards.log.filter((l) => l.date === d.today && l.pts > 0);
@@ -82,8 +99,9 @@ export function HomePage() {
             <div className="flex flex-col gap-1.5 overflow-hidden rounded-[20px] bg-surface px-5 pb-1 pt-5">
               <div className="flex flex-wrap items-center gap-2.5">
                 <span className="flex flex-1 flex-wrap items-center gap-3">
-                  <span className="num text-[32px] font-semibold tracking-tight">{money(p.paypalBalance)}</span>
+                  <span className="num text-[32px] font-semibold tracking-tight">{money(balance)}</span>
                   {p.autoReload.enabled && <Pill tone="pos">Auto-reload on</Pill>}
+                  {live && <Pill tone="acc">Live · PayPal Sandbox</Pill>}
                 </span>
                 <Btn small onClick={() => setMove("transfer")}>
                   <ArrowLeftRight size={14} /> Transfer
@@ -241,7 +259,7 @@ export function HomePage() {
         <MoveMoneyModal
           kind={move}
           bank={p.linkedBank}
-          balance={p.paypalBalance}
+          balance={balance}
           onClose={() => setMove(null)}
           onConfirm={async (n) => {
             if (await moveMoney(move, n)) toast(move === "add" ? `${money(n)} added from ${p.linkedBank}` : `${money(n)} sent to ${p.linkedBank}`, move === "add" ? "Available in your PayPal balance now" : "Arrives in 1–3 business days");
