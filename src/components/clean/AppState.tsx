@@ -12,10 +12,23 @@ import type { MoneyMove } from "@/lib/store";
 export const PAGES = ["home", "transactions", "budget", "recurring", "essentials", "offers", "rewards", "insights", "account"] as const;
 export type PageId = (typeof PAGES)[number];
 
-export const REWARD_CATS = ["Dining", "Groceries", "Shopping", "Transport"] as const;
+export const REWARD_CATS = ["Groceries", "Gas & fuel", "Restaurants", "Health & beauty", "Clothing & apparel"] as const;
 export type RewardCat = (typeof REWARD_CATS)[number];
 
+/** The transaction category (src/lib/types.ts Category) that each 5% reward category earns on. */
+export const REWARD_TX_CATEGORY: Record<RewardCat, string> = {
+  Groceries: "Groceries",
+  "Gas & fuel": "Transport",
+  Restaurants: "Dining",
+  "Health & beauty": "Other",
+  "Clothing & apparel": "Shopping",
+};
+
 export interface RewardsLog {
+  /** Shown as the Merchant column (logo + name). */
+  merchant: string;
+  /** Shown as the Category column, e.g. "Restaurants · 5%" or "Cash redemption". */
+  cat: string;
   label: string;
   date: string;
   status: "Earned" | "Redeemed";
@@ -64,11 +77,11 @@ const Ctx = createContext<CleanState | null>(null);
 
 // PayPal Rewards has no public API, so points start from a sample balance.
 const SEED_LOG: RewardsLog[] = [
-  { label: "Dining · 5% category", date: "2026-10-07", status: "Earned", pts: 275 },
-  { label: "Dining · 5% category", date: "2026-10-05", status: "Earned", pts: 345 },
-  { label: "Redeemed · cash to balance", date: "2026-09-30", status: "Redeemed", pts: -1000 },
-  { label: "Dining · 5% category", date: "2026-09-30", status: "Earned", pts: 1640 },
-  { label: "Uniqlo offer bonus", date: "2026-09-12", status: "Earned", pts: 205 },
+  { merchant: "Lilia", cat: "Restaurants · 5%", label: "Restaurants · 5%", date: "2026-10-07", status: "Earned", pts: 275 },
+  { merchant: "DoorDash", cat: "Restaurants · 5%", label: "Restaurants · 5%", date: "2026-10-05", status: "Earned", pts: 345 },
+  { merchant: "PayPal", cat: "Cash redemption", label: "Cash redemption", date: "2026-09-30", status: "Redeemed", pts: -1000 },
+  { merchant: "Various", cat: "Restaurants · 5%", label: "Restaurants · 5%", date: "2026-09-30", status: "Earned", pts: 1640 },
+  { merchant: "Uniqlo", cat: "Offer bonus", label: "Offer bonus", date: "2026-09-12", status: "Earned", pts: 205 },
 ];
 
 function pageFromHash(): PageId {
@@ -82,7 +95,7 @@ export function CleanStateProvider({ children }: { children: ReactNode }) {
   const [page, setPage] = useState<PageId>("home");
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [pts, setPts] = useState(1845);
-  const [cat, setCat] = useState<RewardCat>("Dining");
+  const [cat, setCat] = useState<RewardCat>("Restaurants");
   const [log, setLog] = useState<RewardsLog[]>(SEED_LOG);
   const tid = useRef(0);
 
@@ -127,7 +140,7 @@ export function CleanStateProvider({ children }: { children: ReactNode }) {
       const usd = n / 100;
       if (mode === "cash" && !(await moveMoney("rewards", usd))) return;
       setPts((p) => p - n);
-      setLog((l) => [{ label: `Redeemed · ${mode === "cash" ? "cash to balance" : "shopping credit"}`, date: asOf, status: "Redeemed", pts: -n }, ...l]);
+      setLog((l) => [{ merchant: "PayPal", cat: mode === "cash" ? "Cash redemption" : "Shopping credit", label: mode === "cash" ? "Cash redemption" : "Shopping credit", date: asOf, status: "Redeemed", pts: -n }, ...l]);
       toast(
         mode === "cash" ? `${usd.toLocaleString("en-US", { style: "currency", currency: "USD" })} added to your PayPal balance` : `${usd.toLocaleString("en-US", { style: "currency", currency: "USD" })} shopping credit ready`,
         `${n.toLocaleString("en-US")} points redeemed`,
@@ -149,13 +162,14 @@ export function CleanStateProvider({ children }: { children: ReactNode }) {
         setCat: (c) => {
           if (c === cat) return;
           setCat(c);
-          toast(`5% category set to ${c}`, "Applies to Debit Card purchases through the end of the month");
+          const end = new Date(Date.UTC(Number(asOf.slice(0, 4)), Number(asOf.slice(5, 7)), 0));
+          toast(`5% category set to ${c}`, `Applies to Debit Card purchases from today through ${new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" }).format(end)}`);
         },
         log,
         redeem,
       },
     }),
-    [page, go, toast, dismissToast, moveMoney, pts, cat, log, redeem],
+    [page, go, toast, dismissToast, moveMoney, pts, cat, log, redeem, asOf],
   );
 
   return (

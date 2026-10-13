@@ -271,25 +271,6 @@ export function HomePage() {
   );
 }
 
-export function RewardsProgress() {
-  const { state } = useFinance();
-  const { rewards } = useClean();
-  if (!state) return null;
-  const ym = ymOf(state.asOf);
-  const spend = state.transactions.filter((t) => t.amount < 0 && t.category === rewards.cat && ymOf(t.date) === ym).reduce((a, t) => a - t.amount, 0);
-  return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex text-[13px]">
-        <span className="flex-1 text-muted">5% on {rewards.cat.toLowerCase()} this month</span>
-        <span className="num font-semibold">{money(Math.min(spend, 1000))} / $1,000</span>
-      </div>
-      <div className="h-1.5 rounded-full bg-surface-3">
-        <div className="h-1.5 rounded-full bg-accent" style={{ width: `${Math.max(1, Math.min(spend, 1000) / 10)}%` }} />
-      </div>
-    </div>
-  );
-}
-
 function MoveMoneyModal({ kind, bank, balance, onClose, onConfirm }: { kind: "add" | "transfer"; bank: string; balance: number; onClose: () => void; onConfirm: (n: number) => Promise<void> }) {
   const [n, setN] = useState(100);
   const [busy, setBusy] = useState(false);
