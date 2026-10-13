@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { Car, Repeat, ShoppingBag, ShoppingBasket, ShoppingCart, Target, UtensilsCrossed, Zap, type LucideIcon } from "lucide-react";
-import { cx, IconTile, money } from "../ui";
+import { CountText, cx, IconTile, money } from "../ui";
 import { STATUS_STROKE, STATUS_TEXT, type BudIcon, type BudRow, type BudStatus } from "./model";
 
 export const ICONS: Record<BudIcon | "target", LucideIcon> = {
@@ -23,7 +23,7 @@ export function Ring({ pct, status, size, stroke, r, color }: { pct: number; sta
   return (
     <svg aria-hidden viewBox={`0 0 ${size} ${size}`} width={size} height={size} className="block shrink-0 -rotate-90">
       <circle cx={c} cy={c} r={r} fill="none" stroke="var(--surface-3)" strokeWidth={stroke} />
-      {p > 0 && <circle cx={c} cy={c} r={r} pathLength={100} fill="none" stroke={color ?? STATUS_STROKE[status]} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={`${p.toFixed(1)} 100`} />}
+      {p > 0 && <circle cx={c} cy={c} r={r} pathLength={100} fill="none" stroke={color ?? STATUS_STROKE[status]} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={`${p.toFixed(1)} 100`} className="m-ring" />}
     </svg>
   );
 }
@@ -115,8 +115,8 @@ export function BudgetRowView({ row, total, suggestion, flash, onOpen, onAccept 
           </button>
         )}
       </span>
-      <span className="text-[15px]">{money(sp)}</span>
-      <span className={cx("text-[15px]", STATUS_TEXT[status])}>{rem}</span>
+      <span className="text-[15px]"><CountText once text={money(sp)} /></span>
+      <span className={cx("text-[15px]", STATUS_TEXT[status])}><CountText once text={rem} /></span>
       <span className="-ml-2 @max-[560px]:hidden">
         <Ring pct={lim ? (sp / lim) * 100 : 0} status={status} size={20} stroke={3} r={8} />
       </span>

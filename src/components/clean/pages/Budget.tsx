@@ -22,7 +22,7 @@ import {
   type BudState,
 } from "../budget/model";
 import { BudHead, BudgetRowView, Ring } from "../budget/parts";
-import { Btn, Card, cx, money, monthName, Page, Pill, Skeleton } from "../ui";
+import { Btn, Card, CountText, cx, money, monthName, Page, Pill, Skeleton } from "../ui";
 import { Sparkles } from "../SparkleIcon";
 
 const SEC_NAME: Record<BudSection, string> = { ess: "Essentials", spend: "Spending" };
@@ -285,8 +285,8 @@ export function BudgetPage() {
                   </span>
                   <span className="flex flex-col items-center gap-1">
                     <span className="text-[13px] font-medium text-muted">Left to spend</span>
-                    <span className="text-[28px] font-semibold tracking-tight">{money(left)}</span>
-                    <span className="text-[13px] text-faint">of {money(total)}</span>
+                    <span className="text-[28px] font-semibold tracking-tight"><CountText once text={money(left)} /></span>
+                    <span className="text-[13px] text-faint">of <CountText once text={money(total)} /></span>
                   </span>
                 </span>
                 <span className="text-center text-[13px] text-muted">
@@ -296,15 +296,15 @@ export function BudgetPage() {
               <div className="flex flex-col gap-3.5 text-[15px]">
                 <div className="flex items-center gap-2.5">
                   <span className="flex-1">Budgeted</span>
-                  <span className="font-semibold">{money(alloc)}</span>
+                  <span className="font-semibold"><CountText once text={money(alloc)} /></span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <span className="flex-1">Current spend</span>
-                  <span className="font-semibold">{money(spent)}</span>
+                  <span className="font-semibold"><CountText once text={money(spent)} /></span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <span className="flex-1">{unalloc < 0 ? "Over-allocated by" : "Unallocated"}</span>
-                  <span className={unalloc < 0 ? "font-semibold text-negative" : "font-semibold"}>{money(Math.abs(unalloc))}</span>
+                  <span className={unalloc < 0 ? "font-semibold text-negative" : "font-semibold"}><CountText once text={money(Math.abs(unalloc))} /></span>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">

@@ -89,6 +89,7 @@ button:not(:disabled) {
 @keyframes m-in-right { from { opacity: 0; transform: translateX(28px); } }
 @keyframes m-grow-x { from { transform: scaleX(0); } }
 @keyframes m-grow-y { from { transform: scaleY(0); } }
+@keyframes m-ring { from { stroke-dasharray: 0 100; } }
 
 button {
   transition: background-color var(--m-fast) ease, color var(--m-fast) ease, opacity var(--m-fast) ease, transform var(--m-fast) var(--m-ease), filter var(--m-fast) ease;
@@ -109,6 +110,7 @@ button:not(:disabled):active { transform: scale(0.97); }
 .m-step .m-line { transform-origin: top center; animation: m-grow-y 360ms var(--m-ease) calc(var(--d, 0ms) + 200ms) backwards; }
 .m-ai-flash { background: var(--accent-bg); box-shadow: inset 3px 0 0 var(--accent); animation: m-ai-flash 1600ms ease-out 350ms backwards; }
 @keyframes m-ai-flash { 0%, 15% { background: color-mix(in srgb, var(--accent) 30%, transparent); } }
+.m-ring { animation: m-ring 900ms var(--m-ease) 150ms backwards; }
 .m-rise { animation: m-rise var(--m-med) var(--m-ease) backwards; }
 .m-fade { animation: m-fade var(--m-med) ease backwards; }
 .m-pop { animation: m-pop var(--m-med) var(--m-ease) backwards; }

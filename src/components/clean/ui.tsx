@@ -3,7 +3,7 @@
 // Primitives for the Clean design (design/clean/ProtoClean.dc.html): borderless
 // near-black cards, section headings outside cards, pill buttons, round avatars.
 
-import { useEffect, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { X } from "lucide-react";
 
 export const cx = (...c: (string | number | false | null | undefined)[]) => c.filter((x): x is string => typeof x === "string" && x !== "").join(" ");
@@ -206,9 +206,12 @@ export function Modal({ label, onClose, children }: { label: string; onClose: ()
  * mounts, i.e. whenever you land on a page, and again if the text changes
  * (live balance arriving). Everything else in the string stays as it is.
  */
-export function CountText({ text }: { text: string }) {
+export function CountText({ text, once }: { text: string; once?: boolean }) {
   const [c, setC] = useState(0);
+  const played = useRef(false);
   useEffect(() => {
+    // `once`: count up when it first appears; later changes (editing a limit) just show the new value.
+    if (once && played.current) return;
     let raf = 0;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const t0 = performance.now();
@@ -216,10 +219,11 @@ export function CountText({ text }: { text: string }) {
       const p = reduced ? 1 : Math.min(1, (now - t0) / 800);
       setC(1 - Math.pow(1 - p, 3));
       if (p < 1) raf = requestAnimationFrame(step);
+      else played.current = true;
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [text]);
+  }, [text, once]);
   if (c >= 1) return <>{text}</>;
   return (
     <>
