@@ -75,3 +75,10 @@ export function incomeOut(txns: Transaction[]) {
   }
   return { in: r2(inc), out: r2(out), net: r2(inc - out) };
 }
+
+/**
+ * SAMPLE HISTORY, not live data: monthly spend for Jan..Dec of the previous year. The app's
+ * transactions have no 2025 history, so the Home "Spending" 3M and Year views compare against
+ * this series (it matches the design prototype).
+ */
+export const PREV_YEAR_MONTHLY = [2650, 2700, 2900, 2950, 2800, 2980, 3010, 3150, 3420, 3380, 3600, 4100];

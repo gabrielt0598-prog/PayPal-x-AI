@@ -6,11 +6,11 @@ import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import { eligibleOffers, upcomingCharges } from "@/lib/finance";
 import type { Transaction } from "@/lib/types";
 import { useClean } from "../AppState";
-import { Bars, CompareLine } from "../charts";
+import { CompareLine, TrendLine } from "../charts";
 import { useBudgetSummary } from "../budgetTotal";
 import { useLiveBalance } from "../liveBalance";
 import { Logo, logoMark } from "../Logo";
-import { asOfDate, cumulative, daysInMonth, monthTotals, prevYm, ymOf } from "../data";
+import { asOfDate, cumulative, daysInMonth, monthTotals, PREV_YEAR_MONTHLY, prevYm, ymOf } from "../data";
 import { TxDrawer, TxGrid } from "../TxTable";
 import { Avatar, Btn, Card, Modal, money, monthName, monthShort, Page, Pill, Section, Segmented, shortDate, Skeleton } from "../ui";
 
@@ -44,16 +44,21 @@ export function HomePage() {
     const prev = cumulative(state.transactions, pym);
     const prevAtToday = prev[Math.min(day, prev.length) - 1] ?? 0;
     const spent = cur[cur.length - 1] ?? 0;
-    // Weekly buckets for the last 13 weeks, monthly buckets for the year view.
-    const end = Date.parse(`${today}T23:59:59Z`);
-    const weeks = Array.from({ length: 13 }, (_, i) => {
-      const to = end - (12 - i) * 7 * 86_400_000;
-      const from = to - 7 * 86_400_000;
-      const value = state.transactions.filter((t) => t.amount < 0 && t.category !== "Transfers" && Date.parse(t.date) > from && Date.parse(t.date) <= to).reduce((a, t) => a - t.amount, 0);
-      const start = new Date(from + 86_400_000).toISOString().slice(0, 10);
-      return { label: shortDate(start), title: `Week of ${shortDate(start)}`, value, current: i === 12, showLabel: i % 4 === 0 };
-    });
-    const months = [...new Set(state.transactions.map((t) => ymOf(t.date)))].sort().map((m) => ({ label: monthShort(m), title: monthName(m), value: monthTotals(state, m).spend, current: m === ym }));
+    // Monthly spend for the 3M and Year views: full months, then the current month to date.
+    const year = Number(ym.slice(0, 4));
+    const monthNo = Number(ym.slice(5, 7));
+    // `upto` = how many of the months have data; the last of those is the current month (to date).
+    const trend = (yms: string[], upto: number) => {
+      const labels = yms.map(monthShort);
+      const vals = yms.slice(0, upto).map((m, i) => (i === upto - 1 ? spent : monthTotals(state, m).spend));
+      const prevVals = yms.map((m) => PREV_YEAR_MONTHLY[Number(m.slice(5, 7)) - 1] ?? 0);
+      // Percent change over the completed months only (like for like with last year).
+      const base = prevVals.slice(0, upto - 1).reduce((a, v) => a + v, 0);
+      const pct = base > 0 ? ((vals.slice(0, upto - 1).reduce((a, v) => a + v, 0) - base) / base) * 100 : null;
+      return { labels, vals, prevVals, total: vals.reduce((a, v) => a + v, 0), pct };
+    };
+    const three = trend([prevYm(prevYm(prevYm(ym))), prevYm(prevYm(ym)), pym, ym], 4);
+    const full = trend(Array.from({ length: 12 }, (_, i) => `${year}-${String(i + 1).padStart(2, "0")}`), monthNo);
     return {
       ym,
       pym,
@@ -63,8 +68,8 @@ export function HomePage() {
       spent,
       delta: spent - prevAtToday,
       prevAtToday,
-      weeks,
-      months,
+      three,
+      full,
       totals: monthTotals(state, ym),
       upcoming: upcomingCharges(state.recurring, state.asOf, 14).slice(0, 4),
       recent: (live?.transactions ?? [...state.transactions].reverse()).filter((t) => t.category !== "Transfers" && t.category !== "Cashback").slice(0, 4),
@@ -126,7 +131,7 @@ export function HomePage() {
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex flex-1 flex-wrap items-baseline gap-2.5">
                   <span className="num text-2xl font-semibold">
-                    {money(range === "Month" ? d.spent : range === "3M" ? d.weeks.reduce((a, w) => a + w.value, 0) : d.months.reduce((a, m) => a + m.value, 0))}
+                    {money(range === "Month" ? d.spent : range === "3M" ? d.three.total : d.full.total)}
                   </span>
                   {range === "Month" && d.prevAtToday > 0 && (
                     <Pill tone={d.delta > 0 ? "neg" : "pos"}>
@@ -134,15 +139,29 @@ export function HomePage() {
                       {Math.abs((d.delta / d.prevAtToday) * 100).toFixed(1)}%
                     </Pill>
                   )}
+                  {range !== "Month" && (range === "3M" ? d.three : d.full).pct !== null && (
+                    <Pill tone={(range === "3M" ? d.three : d.full).pct! > 0 ? "neg" : "pos"}>
+                      {(range === "3M" ? d.three : d.full).pct! > 0 ? "+" : "−"}
+                      {Math.abs((range === "3M" ? d.three : d.full).pct!).toFixed(1)}%
+                    </Pill>
+                  )}
                 </div>
                 <Segmented label="Range" value={range} options={RANGES} onChange={setRange} />
               </div>
               {range === "Month" ? (
                 <CompareLine cur={d.cur} prev={d.prev} days={daysInMonth(d.ym)} today={d.day} curLabel={`${monthName(d.ym)} to date`} prevLabel={monthName(d.pym)} monthAbbr={monthShort(d.ym)} prevAbbr={monthShort(d.pym)} />
-              ) : range === "3M" ? (
-                <Bars bars={d.weeks} aria="Weekly spend for the last 13 weeks" />
               ) : (
-                <Bars bars={d.months} aria="Monthly spend" />
+                <TrendLine
+                  key={range}
+                  labels={(range === "3M" ? d.three : d.full).labels}
+                  cur={(range === "3M" ? d.three : d.full).vals}
+                  prev={(range === "3M" ? d.three : d.full).prevVals}
+                  curLabel={d.ym.slice(0, 4)}
+                  prevLabel={String(Number(d.ym.slice(0, 4)) - 1)}
+                  prevYear={String(Number(d.ym.slice(0, 4)) - 1)}
+                  nowLabel={`${monthName(d.ym)} to date`}
+                  aria={range === "3M" ? "Monthly spend, last three months and the month to date, against last year" : "Monthly spend this year against last year"}
+                />
               )}
             </Card>
           </Section>

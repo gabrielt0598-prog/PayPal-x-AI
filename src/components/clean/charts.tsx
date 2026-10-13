@@ -42,16 +42,136 @@ const baseOf = (fontFamily: string) => ({
 
 const usdAxis = { type: "number" as const, position: "left" as const, label: { color: INK, fontSize: 11, formatter: ({ value }: { value: number }) => compactUSD(value) } };
 
-function Legend({ items }: { items: { label: string; kind: "solid" | "dashed" }[] }) {
+type LegendKind = "solid" | "dashed" | "dotted";
+
+function Legend({ items }: { items: { label: string; kind: LegendKind }[] }) {
   return (
     <div className="flex flex-wrap gap-[18px] text-xs font-medium text-muted">
       {items.map((i) => (
         <span key={i.label} className="flex items-center gap-1.5">
-          <span className={i.kind === "solid" ? "w-4 rounded-sm border-t-[3px] border-chart" : "w-4 border-t-2 border-dashed border-faint"} />
+          <span className={i.kind === "solid" ? "w-4 rounded-sm border-t-[3px] border-chart" : i.kind === "dotted" ? "w-4 border-t-[3px] border-dotted border-chart" : "w-4 border-t-2 border-dashed border-faint"} />
           {i.label}
         </span>
       ))}
     </div>
+  );
+}
+
+type Pt = [number, number];
+
+/**
+ * Shared hand-built SVG line chart: gridlines + y labels, a solid current line with area,
+ * an optional dotted tail, a dashed comparison line, a hover/keyboard tooltip and a legend.
+ */
+function LineFrame({
+  n,
+  solid,
+  tail,
+  prev,
+  yMax,
+  ticks,
+  endIdx,
+  valueAt,
+  prevAt,
+  tip,
+  xLabels,
+  aria,
+  legend,
+}: {
+  n: number;
+  solid: Pt[];
+  tail?: Pt[] | null;
+  prev: Pt[];
+  yMax: number;
+  ticks: number[];
+  /** The "now" point: where the tooltip sits by default. */
+  endIdx: number;
+  valueAt: (i: number) => number | undefined;
+  prevAt: (i: number) => number;
+  tip: (i: number, cv: number | undefined, pv: number) => { main: string; sub: string };
+  xLabels: { i: number; label: string }[];
+  aria: (main: string, sub: string) => string;
+  legend: { label: string; kind: LegendKind }[];
+}) {
+  const [hover, setHover] = useState<number | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const px = (i: number) => (i / Math.max(n - 1, 1)) * 100;
+  const py = (v: number) => 100 - (v / yMax) * 100;
+  const path = (pts: Pt[]) => pts.map(([i, v], k) => `${k ? "L" : "M"}${px(i).toFixed(2)} ${py(v).toFixed(2)}`).join(" ");
+  const areaPts = [...solid, ...(tail ? tail.slice(1) : [])];
+  const area = areaPts.length ? `${path(areaPts)} L${px(endIdx).toFixed(2)} 100 L${px(areaPts[0][0]).toFixed(2)} 100 Z` : "";
+
+  // The left-to-right reveal on mount, skipped for reduced motion.
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    svgRef.current?.animate([{ clipPath: "inset(-12px 100% -12px -12px)" }, { clipPath: "inset(-12px)" }], { duration: 1000, delay: 150, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "backwards" });
+  }, []);
+
+  const idx = Math.min(hover ?? endIdx, n - 1);
+  const ax = px(idx);
+  const cv = valueAt(idx);
+  const pv = prevAt(idx);
+  const flip = ax > 60;
+  const anchorY = py(cv ?? pv);
+  const { main, sub } = tip(idx, cv, pv);
+
+  const at = (clientX: number, el: HTMLElement) => {
+    const r = el.getBoundingClientRect();
+    return Math.min(n - 1, Math.max(0, Math.round(((clientX - r.left) / (r.width || 1)) * (n - 1))));
+  };
+  const onKey = (e: React.KeyboardEvent) => {
+    const d = e.key === "ArrowLeft" ? -1 : e.key === "ArrowRight" ? 1 : e.key === "Home" ? -n : e.key === "End" ? n : 0;
+    if (!d) return;
+    e.preventDefault();
+    setHover(Math.min(n - 1, Math.max(0, idx + d)));
+  };
+
+  return (
+    <>
+      <div
+        role="group"
+        tabIndex={0}
+        aria-label={aria(main, sub)}
+        onPointerMove={(e) => setHover(at(e.clientX, e.currentTarget))}
+        onPointerLeave={() => setHover(null)}
+        onBlur={() => setHover(null)}
+        onKeyDown={onKey}
+        className="relative ml-12 mt-3 h-[200px] rounded-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+      >
+        {ticks.map((v, i) => (
+          <div key={v} className={`absolute inset-x-0 h-0 border-t ${i ? "border-dashed border-border" : "border-solid border-border-strong"}`} style={{ bottom: `${(v / yMax) * 100}%` }}>
+            <span className="absolute right-full top-0 mr-2.5 -translate-y-1/2 whitespace-nowrap text-[11px] text-faint">{v ? `$${v / 1000}k` : "$0"}</span>
+          </div>
+        ))}
+        <svg ref={svgRef} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden className="absolute inset-0 size-full overflow-visible">
+          <path d={area} className="fill-chart opacity-[0.14]" />
+          <path d={path(prev)} fill="none" className="stroke-faint" strokeWidth={1.5} strokeDasharray="4 4" vectorEffect="non-scaling-stroke" />
+          <path d={path(solid)} fill="none" className="stroke-chart" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          {tail && <path d={path(tail)} fill="none" className="stroke-chart" strokeWidth={2.5} strokeDasharray="0.1 6" strokeLinecap="round" vectorEffect="non-scaling-stroke" />}
+        </svg>
+        <div className="pointer-events-none absolute inset-y-0 border-l border-dashed border-border-strong" style={{ left: `${ax.toFixed(2)}%` }} />
+        <span className="pointer-events-none absolute size-2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-faint bg-surface" style={{ left: `${ax.toFixed(2)}%`, top: `${py(pv).toFixed(2)}%` }} />
+        {cv !== undefined && (
+          <span className="pointer-events-none absolute size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-chart shadow-[0_0_0_3px_var(--surface)]" style={{ left: `${ax.toFixed(2)}%`, top: `${py(cv).toFixed(2)}%` }} />
+        )}
+        <div
+          aria-hidden
+          className={`pointer-events-none absolute z-[6] flex flex-col gap-px whitespace-nowrap rounded-[10px] border border-border bg-surface-2 px-2.5 py-1.5 ${flip ? "-translate-x-full" : ""}`}
+          style={{ left: `calc(${ax.toFixed(2)}% ${flip ? "-" : "+"} 14px)`, top: `calc(${anchorY.toFixed(2)}% + 14px)` }}
+        >
+          <span className="num text-[13px] font-semibold">{main}</span>
+          <span className="text-[11px] text-faint">{sub}</span>
+        </div>
+      </div>
+      <div className="relative ml-12 h-[18px]" aria-hidden>
+        {xLabels.map(({ i, label }, k) => (
+          <span key={i} className="absolute top-1 whitespace-nowrap text-[11px] text-faint" style={{ left: `${px(i).toFixed(2)}%`, transform: `translateX(${k === 0 ? "0" : k === xLabels.length - 1 ? "-100%" : "-50%"})` }}>
+            {label}
+          </span>
+        ))}
+      </div>
+      <Legend items={legend} />
+    </>
   );
 }
 
@@ -80,97 +200,91 @@ export function CompareLine({
   const pm = prevAbbr ?? prevLabel.slice(0, 3);
   const n = Math.max(days, 2);
   const todayIdx = Math.min(Math.max(today, 1), cur.length || 1) - 1;
-  const [hover, setHover] = useState<number | null>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
-
-  const step = 1000 * Math.max(1, Math.ceil(Math.max(1, Math.ceil(Math.max(...cur, ...prev, 0) / 1000)) / 4));
-  const yMax = Math.max(step, Math.ceil(Math.max(...cur, ...prev, 0) / step) * step);
+  const top = Math.max(...cur, ...prev, 0);
+  const step = 1000 * Math.max(1, Math.ceil(Math.max(1, Math.ceil(top / 1000)) / 4));
+  const yMax = Math.max(step, Math.ceil(top / step) * step);
   const ticks = Array.from({ length: yMax / step + 1 }, (_, k) => k * step);
-  const px = (i: number) => (i / (n - 1)) * 100;
-  const py = (v: number) => 100 - (v / yMax) * 100;
-  const path = (vals: number[]) => vals.map((v, i) => `${i ? "L" : "M"}${px(i).toFixed(2)} ${py(v).toFixed(2)}`).join(" ");
-  const curPts = cur.slice(0, todayIdx + 1);
-  const tx = px(todayIdx);
-  const area = curPts.length ? `${path(curPts)} L${tx.toFixed(2)} 100 L0 100 Z` : "";
-
-  // The left-to-right reveal on mount, skipped for reduced motion.
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    svgRef.current?.animate([{ clipPath: "inset(-12px 100% -12px -12px)" }, { clipPath: "inset(-12px)" }], { duration: 1000, delay: 150, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "backwards" });
-  }, []);
-
-  const idx = hover ?? todayIdx;
-  const ax = px(idx);
-  const hasCur = idx <= todayIdx;
-  const pv = prev[Math.min(idx, prev.length - 1)] ?? 0;
-  const cv = hasCur ? cur[idx] : undefined;
-  const flip = ax > 60;
-  const anchorY = py(cv ?? pv);
-  const main = cv === undefined ? money(pv) : idx === todayIdx ? `${money(cv)} today` : `${money(cv)} on ${cm} ${idx + 1}`;
-  const sub = cv === undefined ? `${pm} ${idx + 1}` : `${pm} ${idx + 1} was ${money(pv)}`;
-  const xs = [1, 8, 15, 22, 29].filter((d) => d <= days);
-
-  const at = (clientX: number, el: HTMLElement) => {
-    const r = el.getBoundingClientRect();
-    return Math.min(n - 1, Math.max(0, Math.round(((clientX - r.left) / (r.width || 1)) * (n - 1))));
-  };
-  const onKey = (e: React.KeyboardEvent) => {
-    const d = e.key === "ArrowLeft" ? -1 : e.key === "ArrowRight" ? 1 : e.key === "Home" ? -n : e.key === "End" ? n : 0;
-    if (!d) return;
-    e.preventDefault();
-    setHover(Math.min(n - 1, Math.max(0, idx + d)));
-  };
-
   return (
-    <>
-      <div
-        role="group"
-        tabIndex={0}
-        aria-label={`${curLabel}: ${money(cur[cur.length - 1] ?? 0)} so far. ${prevLabel}: ${money(prev[prev.length - 1] ?? 0)} for the month. ${main}; ${sub}. Use the arrow keys to move between days.`}
-        onPointerMove={(e) => setHover(at(e.clientX, e.currentTarget))}
-        onPointerLeave={() => setHover(null)}
-        onBlur={() => setHover(null)}
-        onKeyDown={onKey}
-        className="relative ml-12 mt-3 h-[200px] rounded-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
-      >
-        {ticks.map((v, i) => (
-          <div key={v} className={`absolute inset-x-0 h-0 border-t ${i ? "border-dashed border-border" : "border-solid border-border-strong"}`} style={{ bottom: `${(v / yMax) * 100}%` }}>
-            <span className="absolute right-full top-0 mr-2.5 -translate-y-1/2 whitespace-nowrap text-[11px] text-faint">{v ? `$${v / 1000}k` : "$0"}</span>
-          </div>
-        ))}
-        <svg ref={svgRef} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden className="absolute inset-0 size-full overflow-visible">
-          <path d={area} className="fill-chart opacity-[0.14]" />
-          <path d={path(prev)} fill="none" className="stroke-faint" strokeWidth={1.5} strokeDasharray="4 4" vectorEffect="non-scaling-stroke" />
-          <path d={path(curPts)} fill="none" className="stroke-chart" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-        </svg>
-        <div className="pointer-events-none absolute inset-y-0 border-l border-dashed border-border-strong" style={{ left: `${ax.toFixed(2)}%` }} />
-        <span className="pointer-events-none absolute size-2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-faint bg-surface" style={{ left: `${ax.toFixed(2)}%`, top: `${py(pv).toFixed(2)}%` }} />
-        {cv !== undefined && (
-          <span className="pointer-events-none absolute size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-chart shadow-[0_0_0_3px_var(--surface)]" style={{ left: `${ax.toFixed(2)}%`, top: `${py(cv).toFixed(2)}%` }} />
-        )}
-        <div
-          aria-hidden
-          className={`pointer-events-none absolute z-[6] flex flex-col gap-px whitespace-nowrap rounded-[10px] border border-border bg-surface-2 px-2.5 py-1.5 ${flip ? "-translate-x-full" : ""}`}
-          style={{ left: `calc(${ax.toFixed(2)}% ${flip ? "-" : "+"} 14px)`, top: `calc(${anchorY.toFixed(2)}% + 14px)` }}
-        >
-          <span className="num text-[13px] font-semibold">{main}</span>
-          <span className="text-[11px] text-faint">{sub}</span>
-        </div>
-      </div>
-      <div className="relative ml-12 h-[18px]" aria-hidden>
-        {xs.map((d, k) => (
-          <span key={d} className="absolute top-1 whitespace-nowrap text-[11px] text-faint" style={{ left: `${px(d - 1).toFixed(2)}%`, transform: `translateX(${k === 0 ? "0" : k === xs.length - 1 ? "-100%" : "-50%"})` }}>
-            {cm} {d}
-          </span>
-        ))}
-      </div>
-      <Legend
-        items={[
-          { label: curLabel, kind: "solid" },
-          { label: prevLabel, kind: "dashed" },
-        ]}
-      />
-    </>
+    <LineFrame
+      n={n}
+      solid={cur.slice(0, todayIdx + 1).map((v, i): Pt => [i, v])}
+      prev={prev.map((v, i): Pt => [i, v])}
+      yMax={yMax}
+      ticks={ticks}
+      endIdx={todayIdx}
+      valueAt={(i) => (i <= todayIdx ? cur[i] : undefined)}
+      prevAt={(i) => prev[Math.min(i, prev.length - 1)] ?? 0}
+      tip={(i, cv, pv) => ({
+        main: cv === undefined ? money(pv) : i === todayIdx ? `${money(cv)} today` : `${money(cv)} on ${cm} ${i + 1}`,
+        sub: cv === undefined ? `${pm} ${i + 1}` : `${pm} ${i + 1} was ${money(pv)}`,
+      })}
+      xLabels={[1, 8, 15, 22, 29].filter((d) => d <= days).map((d) => ({ i: d - 1, label: `${cm} ${d}` }))}
+      aria={(main, sub) => `${curLabel}: ${money(cur[cur.length - 1] ?? 0)} so far. ${prevLabel}: ${money(prev[prev.length - 1] ?? 0)} for the month. ${main}; ${sub}. Use the arrow keys to move between days.`}
+      legend={[
+        { label: curLabel, kind: "solid" },
+        { label: prevLabel, kind: "dashed" },
+      ]}
+    />
+  );
+}
+
+/**
+ * Monthly spend this year (solid + area through the last full month, dotted tail to the month
+ * to date) against the same months last year (dashed). `cur` ends with the month-to-date value.
+ */
+export function TrendLine({
+  labels,
+  cur,
+  prev,
+  curLabel,
+  prevLabel,
+  prevYear,
+  nowLabel,
+  aria,
+}: {
+  /** Short month name for every x position ("Jul", "Aug", ...). */
+  labels: string[];
+  /** Spend per month from the first x position; the last entry is the month to date. */
+  cur: number[];
+  /** Same months last year, one per x position. */
+  prev: number[];
+  curLabel: string;
+  prevLabel: string;
+  prevYear: string;
+  /** Legend text for the dotted tail ("October to date"). */
+  nowLabel: string;
+  aria: string;
+}) {
+  const n = labels.length;
+  const c = Math.min(Math.max(cur.length, 1), n) - 1;
+  const top = Math.max(...cur, ...prev.slice(0, n), 0);
+  const units = Math.max(1, Math.ceil(top / 1000));
+  const step = 1000 * Math.ceil(units / 6);
+  const yMax = Math.max(step, Math.ceil(top / step) * step);
+  const ticks = Array.from({ length: yMax / step + 1 }, (_, k) => k * step);
+  return (
+    <LineFrame
+      n={n}
+      solid={cur.slice(0, c).map((v, i): Pt => [i, v])}
+      tail={c > 0 ? [[c - 1, cur[c - 1]], [c, cur[c]]] : null}
+      prev={prev.slice(0, n).map((v, i): Pt => [i, v])}
+      yMax={yMax}
+      ticks={ticks}
+      endIdx={c}
+      valueAt={(i) => (i <= c ? cur[i] : undefined)}
+      prevAt={(i) => prev[i] ?? 0}
+      tip={(i, cv, pv) => ({
+        main: cv === undefined ? money(pv) : i === c ? `${money(cv)} ${labels[i]} to date` : `${money(cv)} in ${labels[i]}`,
+        sub: cv === undefined ? `${labels[i]} ${prevYear}` : `${labels[i]} ${prevYear} was ${money(pv)}`,
+      })}
+      xLabels={labels.map((label, i) => ({ i, label }))}
+      aria={(main, sub) => `${aria}. ${main}; ${sub}. Use the arrow keys to move between months.`}
+      legend={[
+        { label: curLabel, kind: "solid" },
+        { label: prevLabel, kind: "dashed" },
+        { label: nowLabel, kind: "dotted" },
+      ]}
+    />
   );
 }
 
