@@ -9,7 +9,7 @@ import { Check, X } from "lucide-react";
 import { useFinance } from "@/components/state/AppProviders";
 import type { MoneyMove } from "@/lib/store";
 
-export const PAGES = ["home", "transactions", "budget", "recurring", "essentials", "offers", "rewards", "insights", "account"] as const;
+export const PAGES = ["home", "wallet", "transactions", "budget", "recurring", "essentials", "offers", "rewards", "insights", "account"] as const;
 export type PageId = (typeof PAGES)[number];
 
 export const REWARD_CATS = ["Groceries", "Gas & fuel", "Restaurants", "Health & beauty", "Clothing & apparel"] as const;

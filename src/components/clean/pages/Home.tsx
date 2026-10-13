@@ -9,9 +9,16 @@ import { useClean } from "../AppState";
 import { Bars, CompareLine } from "../charts";
 import { useBudgetSummary } from "../budgetTotal";
 import { useLiveBalance } from "../liveBalance";
+import { Logo, logoMark } from "../Logo";
 import { asOfDate, cumulative, daysInMonth, monthTotals, prevYm, ymOf } from "../data";
 import { TxDrawer, TxGrid } from "../TxTable";
 import { Avatar, Btn, Card, Modal, money, monthName, monthShort, Page, Pill, Section, Segmented, shortDate, Skeleton } from "../ui";
+
+/** Merchant logo mark from the design, or a letter avatar for names without one. */
+function MerchantMark({ name }: { name: string }) {
+  const mark = logoMark(name);
+  return mark ? <Logo mark={mark} size={40} /> : <Avatar name={name} />;
+}
 
 const RANGES = ["Month", "3M", "Year"] as const;
 
@@ -158,7 +165,7 @@ export function HomePage() {
             <Card flush>
               {d.upcoming.map((r) => (
                 <button key={r.id} type="button" onClick={() => go("recurring")} className="flex w-full items-center gap-3 px-5 py-[13px] text-left hover:bg-white/[0.03]">
-                  <Avatar name={r.merchant} />
+                  <MerchantMark name={r.merchant} />
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                     <span className="truncate text-[15px]">{r.merchant}</span>
                     <span className="text-[13px] text-faint">{shortDate(r.nextChargeDate)}</span>
@@ -186,11 +193,11 @@ export function HomePage() {
                 <div className="flex flex-col">
                   {earnedToday.slice(0, 2).map((l, i) => (
                     <div key={`${l.date}-${i}`} className="flex items-center gap-3 py-[13px]">
-                      <Avatar name={l.label} />
+                      <MerchantMark name={l.merchant} />
                       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                        <span className="truncate text-[15px]">{l.label.split(" · ")[0]}</span>
+                        <span className="truncate text-[15px]">{l.merchant}</span>
                         <span className="truncate text-[13px] text-faint">
-                          {shortDate(l.date)} · {l.label.split(" · ").slice(1).join(" · ") || "Cash back"}
+                          {shortDate(l.date)} · {l.cat}
                         </span>
                       </span>
                       <span className="num whitespace-nowrap text-sm font-semibold text-positive">+{l.pts.toLocaleString("en-US")} pts</span>
@@ -211,7 +218,7 @@ export function HomePage() {
               {newOffers.map(({ offer }) => (
                 <div key={offer.id} className="flex items-center gap-3 px-5 py-[13px]">
                   <button type="button" onClick={() => go("offers")} className="flex min-w-0 flex-1 items-center gap-3 text-left">
-                    <Avatar name={offer.merchant} />
+                    <MerchantMark name={offer.merchant} />
                     <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                       <span className="truncate text-[15px]">{offer.merchant}</span>
                       <span className="truncate text-[13px] text-faint">

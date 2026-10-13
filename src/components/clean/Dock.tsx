@@ -6,7 +6,7 @@
 // button announces an event (e.g. a suspicious charge); pressing it opens the
 // panel and starts the conversation.
 
-import { ChartLine, Gift, House, List, Repeat, ShoppingCart, Target, Trophy, type LucideIcon } from "lucide-react";
+import { ChartLine, Gift, House, List, Repeat, ShoppingCart, Target, Trophy, Wallet, type LucideIcon } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import { useClean, type PageId } from "./AppState";
 import { cx } from "./ui";
@@ -14,6 +14,7 @@ import { Sparkles } from "./SparkleIcon";
 
 export const NAV: [string, LucideIcon, PageId][] = [
   ["Home", House, "home"],
+  ["Wallet", Wallet, "wallet"],
   ["Transactions", List, "transactions"],
   ["Budget", Target, "budget"],
   ["Recurring", Repeat, "recurring"],

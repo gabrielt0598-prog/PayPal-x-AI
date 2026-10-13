@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import { Dock, type DockBubble } from "./Dock";
 import { BudgetPage } from "./pages/Budget";
 import { AccountPage } from "./pages/Account";
+import { WalletPage } from "./pages/Wallet";
 import { EssentialsPage } from "./pages/Essentials";
 import { HomePage } from "./pages/Home";
 import { InsightsPage } from "./pages/Insights";
@@ -23,6 +24,7 @@ import { TransactionsPage } from "./pages/Transactions";
 
 const PAGE: Record<PageId, ComponentType> = {
   home: HomePage,
+  wallet: WalletPage,
   transactions: TransactionsPage,
   budget: BudgetPage,
   recurring: RecurringPage,
