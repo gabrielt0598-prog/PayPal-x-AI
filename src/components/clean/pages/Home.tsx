@@ -7,7 +7,7 @@ import { eligibleOffers, upcomingCharges } from "@/lib/finance";
 import type { Transaction } from "@/lib/types";
 import { useClean } from "../AppState";
 import { Bars, CompareLine } from "../charts";
-import { useBudgetTotal } from "../budgetTotal";
+import { useBudgetSummary } from "../budgetTotal";
 import { asOfDate, cumulative, daysInMonth, monthTotals, prevYm, ymOf } from "../data";
 import { TxDrawer, TxGrid } from "../TxTable";
 import { amt, Avatar, Btn, Card, Modal, money, monthName, monthShort, Page, Pill, Section, Segmented, shortDate, Skeleton } from "../ui";
@@ -18,7 +18,8 @@ export function HomePage() {
   const { state, loading } = useFinance();
   const { openAssistant } = useAssistantUI();
   const { go, rewards, moveMoney, toast } = useClean();
-  const budgetTotal = useBudgetTotal();
+  const budget = useBudgetSummary(state?.transactions, state ? state.asOf.slice(0, 10) : undefined);
+  const budgetTotal = budget.total;
   const [range, setRange] = useState<(typeof RANGES)[number]>("Month");
   const [sel, setSel] = useState<Transaction | null>(null);
   const [move, setMove] = useState<"add" | "transfer" | null>(null);
@@ -67,7 +68,7 @@ export function HomePage() {
   if (loading || !state || !d) return <HomeSkeleton />;
   const p = state.userProfile;
   const newOffers = d.offers.slice(0, 2);
-  const left = budgetTotal - d.spent;
+  const left = budgetTotal - budget.spent;
   const earnedToday = rewards.log.filter((l) => l.date === d.today && l.pts > 0);
   const todayPts = earnedToday.reduce((a, l) => a + l.pts, 0);
   const hour = Number(state.asOf.slice(11, 13));
@@ -149,7 +150,7 @@ export function HomePage() {
                 <span className="text-sm font-medium tracking-normal text-muted"> of {money(budgetTotal)} remaining</span>
               </span>
               <div role="img" aria-label={`Budget: ${money(left)} left of ${money(budgetTotal)}`} className="h-2 w-full overflow-hidden rounded-full bg-surface-3">
-                <div className={`h-full rounded-full ${d.spent > budgetTotal ? "bg-negative" : "bg-accent"}`} style={{ width: `${Math.min(100, budgetTotal ? (d.spent / budgetTotal) * 100 : 0)}%` }} />
+                <div className={`h-full rounded-full ${budget.spent > budgetTotal ? "bg-negative" : "bg-accent"}`} style={{ width: `${Math.min(100, budgetTotal ? (budget.spent / budgetTotal) * 100 : 0)}%` }} />
               </div>
             </Card>
           </Section>

@@ -47,6 +47,7 @@ function Frame() {
     const onAlert = (e: Event) => setBubble((e as CustomEvent<DockBubble>).detail);
     window.addEventListener("pfm:alert", onAlert);
     if (new URLSearchParams(window.location.search).get("alert") === "suspicious-charge") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- demo alert read from the URL after mount
       setBubble({
         title: "Suspicious charge · $450.00",
         body: "Voltmart Online charged your Debit Card ••4821. Was this you?",

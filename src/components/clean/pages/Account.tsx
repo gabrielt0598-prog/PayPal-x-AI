@@ -75,7 +75,6 @@ export function AccountPage() {
           <Card className="max-w-[440px] flex-[1_1_360px]">
             <div className="flex items-center gap-2">
               <h3 className="flex-1 text-[15px] font-semibold">PayPal Debit Card</h3>
-              <Pill tone={frozen ? "warn" : "pos"}>{frozen ? "Frozen" : "Active"}</Pill>
             </div>
             <div className={cx("flex aspect-[1.586] flex-col justify-between rounded-2xl bg-gradient-to-br from-[#0b3a8c] via-[#0a54c2] to-[#0070e0] p-5 text-white", frozen && "opacity-60 grayscale")}>
               <div className="flex items-center">

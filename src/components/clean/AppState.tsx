@@ -18,7 +18,7 @@ export type RewardCat = (typeof REWARD_CATS)[number];
 export interface RewardsLog {
   label: string;
   date: string;
-  status: "Pending" | "Ready" | "Done";
+  status: "Earned" | "Redeemed";
   pts: number;
 }
 
@@ -53,7 +53,6 @@ interface CleanState {
   moveMoney: (kind: MoneyMove, amount: number, merchant?: string) => Promise<boolean>;
   rewards: {
     pts: number;
-    pending: number;
     cat: RewardCat;
     setCat: (c: RewardCat) => void;
     log: RewardsLog[];
@@ -65,11 +64,11 @@ const Ctx = createContext<CleanState | null>(null);
 
 // PayPal Rewards has no public API, so points start from a sample balance.
 const SEED_LOG: RewardsLog[] = [
-  { label: "Dining · 5% category", date: "2026-10-07", status: "Pending", pts: 275 },
-  { label: "Dining · 5% category", date: "2026-10-05", status: "Pending", pts: 345 },
-  { label: "Redeemed · cash to balance", date: "2026-09-30", status: "Done", pts: -1000 },
-  { label: "Dining · 5% category", date: "2026-09-30", status: "Ready", pts: 1640 },
-  { label: "Uniqlo offer bonus", date: "2026-09-12", status: "Ready", pts: 205 },
+  { label: "Dining · 5% category", date: "2026-10-07", status: "Earned", pts: 275 },
+  { label: "Dining · 5% category", date: "2026-10-05", status: "Earned", pts: 345 },
+  { label: "Redeemed · cash to balance", date: "2026-09-30", status: "Redeemed", pts: -1000 },
+  { label: "Dining · 5% category", date: "2026-09-30", status: "Earned", pts: 1640 },
+  { label: "Uniqlo offer bonus", date: "2026-09-12", status: "Earned", pts: 205 },
 ];
 
 function pageFromHash(): PageId {
@@ -128,7 +127,7 @@ export function CleanStateProvider({ children }: { children: ReactNode }) {
       const usd = n / 100;
       if (mode === "cash" && !(await moveMoney("rewards", usd))) return;
       setPts((p) => p - n);
-      setLog((l) => [{ label: `Redeemed · ${mode === "cash" ? "cash to balance" : "shopping credit"}`, date: asOf, status: "Done", pts: -n }, ...l]);
+      setLog((l) => [{ label: `Redeemed · ${mode === "cash" ? "cash to balance" : "shopping credit"}`, date: asOf, status: "Redeemed", pts: -n }, ...l]);
       toast(
         mode === "cash" ? `${usd.toLocaleString("en-US", { style: "currency", currency: "USD" })} added to your PayPal balance` : `${usd.toLocaleString("en-US", { style: "currency", currency: "USD" })} shopping credit ready`,
         `${n.toLocaleString("en-US")} points redeemed`,
@@ -146,7 +145,6 @@ export function CleanStateProvider({ children }: { children: ReactNode }) {
       moveMoney,
       rewards: {
         pts,
-        pending: SEED_LOG.filter((l) => l.status === "Pending").reduce((a, l) => a + l.pts, 0),
         cat,
         setCat: (c) => {
           if (c === cat) return;

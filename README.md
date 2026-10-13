@@ -2,13 +2,13 @@
 
 A closed-loop personal finance app for someone who lives entirely on their
 **PayPal balance and PayPal Debit Card**. A dark, Revolut-Business-inspired UI
-(the "Clean" design in [`design/`](design/README.md)) with a docked side panel
-and a **PayPal AI** drawer (⌘K) that sits next to the page. Ask about
-spending, categorise transactions, cancel subscriptions and apply PayPal offers
-while the page you're looking at stays visible — without the assistant ever
-inventing a number.
+(the **Final** design in [`design/`](design/README.md)) with a floating bottom
+dock and a **PayPal AI** panel (⌘K) that opens from the right over the page.
+Ask about spending, run what-if scenarios, categorise transactions, cancel
+subscriptions and apply PayPal offers while the page you're looking at stays
+visible — without the assistant ever inventing a number.
 
-Pages: Home, Transactions, Recurring, Essentials, Offers, Rewards, Insights and
+Pages: Home, Transactions, Budget, Recurring, Essentials, Offers, Rewards, Insights and
 Account. Essentials (reorders through a PayPal Store Sync merchant) and Rewards
 (PayPal Rewards points) use sample catalogs and points, because neither has a
 public API; their payments still post to the PayPal balance ledger.
@@ -71,6 +71,13 @@ them on your machine with:
 npx context-plugins install https://github.com/paypaldev/server-sdk-context-plugin-preview
 ```
 
+### Demo alert
+
+`/?alert=suspicious-charge` raises a PayPal AI chat bubble above the dock's AI
+button (any code can raise one with a `pfm:alert` CustomEvent). Pressing it
+opens the panel and starts the conversation. The app has no freeze-card or
+dispute tool, so the assistant answers from the data and says what it can't do.
+
 ## Project layout
 
 ```
@@ -83,8 +90,8 @@ src/
     api/demo/move-money      Add money / Transfer / rewards cash-out / Store Sync reorder
     api/demo/offers          add or remove an offer (Added state)
   components/
-    clean/                   Clean design: side panel, pages, charts, UI primitives
-    assistant/               PayPal AI drawer (⌘K), citations, action cards
+    clean/                   Final design: bottom dock, pages (incl. Budget), charts, UI primitives
+    assistant/               PayPal AI panel (⌘K), citations, step rail, what-if compare card
     state/AppProviders.tsx   shared client state (finance snapshot + panel)
   lib/
     types.ts                 domain types shared by UI, agent and services

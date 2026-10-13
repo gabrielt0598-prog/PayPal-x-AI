@@ -32,10 +32,7 @@ export function RewardsPage() {
               </span>
               <span className="text-sm text-muted">Worth {money(rewards.pts / 100)} · 100 points = $1</span>
             </div>
-            <div className="flex flex-wrap items-center gap-2 text-[13px] text-muted">
-              <Pill tone="warn">{rewards.pending.toLocaleString("en-US")} pts pending</Pill>
-              From this month’s 5% category. Points clear within 90 days.
-            </div>
+            <span className="text-[13px] text-muted">Earned from this month’s 5% category and offer bonuses.</span>
             <div className="h-px bg-border" />
             <span className="text-[13px] font-semibold">Redeem as</span>
             <div role="radiogroup" aria-label="Redeem as" className="grid grid-cols-2 gap-2">
@@ -111,7 +108,7 @@ export function RewardsPage() {
               <div className="h-2 rounded-full bg-surface-3">
                 <div className="h-2 rounded-full bg-accent" style={{ width: `${Math.max(1, capped / 10)}%` }} />
               </div>
-              <span className="text-xs text-faint">{spend ? "Earned so far this month · points show as pending for up to 90 days" : `No ${rewards.cat.toLowerCase()} purchases yet this month`}</span>
+              <span className="text-xs text-faint">{spend ? "Earned so far this month" : `No ${rewards.cat.toLowerCase()} purchases yet this month`}</span>
             </div>
           </Card>
         </Section>
@@ -121,13 +118,13 @@ export function RewardsPage() {
         <Card flush>
           <TableHead cols={["Activity", "Date", "Status", "Points"]} />
           {rewards.log.slice(0, 8).map((r, i) => (
-            <div key={i} role="row" className={cx(GRID4, "py-[13px]", i && "border-t border-border")}>
-              <span className="truncate text-[15px]">{r.label}</span>
-              <span className="text-sm text-muted">{shortDate(r.date)}</span>
-              <span>
-                <Pill tone={r.status === "Pending" ? "warn" : r.status === "Ready" ? "pos" : "neu"}>{r.status}</Pill>
+            <div key={i} role="row" className={cx(GRID4, "py-[13px] text-left", i && "border-t border-border")}>
+              <span className="truncate text-left text-[15px]">{r.label}</span>
+              <span className="text-left text-sm text-muted">{shortDate(r.date)}</span>
+              <span className="text-left">
+                <Pill tone={r.status === "Earned" ? "pos" : "neu"}>{r.status}</Pill>
               </span>
-              <span className={cx("num text-[15px]", r.pts > 0 && "text-positive")}>
+              <span className={cx("num whitespace-nowrap text-left text-[15px]", r.pts > 0 ? "text-positive" : "text-text")}>
                 {r.pts > 0 ? "+" : "−"}
                 {Math.abs(r.pts).toLocaleString("en-US")}
               </span>
