@@ -9,7 +9,7 @@ import type { ComponentType, CSSProperties } from "react";
 import { Assistant } from "@/components/assistant/Assistant";
 import { useAssistantUI } from "@/components/state/AppProviders";
 import { CleanStateProvider, useClean, type PageId } from "./AppState";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dock, type DockBubble } from "./Dock";
 import { BudgetPage } from "./pages/Budget";
 import { AccountPage } from "./pages/Account";
@@ -35,9 +35,13 @@ const PAGE: Record<PageId, ComponentType> = {
 
 function Frame() {
   const { page } = useClean();
-  const { open: aiOpen } = useAssistantUI();
+  const { open: aiOpen, closeAssistant } = useAssistantUI();
   const Current = PAGE[page];
   const [bubble, setBubble] = useState<DockBubble | null>(null);
+  const closeRef = useRef(closeAssistant);
+  useEffect(() => {
+    closeRef.current = closeAssistant;
+  }, [closeAssistant]);
 
   // Alerts arrive as a chat bubble above the PayPal AI button. Pressing it opens
   // the panel and starts the conversation. Any part of the app can raise one with
@@ -47,6 +51,8 @@ function Frame() {
     const onAlert = (e: Event) => setBubble((e as CustomEvent<DockBubble>).detail);
     window.addEventListener("pfm:alert", onAlert);
     if (new URLSearchParams(window.location.search).get("alert") === "suspicious-charge") {
+      // The alert bubble sits above the AI button, so the demo starts with the panel closed.
+      closeRef.current();
       // eslint-disable-next-line react-hooks/set-state-in-effect -- demo alert read from the URL after mount
       setBubble({
         title: "Suspicious charge · $450.00",

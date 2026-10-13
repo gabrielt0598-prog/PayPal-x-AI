@@ -40,7 +40,8 @@ export function AppProviders({ children }: { children: ReactNode }) {
   const [state, setState] = useState<FinanceState | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [open, setOpen] = useState(false);
+  // PayPal AI is open by default; closing it is up to the user.
+  const [open, setOpen] = useState(true);
   const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
 
   const apply = useCallback((p: Promise<FinanceState>) => {
