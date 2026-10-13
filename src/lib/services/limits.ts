@@ -1,19 +1,18 @@
-// Usage limits for the routes that spend your money or quota (Claude, TypeSafe Jev, Kernel, Zapier, PayPal).
+// Usage limits for the routes that spend your money or quota (Claude, TypeSafe Jev, Kernel, PayPal).
 //
 // Each guarded route has a per-visitor rate (per minute and per day) and a global daily cap, so a crowd of
 // judges and participants cannot run up the bill. Visitors are told how long to wait (HTTP 429 + Retry-After).
 //
 // IMPORTANT: counters live in server memory. On a single server (localhost) that is exact. On Vercel every
 // serverless instance has its own counters, so the effective limit can be a few times higher. Treat this as
-// the first fence and also set hard caps at the providers (Anthropic Console spend limit, Kernel plan,
-// Zapier task limit) and a Vercel Firewall rate-limit rule. See README "Usage limits".
+// the first fence and also set hard caps at the providers (Anthropic Console spend limit, Kernel plan) and a Vercel Firewall rate-limit rule. See README "Usage limits".
 //
 // Tune with env vars, e.g. LIMIT_AGENT_PER_MIN=5 LIMIT_AGENT_PER_DAY=40 LIMIT_AGENT_GLOBAL_PER_DAY=800.
 // Set RATE_LIMITS=off to disable (local development only).
 
 import { jsonError } from "./http";
 
-type Name = "agent" | "kernel" | "zapier" | "jev" | "paypal";
+type Name = "agent" | "kernel" | "jev" | "paypal";
 
 interface Rule {
   perMin: number;
@@ -26,7 +25,6 @@ interface Rule {
 const DEFAULTS: Record<Name, Rule> = {
   agent: { perMin: 10, perDay: 80, globalPerDay: 1500, what: "PayPal AI messages" },
   kernel: { perMin: 2, perDay: 6, globalPerDay: 60, what: "cloud-browser cancellations" },
-  zapier: { perMin: 3, perDay: 10, globalPerDay: 100, what: "alert triggers" },
   jev: { perMin: 20, perDay: 200, globalPerDay: 2000, what: "fact-check requests" },
   paypal: { perMin: 60, perDay: 1000, globalPerDay: 20000, what: "PayPal requests" },
 };

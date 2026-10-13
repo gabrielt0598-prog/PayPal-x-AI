@@ -3,6 +3,5 @@
 export { jev } from "./jev";
 export { memory } from "./memory";
 export { kernel } from "./kernel";
-export { zapier, maybeAlertLowBalance } from "./zapier";
 export { paypal } from "./paypal";
 export type * from "./contracts";

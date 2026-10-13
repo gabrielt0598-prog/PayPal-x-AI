@@ -10,7 +10,6 @@ cp .env.example .env.local   # then fill in what you have
 |---|---|---|
 | TypeSafe Jev | `TYPESAFE_API_KEY`, `JEV_HALLUCINATION_THRESHOLD` (0.3) | rules for categorise/intent; deterministic guardrail only |
 | PayPal | `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_ENVIRONMENT`, `PAYPAL_USE_MOCK` | in-memory store seeded from `mock-data.ts` |
-| Zapier | `ZAPIER_WEBHOOK_URL` | logs, returns `delivered: false` |
 | Kernel | `KERNEL_API_KEY`, `KERNEL_TARGET` (sandbox), `PUBLIC_BASE_URL`, `KERNEL_PROFILE_NAME` | simulated step log + link to the local sandbox page |
 | Memory | none | always local: `.data/memory.json` |
 | Claude | `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` | handled by the assistant module |
@@ -48,22 +47,6 @@ curl -s localhost:3000/api/paypal/balance
 curl -s -X POST localhost:3000/api/paypal/subscriptions/sub_disney/cancel \
   -H 'content-type: application/json' -d '{"reason":"Not using it"}'
 ```
-
-## Zapier (`zapier.ts`)
-
-1. In Zapier create a Zap: trigger **Webhooks by Zapier > Catch Hook**. Copy the hook URL into `ZAPIER_WEBHOOK_URL` (https only; it is never logged or returned).
-2. Fire a test (below), then in the Zap pick the sample request and add an action: push (Pushover/Slack), SMS, or Gmail/Email using `{{message}}`, `{{balance}}`, `{{threshold}}`.
-3. Payload: `event: "paypal.balance.below_auto_reload_threshold"`, a human `message`, plus the `LowBalanceAlert` fields (`userId, userName, balance, threshold, reloadAmount, fundingSource, triggeredBy, occurredAt`).
-4. Delivery: 5 s timeout, one retry, identical alerts deduped for 10 minutes (the manual test route bypasses dedupe).
-
-```bash
-curl -s -X POST localhost:3000/api/zapier/low-balance          # manual test with current state
-curl -s -X POST localhost:3000/api/demo/simulate-spend -H 'content-type: application/json' \
-  -d '{"merchant":"Voltway","amount":2020}'                 # crosses the $25 threshold -> alert
-# -> {"transaction":{...},"balanceBefore":...,"balanceAfter":...,"crossedBelowThreshold":true,"zapier":{"delivered":true,...}}
-```
-
-Reset the demo balance with `curl -X DELETE localhost:3000/api/state`.
 
 ## Kernel (`kernel.ts`, `merchant-sites.ts`)
 
@@ -107,5 +90,5 @@ curl -s -X DELETE 'localhost:3000/api/memory?sessionId=demo&key=monthly_salary'
 
 ```bash
 curl -s localhost:3000/api/integrations/status
-# {"anthropic":"mock","jev":"mock","paypal":"mock","zapier":"mock","kernel":"mock","memory":"live"}
+# {"anthropic":"mock","jev":"mock","paypal":"mock","kernel":"mock","memory":"live"}
 ```

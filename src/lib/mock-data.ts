@@ -10,7 +10,7 @@
 
 import type { Category, FinanceState, Offer, PaymentMethod, RecurringPayment, Transaction, UserProfile } from "./types";
 
-/** "Now" for the prototype. Charts, the agent and Zapier alerts all use this clock. */
+/** "Now" for the prototype. Charts and the agent use this clock. */
 export const AS_OF = "2026-10-07T18:00:00.000Z";
 /** PayPal balance at AS_OF (Home: "PayPal balance"). */
 const CLOSING_BALANCE = 2033.9;

@@ -20,7 +20,6 @@ const SERVICES = [
   ["anthropic", "Claude", "PayPal AI assistant"],
   ["jev", "TypeSafe Jev", "Fact-checks every reply"],
   ["kernel", "Kernel", "Cancels on merchant sites"],
-  ["zapier", "Zapier", "Low-balance alerts"],
 ] as const;
 
 function liveOf(v: unknown): boolean | null {

@@ -24,8 +24,6 @@ export function resetState(): FinanceState {
 export interface BalanceChange {
   balanceBefore: number;
   balanceAfter: number;
-  /** True when this change moved the balance from >= threshold to < threshold (Zapier alert trigger). */
-  crossedBelowThreshold: boolean;
 }
 
 function nextTxnId(state: FinanceState) {
@@ -39,8 +37,7 @@ function post(state: FinanceState, txn: Omit<Transaction, "id" | "balanceAfter">
   const transaction: Transaction = { ...txn, id: nextTxnId(state), balanceAfter: after };
   state.transactions.push(transaction);
   state.userProfile.paypalBalance = after;
-  const threshold = state.userProfile.autoReload.threshold;
-  return { transaction, balanceBefore: before, balanceAfter: after, crossedBelowThreshold: before >= threshold && after < threshold };
+  return { transaction, balanceBefore: before, balanceAfter: after };
 }
 
 export type Result<T> = { ok: true; value: T } | { ok: false; error: string };
@@ -102,20 +99,6 @@ export function applyOffer(
   });
   const { transaction: credit, ...balance } = posted;
   return { ok: true, value: { offer, transaction: best.t, cashback: best.cb, credit, ...balance } };
-}
-
-/** Demo helper: record a new card purchase (used to show the low-balance Zapier alert). */
-export function simulateSpend(merchant: string, amount: number, category: Category = "Shopping") {
-  const state = getState();
-  return post(state, {
-    date: new Date(Date.parse(state.asOf) + 60_000 * state.transactions.length).toISOString(),
-    merchant,
-    description: "Card purchase",
-    amount: -Math.abs(amount),
-    category,
-    method: "paypal_debit_card",
-    status: "pending",
-  });
 }
 
 /** Save an offer to the account (or remove it) without a matching purchase yet. */

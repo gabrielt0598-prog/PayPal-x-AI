@@ -134,32 +134,6 @@ export interface KernelService {
   cancelOnMerchantSite(sub: RecurringPayment): Promise<BrowserCancellationResult>;
 }
 
-// ---------- Zapier: background notifications ----------
-
-export interface LowBalanceAlert {
-  userId: string;
-  userName: string;
-  balance: number;
-  threshold: number;
-  reloadAmount: number;
-  fundingSource: string;
-  triggeredBy?: { merchant: string; amount: number; transactionId: string };
-  occurredAt: string;
-}
-
-export interface ZapierResult {
-  delivered: boolean;
-  mode: ServiceMode;
-  status?: number;
-  error?: string;
-  /** True when an identical alert was already delivered within the dedupe window and this call was skipped. */
-  deduped?: boolean;
-}
-
-export interface ZapierService {
-  sendLowBalanceAlert(alert: LowBalanceAlert): Promise<ZapierResult>;
-}
-
 // ---------- PayPal (APIMatic SDK): source of truth for money ----------
 
 export interface PayPalService {
