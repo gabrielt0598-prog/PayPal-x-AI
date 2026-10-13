@@ -9,6 +9,7 @@
 //            TransactionSearchController.searchBalances      -> getBalance
 //            SubscriptionsController.listSubscriptions       -> listRecurring
 //            SubscriptionsController.cancelSubscription      -> cancelSubscription
+//            OrdersController.createOrder / captureOrder     -> createOrder / captureOrder (Essentials checkout, PayPal AI)
 //   mock = delegate to the in-memory store (src/lib/store.ts), seeded from src/lib/mock-data.ts.
 //
 // Every live call is wrapped: SDK errors (ApiError etc.) are logged without secrets and the call degrades to the
@@ -28,7 +29,17 @@
 // Sandbox note: PayPal Transaction Search allows a max 31-day window per call and only returns USD
 // balance-affecting records by default; ranges longer than 31 days are fetched window by window.
 
-import { ApiError, Client, Environment, SubscriptionsController, TransactionSearchController } from "@paypal/paypal-server-sdk";
+import {
+  ApiError,
+  CheckoutPaymentIntent,
+  Client,
+  Environment,
+  OrdersController,
+  PaypalExperienceUserAction,
+  PaypalWalletContextShippingPreference,
+  SubscriptionsController,
+  TransactionSearchController,
+} from "@paypal/paypal-server-sdk";
 import type { Subscription, TransactionDetails } from "@paypal/paypal-server-sdk";
 import { inRange } from "../finance";
 import { cancelRecurring, getState } from "../store";
@@ -243,5 +254,54 @@ export const paypal: PayPalService = {
         ? { note: "No PayPal subscription id (I-...) for this item; cancelled in the local store only." }
         : {}),
     };
+  },
+
+  async createOrder({ amount, description, returnUrl, cancelUrl }) {
+    const value = amount.toFixed(2);
+    if (paypalMode() === "live") {
+      try {
+        const { result } = await new OrdersController(sdk()).createOrder({
+          body: {
+            intent: CheckoutPaymentIntent.Capture,
+            purchaseUnits: [{ amount: { currencyCode: "USD", value }, description: description.slice(0, 127) }],
+            paymentSource: {
+              paypal: {
+                experienceContext: {
+                  brandName: "PayPal AI",
+                  userAction: PaypalExperienceUserAction.PayNow,
+                  shippingPreference: PaypalWalletContextShippingPreference.NoShipping,
+                  returnUrl,
+                  cancelUrl,
+                },
+              },
+            },
+          },
+          prefer: "return=representation",
+        });
+        const link = result.links?.find((l) => l.rel === "payer-action" || l.rel === "approve");
+        return { ok: true, orderId: result.id, status: result.status, approveUrl: link?.href, channel: "paypal_api" };
+      } catch (err) {
+        const error = describe(err);
+        console.error("[paypal] createOrder failed:", error);
+        return { ok: false, error, channel: "paypal_api" };
+      }
+    }
+    return { ok: true, orderId: `SIM-${Date.now().toString(36).toUpperCase()}`, status: "CREATED", channel: "simulated" };
+  },
+
+  async captureOrder(orderId) {
+    if (paypalMode() === "live" && !orderId.startsWith("SIM-")) {
+      try {
+        const { result } = await new OrdersController(sdk()).captureOrder({ id: orderId, prefer: "return=representation" });
+        const cap = result.purchaseUnits?.[0]?.payments?.captures?.[0];
+        const amount = money(cap?.amount);
+        return { ok: result.status === "COMPLETED", orderId, captureId: cap?.id, status: result.status, ...(Number.isFinite(amount) ? { amount } : {}), channel: "paypal_api" };
+      } catch (err) {
+        const error = describe(err);
+        console.error("[paypal] captureOrder failed:", error);
+        return { ok: false, error, orderId, channel: "paypal_api" };
+      }
+    }
+    return { ok: true, orderId, captureId: `SIM-CAP-${Date.now().toString(36).toUpperCase()}`, status: "COMPLETED", channel: "simulated" };
   },
 };

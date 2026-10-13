@@ -6,6 +6,7 @@
 // payment posts to the PayPal balance through the demo ledger (/api/demo/move-money).
 
 import { useEffect, useRef, useState } from "react";
+import { payWithPayPal } from "../paypalOrder";
 import { Check, ChevronLeft, ChevronRight, ShoppingCart, Wallet } from "lucide-react";
 import { useFinance } from "@/components/state/AppProviders";
 import { useClean } from "../AppState";
@@ -64,6 +65,7 @@ const INITIAL_ORDERS: Order[] = [
 ];
 
 const PAGE_SIZE = 10;
+const newConfirmation = () => "HH-" + String(Math.floor(10000 + Math.random() * 89999));
 const clampQty = (n: number) => Math.max(1, Math.min(9, n));
 
 export function EssentialsPage() {
@@ -74,12 +76,12 @@ export function EssentialsPage() {
   const [qty, setQty] = useState<Record<string, number>>({});
   const [last, setLast] = useState<Record<string, string>>({});
   const [sheet, setSheet] = useState<Record<string, boolean> | null>(null);
-  const [run, setRun] = useState<{ step: number; done?: boolean; conf?: string } | null>(null);
+  const [run, setRun] = useState<{ step: number; done?: boolean; conf?: string; orderId?: string; captureId?: string } | null>(null);
   const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
   const [pg, setPg] = useState(0);
-  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
-  const paid = useRef<Promise<boolean> | null>(null);
-  useEffect(() => () => { if (timer.current) clearInterval(timer.current); }, []);
+  // Bumped whenever the order sheet closes or a new run starts, so a late async step can't touch a stale run.
+  const alive = useRef(0);
+  useEffect(() => () => { alive.current += 1; }, []);
 
   const view = ITEMS.map((e) => {
     const l = last[e.id] ?? e.last;
@@ -96,12 +98,8 @@ export function EssentialsPage() {
   const sheetT = sheet ? totals(sheet) : null;
   const balance = state?.userProfile.paypalBalance;
 
-  const stopTimer = () => {
-    if (timer.current) clearInterval(timer.current);
-    timer.current = null;
-  };
   const closeSheet = () => {
-    stopTimer();
+    alive.current += 1;
     setSheet(null);
     setRun(null);
   };
@@ -110,27 +108,49 @@ export function EssentialsPage() {
     setRun(null);
   };
 
-  const runOrder = () => {
+  const runOrder = async () => {
     if (!sheetT) return;
-    stopTimer();
     const t = sheetT;
+    const token = ++alive.current;
+    const live = () => alive.current === token;
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
     setRun({ step: 0 });
-    // The real ledger call fires with the animation; the order only completes if it succeeds.
-    paid.current = moveMoney("purchase", t.total, MERCHANT);
-    let step = 0;
-    timer.current = setInterval(async () => {
-      if (step < 6) {
-        step += 1;
-        setRun({ step });
-        return;
-      }
-      stopTimer();
-      const ok = await paid.current;
+    try {
+      // Catalog, price and cart are Store Sync samples; the payment itself goes through PayPal's Orders API.
+      await wait(450);
+      if (!live()) return;
+      setRun({ step: 1 });
+      await wait(450);
+      if (!live()) return;
+      setRun({ step: 2 });
+      await wait(450);
+      if (!live()) return;
+      setRun({ step: 3 });
+      let ids = { orderId: "", captureId: "" };
+      const paidWith = await payWithPayPal({
+        amount: Math.round(t.total * 100) / 100,
+        description: `${MERCHANT} · ${t.items.map((e) => e.short).join(", ")}`,
+        onOrder: (o) => {
+          ids = { ...ids, orderId: o.orderId };
+          if (live()) setRun({ step: 4, orderId: o.orderId });
+        },
+        onStage: (s) => {
+          if (s === "capturing" && live()) setRun({ step: 5, orderId: ids.orderId });
+        },
+      });
+      if (!live()) return;
+      ids = { orderId: paidWith.orderId, captureId: paidWith.captureId ?? "" };
+      setRun({ step: 6, ...ids });
+      await wait(450);
+      if (!live()) return;
+      setRun({ step: 7, ...ids });
+      const ok = await moveMoney("purchase", t.total, MERCHANT);
+      if (!live()) return;
       if (!ok) {
         setRun(null);
         return;
       }
-      const conf = "HH-" + String(Math.floor(10000 + Math.random() * 89999));
+      const conf = newConfirmation();
       setLast((l) => {
         const n = { ...l };
         t.items.forEach((e) => (n[e.id] = "Oct 7"));
@@ -145,18 +165,23 @@ export function EssentialsPage() {
         { date: "Oct 7", m: "H", via: "Harbor & Home · PayPal", ids: t.items.map((e) => e.id), items: t.items.map((e) => e.short + (e.qty > 1 ? " ×" + e.qty : "")).join(", "), total: t.total, conf, status: "Arriving Oct 12" },
         ...o,
       ]);
-      setRun({ step: 7, done: true, conf });
+      setRun({ step: 8, done: true, conf, ...ids });
       toast(`Order placed with ${MERCHANT}`, `${money(t.total)} · paid with PayPal · arrives Oct 12`);
-    }, 650);
+    } catch (e) {
+      if (!live()) return;
+      setRun(null);
+      toast("Payment not completed", e instanceof Error ? e.message : "PayPal could not take the payment", { kind: "warn" });
+    }
   };
 
   const steps = sheetT
     ? [
         "Found the items in Harbor & Home’s Store Sync catalog",
         `Checked price and stock · ${money(sheetT.total)}`,
-        `Created a cart with ${sheetT.items.length} item${sheetT.items.length === 1 ? "" : "s"}`,
-        "Added shipping to 1458 Fell St",
-        "Paid with PayPal balance",
+        `Created a cart with ${sheetT.items.length} item${sheetT.items.length === 1 ? "" : "s"} · shipping to 1458 Fell St`,
+        run?.orderId ? `Created PayPal order ${run.orderId}` : "Creating a PayPal order (Orders API)",
+        "Approved with PayPal",
+        run?.captureId ? `Captured the payment · ${run.captureId}` : "Captured the payment",
         "Harbor & Home confirmed the order",
         "Saved the receipt to PayPal Activity",
       ]
@@ -356,7 +381,7 @@ export function EssentialsPage() {
                   <Check size={18} className="shrink-0 text-positive" />
                   <span className="flex flex-col">
                     <span className="text-sm font-semibold">Order placed · {money(sheetT.total)}</span>
-                    <span className="text-xs text-muted">{MERCHANT} order {run?.conf} · arrives Mon, Oct 12</span>
+                    <span className="text-xs text-muted">{MERCHANT} order {run?.conf} · PayPal order {run?.orderId} · arrives Mon, Oct 12</span>
                   </span>
                 </div>
                 <div className="flex justify-end">

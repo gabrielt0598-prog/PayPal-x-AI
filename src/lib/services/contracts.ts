@@ -179,4 +179,37 @@ export interface PayPalService {
     channel?: "paypal_api" | "local_store";
     note?: string;
   }>;
+  /**
+   * Orders API: creates a CAPTURE order for `amount` USD. Live mode returns the PayPal approval link the payer must
+   * open (status PAYER_ACTION_REQUIRED); mock mode returns a simulated order that needs no approval.
+   */
+  createOrder(input: CreateOrderInput): Promise<OrderResult>;
+  /** Orders API: captures an approved order (mock: returns a simulated capture). */
+  captureOrder(orderId: string): Promise<CaptureResult>;
+}
+
+export interface CreateOrderInput {
+  amount: number;
+  description: string;
+  /** Where PayPal sends the payer after approving / cancelling. */
+  returnUrl: string;
+  cancelUrl: string;
+}
+export interface OrderResult {
+  ok: boolean;
+  error?: string;
+  orderId?: string;
+  status?: string;
+  /** PayPal approval link (live only). */
+  approveUrl?: string;
+  channel: "paypal_api" | "simulated";
+}
+export interface CaptureResult {
+  ok: boolean;
+  error?: string;
+  orderId?: string;
+  captureId?: string;
+  status?: string;
+  amount?: number;
+  channel: "paypal_api" | "simulated";
 }
