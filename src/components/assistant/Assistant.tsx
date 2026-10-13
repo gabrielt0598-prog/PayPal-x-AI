@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowUp, Brain, ChartLine, ChevronDown, Gift, Repeat, ShieldCheck, ShieldAlert, SquarePen, Tags, X, type LucideIcon } from "lucide-react";
+import { ArrowUp, Brain, ChevronDown, ShieldCheck, ShieldAlert, SquarePen, X } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import type { AgentResponse } from "@/lib/agent/types";
 import type { MemoryFact } from "@/lib/services/contracts";
@@ -17,14 +17,32 @@ interface UIMessage {
   error?: boolean;
 }
 
-const SUGGESTIONS: [LucideIcon, string][] = [
-  [ChartLine, "How much did I spend on dining last month?"],
-  [Repeat, "Which subscriptions am I not using?"],
-  [X, "Cancel my Max subscription"],
-  [Gift, "Apply my best offer"],
-  [Tags, "Categorize my recent transactions"],
-  [Brain, "My salary is $75,000 a year"],
+// Starter pills: short label (as in the design) -> the full prompt sent to the real agent.
+const STARTERS: [string, string][] = [
+  ["Dining last month", "How much did I spend on dining last month?"],
+  ["Unused subscriptions", "Which subscriptions am I not using?"],
+  ["Cancel Max", "Cancel my Max subscription"],
+  ["Best offer", "Apply my best offer"],
+  ["What if I skip dining?", "What if I skip dining out for the rest of the month?"],
+  ["Budget check", "Am I on track with my budget this month?"],
 ];
+
+const FOLLOW_DEFAULT = ["How much did I spend on dining last month?", "Which subscriptions am I not using?", "Apply my best offer"];
+
+/** Follow-up chips derived from what the reply was about (its actions, then the tools it used). */
+function followUps(r?: AgentResponse): string[] {
+  if (!r) return FOLLOW_DEFAULT;
+  const types = new Set(r.actions.map((a) => a.type));
+  const tools = new Set((r.toolResults ?? []).map((t) => t.tool));
+  if (types.has("what_if_compare") || tools.has("what_if")) return ["What if I also skip shopping?", "What if I buy a $900 laptop?"];
+  if (types.has("cancellation_preview")) return ["Which subscriptions am I not using?"];
+  if (types.has("subscription_cancelled")) return ["Which subscriptions am I not using?", "Apply my best offer"];
+  if (types.has("offer_applied")) return ["Which subscriptions am I not using?", "How much did I spend on dining last month?"];
+  if (types.has("fact_remembered")) return ["Am I on track with my budget this month?", "What if I skip dining out for the rest of the month?"];
+  if ([...tools].some((t) => /subscri/i.test(t))) return ["Cancel my Max subscription", "Apply my best offer"];
+  if ([...tools].some((t) => /offer/i.test(t))) return ["Which subscriptions am I not using?", "What if I skip dining out for the rest of the month?"];
+  return FOLLOW_DEFAULT;
+}
 
 function getSessionId() {
   try {
@@ -55,7 +73,7 @@ export function Assistant() {
   const [memory, setMemory] = useState<MemoryFact[]>([]);
   const [mode, setMode] = useState<AgentResponse["mode"] | null>(null);
   const [showMemory, setShowMemory] = useState(false);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<UIMessage[]>([]);
   const loadingRef = useRef(false);
@@ -143,19 +161,21 @@ export function Assistant() {
 
   const lastAssistantId = [...messages].reverse().find((m) => m.role === "assistant")?.id;
   const salary = memory.find((f) => /salary/i.test(f.key));
-  const title = messages.find((m) => m.role === "user")?.content ?? "PayPal AI";
+  const firstUser = messages.find((m) => m.role === "user")?.content;
+  const title = firstUser ? (firstUser.length > 40 ? `${firstUser.slice(0, 38)}…` : firstUser) : "PayPal AI";
+  const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
   const firstName = state?.userProfile.name.split(" ")[0] ?? "there";
 
   return (
     <aside
       aria-label="PayPal AI"
-      className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-surface lg:inset-y-2 lg:left-auto lg:right-2 lg:z-30 lg:w-[380px] lg:rounded-[20px] lg:border lg:border-border-strong"
+      className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-surface lg:inset-y-2 lg:left-auto lg:right-2 lg:z-30 lg:w-[380px] lg:rounded-2xl lg:border lg:border-border-strong"
     >
       <header className="relative flex items-center gap-0.5 border-b border-border py-2.5 pl-4 pr-2">
         <span className="mr-2 flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-bg text-accent">
           <Sparkles size={13} />
         </span>
-        <h2 className="min-w-0 flex-1 truncate text-sm font-semibold">{title}</h2>
+        <h2 className="min-w-0 flex-1 truncate text-sm font-semibold leading-normal">{title}</h2>
         {mode && (
           <span
             title={mode.llm === "live" ? `Live Claude model · ${mode.model}` : "Rule-based demo mode (no API key)"}
@@ -187,7 +207,7 @@ export function Assistant() {
           <SquarePen size={16} />
         </button>
         <button type="button" onClick={closeAssistant} aria-label="Close PayPal AI" title="Close" className="flex size-8 items-center justify-center rounded-lg text-muted hover:bg-white/[0.06] hover:text-text">
-          <X size={16} />
+          <X size={18} />
         </button>
         {showMemory && (
           <div className="absolute right-3 top-full z-10 mt-1 w-72 rounded-xl border border-border-strong bg-surface-2 p-3 shadow-xl">
@@ -208,35 +228,32 @@ export function Assistant() {
         )}
       </header>
 
-      <div ref={scrollRef} aria-live="polite" className="flex flex-1 flex-col gap-[18px] overflow-y-auto p-4">
+      <div ref={scrollRef} aria-live="polite" className="flex min-h-0 flex-1 flex-col gap-[18px] overflow-y-auto p-4">
         {messages.length === 0 && (
-          <>
-            <div className="flex flex-col gap-1.5">
-              <p className="text-lg font-semibold">Hi {firstName}, what can I help with?</p>
-              <p className="text-[13px] leading-normal text-muted">I can see your PayPal account and Memory. Every figure is checked by TypeSafe Jev before you see it.</p>
-            </div>
-            <div className="flex flex-col gap-2">
-              {SUGGESTIONS.map(([Icon, s]) => (
+          <div className="flex flex-1 flex-col items-center justify-center gap-5 pb-8 text-center">
+            <span className="flex size-11 items-center justify-center rounded-full bg-accent-bg text-accent">
+              <Sparkles size={22} />
+            </span>
+            <span className="text-[17px] font-semibold">How can I help, {firstName}?</span>
+            <div className="flex flex-wrap justify-center gap-2">
+              {STARTERS.map(([label, prompt]) => (
                 <button
-                  key={s}
+                  key={label}
                   type="button"
-                  onClick={() => void send(s)}
-                  className="flex min-h-12 items-center gap-2.5 rounded-xl border border-border px-2.5 py-2 text-left text-[13px] leading-snug transition hover:border-border-strong hover:bg-white/[0.03]"
+                  onClick={() => void send(prompt)}
+                  className="h-9 whitespace-nowrap rounded-full border border-border-strong bg-transparent px-3.5 text-[13px] text-muted transition hover:text-text"
                 >
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-accent-bg text-accent">
-                    <Icon size={16} />
-                  </span>
-                  {s}
+                  {label}
                 </button>
               ))}
             </div>
-          </>
+          </div>
         )}
 
         {messages.map((m) =>
           m.role === "user" ? (
-            <div key={m.id} className="flex justify-end">
-              <div className="max-w-[min(85%,36em)] whitespace-pre-wrap rounded-[16px_16px_4px_16px] bg-surface-3 px-3.5 py-2 text-sm leading-normal">{m.content}</div>
+            <div key={m.id} className="max-w-[min(80%,36em)] self-end whitespace-pre-wrap rounded-[18px_18px_4px_18px] bg-surface-3 px-4 py-2.5 text-sm leading-normal">
+              {m.content}
             </div>
           ) : (
             <AssistantMessage key={m.id} message={m} canAnswer={m.id === lastAssistantId && !loading} onSend={(t) => void send(t)} />
@@ -244,9 +261,18 @@ export function Assistant() {
         )}
 
         {loading && (
-          <div className="flex w-fit items-center gap-1 rounded-2xl bg-surface-2 px-3.5 py-3" aria-label="PayPal AI is typing">
-            {[0, 150, 300].map((d) => (
-              <span key={d} className="size-1.5 animate-bounce rounded-full bg-muted" style={{ animationDelay: `${d}ms` }} />
+          <div className="flex items-center gap-3" role="status">
+            <AiAvatar />
+            <span className="text-sm text-faint">Reading your account…</span>
+          </div>
+        )}
+
+        {messages.length > 0 && !loading && (
+          <div className="flex flex-wrap gap-1.5">
+            {(lastAssistant?.error ? FOLLOW_DEFAULT : followUps(lastAssistant?.response)).map((q) => (
+              <button key={q} type="button" onClick={() => void send(q)} className="h-[34px] rounded-full border border-border bg-surface px-3.5 text-[13px] text-muted transition hover:border-border-strong hover:text-text">
+                {q}
+              </button>
             ))}
           </div>
         )}
@@ -257,32 +283,23 @@ export function Assistant() {
           e.preventDefault();
           void send(input);
         }}
-        className="p-3 pt-0"
+        className="mx-3 mb-3 flex items-center gap-2 rounded-[14px] border border-border-strong bg-surface-2 py-1.5 pl-3.5 pr-1.5 focus-within:border-accent/60"
       >
-        <div className="flex items-end gap-2 rounded-[14px] border border-border-strong bg-surface-2 py-1.5 pl-3.5 pr-1.5 focus-within:border-accent/60">
-          <label htmlFor="ai-input" className="sr-only">
-            Message PayPal AI
-          </label>
-          <textarea
-            id="ai-input"
-            ref={inputRef}
-            value={input}
-            rows={1}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                void send(input);
-              }
-            }}
-            placeholder="Ask about this page or your money…"
-            className="max-h-32 min-h-8 flex-1 resize-none bg-transparent py-1.5 text-sm text-text outline-none placeholder:text-faint"
-          />
-          <button type="submit" disabled={!input.trim() || loading} aria-label="Send" className="flex size-8 items-center justify-center rounded-full bg-white text-[#0a0a0a] transition disabled:cursor-not-allowed disabled:opacity-40">
-            <ArrowUp size={16} />
-          </button>
-        </div>
-        <p className="mt-1.5 text-center text-[11px] text-faint">⌘K to toggle · Esc to close</p>
+        <label htmlFor="ai-input" className="sr-only">
+          Message PayPal AI
+        </label>
+        <input
+          id="ai-input"
+          ref={inputRef}
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Ask about this page or your money…"
+          className="h-9 min-w-0 flex-1 bg-transparent text-sm text-text outline-none placeholder:text-faint"
+        />
+        <button type="submit" disabled={!input.trim() || loading} aria-label="Send" className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-[#0a0a0a] transition disabled:cursor-not-allowed disabled:opacity-40">
+          <ArrowUp size={14} />
+        </button>
       </form>
     </aside>
   );
@@ -335,28 +352,58 @@ function AssistantMessage({ message: m, canAnswer, onSend }: { message: UIMessag
     );
   };
 
+  const cited = Array.from(new Set(m.content.match(/(?:ev|tool)_\d+/g) ?? [])).filter((id) => lookupCitation(response, id));
+
   return (
-    <div className="space-y-2">
-      <div className={`max-w-[36em] text-sm leading-relaxed ${m.error ? "rounded-2xl bg-negative-bg px-3.5 py-2.5" : ""}`}>
-        <Markdown text={m.content} cite={response ? cite : undefined} />
-      </div>
-      {shown && (
-        <div className="rounded-xl border border-border-strong bg-surface-2 px-3 py-2 text-[12px] leading-relaxed" role="note">
-          <div className="mb-0.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-faint">
-            <span className="font-mono normal-case">{shown}</span>
-            <span className="truncate normal-case tracking-normal text-muted">{info ? info.title : "Not a known source"}</span>
-            {pinned === shown && (
-              <button type="button" onClick={() => setPinned(null)} aria-label="Close source" className="ml-auto rounded p-0.5 hover:text-text">
-                <X size={11} />
-              </button>
-            )}
-          </div>
-          <p className={info ? "text-text" : "text-negative"}>{info ? info.text : "This citation does not match any evidence or tool result from this turn."}</p>
+    <article className="flex items-start gap-3">
+      <AiAvatar />
+      <div className="flex min-w-0 flex-1 flex-col gap-2.5 pt-1">
+        <div className={`max-w-[36em] text-sm leading-relaxed ${m.error ? "rounded-2xl bg-negative-bg px-3.5 py-2.5" : ""}`}>
+          <Markdown text={m.content} cite={response ? cite : undefined} />
         </div>
-      )}
-      {response && <ActionList actions={response.actions} canAnswer={canAnswer} onSend={onSend} />}
-      {response && <GuardrailBadge response={response} />}
-    </div>
+        {response && <ActionList actions={response.actions} canAnswer={canAnswer} onSend={onSend} />}
+        {cited.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {cited.map((id, i) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setPinned((p) => (p === id ? null : id))}
+                onMouseEnter={() => setHover(id)}
+                onMouseLeave={() => setHover(null)}
+                aria-expanded={shown === id}
+                className={`max-w-full truncate rounded-full border px-2.5 py-1 text-[12px] transition ${shown === id ? "border-border-strong bg-surface-3 text-text" : "border-border bg-surface-2 text-muted hover:text-text"}`}
+              >
+                {i + 1} · {lookupCitation(response, id)?.title}
+              </button>
+            ))}
+          </div>
+        )}
+        {shown && (
+          <div className="rounded-[10px] border border-border-strong bg-surface-2 px-3 py-2 text-[12px] leading-relaxed" role="note">
+            <div className="mb-0.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-faint">
+              <span className="font-mono normal-case">{shown}</span>
+              <span className="truncate normal-case tracking-normal text-muted">{info ? info.title : "Not a known source"}</span>
+              {pinned === shown && (
+                <button type="button" onClick={() => setPinned(null)} aria-label="Close source" className="ml-auto rounded p-0.5 hover:text-text">
+                  <X size={11} />
+                </button>
+              )}
+            </div>
+            <p className={info ? "text-text" : "text-negative"}>{info ? info.text : "This citation does not match any evidence or tool result from this turn."}</p>
+          </div>
+        )}
+        {response && <GuardrailBadge response={response} />}
+      </div>
+    </article>
+  );
+}
+
+function AiAvatar() {
+  return (
+    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent-bg text-accent">
+      <Sparkles size={16} />
+    </span>
   );
 }
 

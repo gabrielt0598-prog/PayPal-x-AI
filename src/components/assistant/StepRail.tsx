@@ -14,13 +14,13 @@ function boldParts(text: string): ReactNode[] {
  */
 export function StepRail({ steps }: { steps: RailStep[] }) {
   return (
-    <ol className="rounded-xl border border-border-strong bg-surface-2 px-3 py-4 text-[13px]">
+    <ol className="rounded-[10px] border border-border bg-surface-2 px-3.5 py-4 text-[13px]">
       {steps.map((s, i) => {
         const last = i === steps.length - 1;
         return (
           <li key={i} className="flex gap-3">
             <span className="flex shrink-0 flex-col items-center">
-              <span className="flex size-6 items-center justify-center rounded-full bg-positive-bg text-positive">
+              <span className="flex size-7 items-center justify-center rounded-full bg-positive-bg text-positive">
                 <Check size={13} strokeWidth={2.5} />
               </span>
               {!last && <span aria-hidden="true" className="my-1 min-h-3 w-0.5 flex-1 rounded-full bg-border-strong" />}

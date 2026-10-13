@@ -6,7 +6,7 @@ import type { AgentAction, RailStep } from "@/lib/agent/types";
 import { CompareCard } from "./CompareCard";
 import { StepRail } from "./StepRail";
 
-const card = "rounded-xl border px-3 py-2.5 text-[13px]";
+const card = "rounded-[10px] border px-3.5 py-3 text-[13px]";
 
 type CancelledAction = Extract<AgentAction, { type: "subscription_cancelled" }>;
 
@@ -93,11 +93,11 @@ export function ActionCard({
           <div className="mt-1 text-muted">
             {action.plan} · saves {action.monthlySavingLabel}/mo ({action.annualSavingLabel}/yr)
           </div>
-          <div className="mt-2 flex gap-2">
-            <button disabled={!canAnswer} onClick={() => onSend("Yes, cancel it")} className="rounded-lg bg-accent px-3 py-1.5 text-[12px] font-medium text-white transition hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-40">
+          <div className="mt-2.5 flex flex-wrap gap-2">
+            <button disabled={!canAnswer} onClick={() => onSend("Yes, cancel it")} className="h-9 rounded-full border border-white bg-white px-3.5 text-[13px] font-medium text-[#0a0a0a] transition disabled:cursor-not-allowed disabled:opacity-40">
               Confirm cancel
             </button>
-            <button disabled={!canAnswer} onClick={() => onSend("Keep it")} className="rounded-lg border border-border-strong px-3 py-1.5 text-[12px] text-text transition hover:bg-surface-3 disabled:cursor-not-allowed disabled:opacity-40">
+            <button disabled={!canAnswer} onClick={() => onSend("Keep it")} className="h-9 rounded-full border border-transparent bg-white/[0.08] px-3.5 text-[13px] font-medium text-text transition hover:bg-white/[0.12] disabled:cursor-not-allowed disabled:opacity-40">
               Keep it
             </button>
           </div>
@@ -124,13 +124,13 @@ export function ActionCard({
       );
     case "fact_forgotten":
       return (
-        <div className={`${card} border-border-strong bg-surface-2`}>
+        <div className={`${card} border-border bg-surface-2`}>
           <div className="flex items-center gap-2 text-muted"><Brain size={15} /> Forgot {action.key}</div>
         </div>
       );
     case "transactions_recategorized":
       return (
-        <div className={`${card} border-border-strong bg-surface-2`}>
+        <div className={`${card} border-border bg-surface-2`}>
           <div className="flex items-center gap-2 font-medium text-text"><Tags size={15} /> Re-categorized {action.changes.length} of {action.checked}</div>
           <ul className="mt-1 space-y-0.5 text-muted">
             {action.changes.slice(0, 6).map((c) => (
