@@ -11,7 +11,7 @@ const CATEGORY_ALIASES: [RegExp, (typeof CATEGORIES)[number]][] = [
   [/grocer/i, "Groceries"],
   [/shopping|clothes|retail/i, "Shopping"],
   [/subscription|streaming|membership|software|apps?\b/i, "Subscriptions"],
-  [/transport|transit|uber|commut|rides?\b/i, "Transport"],
+  [/transport|transit|hopline|commut|rides?\b/i, "Transport"],
   [/bills?\b|rent|housing|utilit/i, "Essential bills"],
   [/\bother\b/i, "Other"],
 ];

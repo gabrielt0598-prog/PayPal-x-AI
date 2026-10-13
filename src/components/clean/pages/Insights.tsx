@@ -34,7 +34,7 @@ export function InsightsPage() {
     const { from, to } = monthBounds(ym);
     const billTx = state.transactions.filter((t) => t.amount < 0 && t.category === "Essential bills" && t.date.slice(0, 10) >= from && t.date.slice(0, 10) <= to);
     const bills = new Map<string, number>();
-    const LABEL: Record<string, string> = { "Parkside Apartments": "Rent · Parkside", "PG&E": "Electric & gas · PG&E", Recology: "Trash · Recology" };
+    const LABEL: Record<string, string> = { "Parkside Apartments": "Rent · Parkside", "Brightgrid Energy": "Electric & gas · Brightgrid Energy", Tidyloop: "Trash · Tidyloop" };
     for (const t of billTx) bills.set(LABEL[t.merchant] ?? t.merchant, r2((bills.get(LABEL[t.merchant] ?? t.merchant) ?? 0) - t.amount));
     const prevBills = r2(state.transactions.filter((t) => t.amount < 0 && t.category === "Essential bills" && ymOf(t.date) === pym).reduce((a, t) => a - t.amount, 0));
     const billTotal = r2([...bills.values()].reduce((a, v) => a + v, 0));
@@ -167,7 +167,7 @@ export function InsightsPage() {
         <Finding
           className="@3xl:col-span-3"
           title="Essential bills are your biggest, steadiest cost"
-          body={`${money(d.billTotal)} in ${monthName(ym)}${!d.hasPrev ? "." : Math.abs(d.billTotal - d.prevBills) < 0.005 ? `, the same as ${monthName(d.pym)}.` : `, ${money(Math.abs(d.billTotal - d.prevBills))} ${d.billTotal > d.prevBills ? "more" : "less"} than ${monthName(d.pym)}. Only PG&E changed.`}`}
+          body={`${money(d.billTotal)} in ${monthName(ym)}${!d.hasPrev ? "." : Math.abs(d.billTotal - d.prevBills) < 0.005 ? `, the same as ${monthName(d.pym)}.` : `, ${money(Math.abs(d.billTotal - d.prevBills))} ${d.billTotal > d.prevBills ? "more" : "less"} than ${monthName(d.pym)}. Only Brightgrid Energy changed.`}`}
           cta="See bills"
           onCta={() => go("recurring")}
         >

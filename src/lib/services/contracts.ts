@@ -111,7 +111,7 @@ export interface BrowserCancellationResult {
   status: "completed" | "simulated" | "needs_login" | "failed" | "awaiting_confirmation";
   /** Kernel live-view URL so the user can watch / take over the browser session. */
   liveViewUrl?: string;
-  /** Human-readable step log, e.g. ["Opened netflix.com/account", "Clicked Cancel Membership"]. */
+  /** Human-readable step log, e.g. ["Opened cinebox.com/account", "Clicked Cancel Membership"]. */
   steps: string[];
   mode: ServiceMode;
   /** Page the browser ended on (live mode). */

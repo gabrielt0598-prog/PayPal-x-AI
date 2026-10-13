@@ -42,21 +42,21 @@ type RecurringSeed = Omit<RecurringPayment, "nextChargeDate" | "amountRange">;
 
 const recurringSeeds: RecurringSeed[] = [
   { id: "bill_rent", merchant: "Parkside Apartments", plan: "Rent", kind: "bill", category: "Essential bills", amount: 1450, cycle: "monthly", billingDay: 1, status: "active", cancellable: false, cancelChannel: "none", since: "2024-06-01" },
-  { id: "bill_pge", merchant: "PG&E", plan: "Electric & gas", kind: "variable", category: "Essential bills", amount: 0, cycle: "monthly", billingDay: 29, status: "active", cancellable: false, cancelChannel: "none", since: "2024-06-01" },
-  { id: "bill_recology", merchant: "Recology", plan: "Trash & recycling", kind: "bill", category: "Essential bills", amount: 38.5, cycle: "monthly", billingDay: 25, status: "active", cancellable: false, cancelChannel: "none", since: "2024-06-01" },
-  { id: "sub_disney", merchant: "Disney+", plan: "Basic with ads", kind: "subscription", category: "Subscriptions", amount: 9.99, cycle: "monthly", billingDay: 14, status: "active", cancellable: true, cancelChannel: "paypal_subscriptions_api", lastUsedAt: "2026-09-02", since: "2025-03-14" },
-  { id: "sub_max", merchant: "Max", plan: "Basic with ads", kind: "subscription", category: "Subscriptions", amount: 9.99, cycle: "monthly", billingDay: 22, status: "active", cancellable: true, cancelChannel: "kernel_browser", lastUsedAt: "2026-07-19", since: "2026-01-22" },
-  { id: "sub_duolingo", merchant: "Duolingo", plan: "Super", kind: "subscription", category: "Subscriptions", amount: 12.99, cycle: "monthly", billingDay: 8, status: "active", cancellable: true, cancelChannel: "paypal_subscriptions_api", lastUsedAt: "2026-07-26", since: "2025-02-08" },
-  { id: "sub_adobe", merchant: "Adobe", plan: "Lightroom 1TB", kind: "subscription", category: "Subscriptions", amount: 11.99, cycle: "monthly", billingDay: 19, status: "active", cancellable: true, cancelChannel: "kernel_browser", lastUsedAt: "2026-08-30", since: "2024-08-19" },
-  { id: "sub_claude", merchant: "Anthropic", plan: "Claude Pro", kind: "subscription", category: "Subscriptions", amount: 20, cycle: "monthly", billingDay: 3, status: "active", cancellable: true, cancelChannel: "kernel_browser", lastUsedAt: "2026-10-07", since: "2026-01-03" },
-  { id: "sub_figma", merchant: "Figma", plan: "Professional", kind: "subscription", category: "Subscriptions", amount: 16, cycle: "monthly", billingDay: 24, status: "active", cancellable: true, cancelChannel: "kernel_browser", lastUsedAt: "2026-10-03", since: "2025-09-24" },
-  { id: "sub_planetfitness", merchant: "Planet Fitness", plan: "Classic", kind: "subscription", category: "Subscriptions", amount: 15, cycle: "monthly", billingDay: 17, status: "active", cancellable: true, cancelChannel: "kernel_browser", lastUsedAt: "2026-10-01", since: "2024-07-17" },
-  { id: "sub_youtube", merchant: "YouTube Premium", plan: "Individual", kind: "subscription", category: "Subscriptions", amount: 13.99, cycle: "monthly", billingDay: 18, status: "active", cancellable: true, cancelChannel: "kernel_browser", lastUsedAt: "2026-10-06", since: "2023-11-18" },
-  { id: "sub_netflix", merchant: "Netflix", plan: "Basic", kind: "subscription", category: "Subscriptions", amount: 11.99, cycle: "monthly", billingDay: 9, status: "active", cancellable: true, cancelChannel: "kernel_browser", lastUsedAt: "2026-10-05", since: "2022-04-09" },
-  { id: "sub_spotify", merchant: "Spotify", plan: "Premium Individual", kind: "subscription", category: "Subscriptions", amount: 11.99, cycle: "monthly", billingDay: 1, status: "active", cancellable: true, cancelChannel: "paypal_subscriptions_api", lastUsedAt: "2026-10-07", since: "2023-02-01" },
+  { id: "bill_pge", merchant: "Brightgrid Energy", plan: "Electric & gas", kind: "variable", category: "Essential bills", amount: 0, cycle: "monthly", billingDay: 29, status: "active", cancellable: false, cancelChannel: "none", since: "2024-06-01" },
+  { id: "bill_recology", merchant: "Tidyloop", plan: "Trash & recycling", kind: "bill", category: "Essential bills", amount: 38.5, cycle: "monthly", billingDay: 25, status: "active", cancellable: false, cancelChannel: "none", since: "2024-06-01" },
+  { id: "sub_disney", merchant: "Kitebird+", plan: "Basic with ads", kind: "subscription", category: "Subscriptions", amount: 9.99, cycle: "monthly", billingDay: 14, status: "active", cancellable: true, cancelChannel: "paypal_subscriptions_api", lastUsedAt: "2026-09-02", since: "2025-03-14" },
+  { id: "sub_max", merchant: "Vantage", plan: "Basic with ads", kind: "subscription", category: "Subscriptions", amount: 9.99, cycle: "monthly", billingDay: 22, status: "active", cancellable: true, cancelChannel: "kernel_browser", lastUsedAt: "2026-07-19", since: "2026-01-22" },
+  { id: "sub_duolingo", merchant: "Parlo", plan: "Super", kind: "subscription", category: "Subscriptions", amount: 12.99, cycle: "monthly", billingDay: 8, status: "active", cancellable: true, cancelChannel: "paypal_subscriptions_api", lastUsedAt: "2026-07-26", since: "2025-02-08" },
+  { id: "sub_adobe", merchant: "Pixelforge", plan: "Photo Studio 1TB", kind: "subscription", category: "Subscriptions", amount: 11.99, cycle: "monthly", billingDay: 19, status: "active", cancellable: true, cancelChannel: "kernel_browser", lastUsedAt: "2026-08-30", since: "2024-08-19" },
+  { id: "sub_claude", merchant: "Sable", plan: "Pro", kind: "subscription", category: "Subscriptions", amount: 20, cycle: "monthly", billingDay: 3, status: "active", cancellable: true, cancelChannel: "kernel_browser", lastUsedAt: "2026-10-07", since: "2026-01-03" },
+  { id: "sub_figma", merchant: "Frameline", plan: "Professional", kind: "subscription", category: "Subscriptions", amount: 16, cycle: "monthly", billingDay: 24, status: "active", cancellable: true, cancelChannel: "kernel_browser", lastUsedAt: "2026-10-03", since: "2025-09-24" },
+  { id: "sub_planetfitness", merchant: "Forge Fitness", plan: "Classic", kind: "subscription", category: "Subscriptions", amount: 15, cycle: "monthly", billingDay: 17, status: "active", cancellable: true, cancelChannel: "kernel_browser", lastUsedAt: "2026-10-01", since: "2024-07-17" },
+  { id: "sub_youtube", merchant: "Reelhouse Premium", plan: "Individual", kind: "subscription", category: "Subscriptions", amount: 13.99, cycle: "monthly", billingDay: 18, status: "active", cancellable: true, cancelChannel: "kernel_browser", lastUsedAt: "2026-10-06", since: "2023-11-18" },
+  { id: "sub_netflix", merchant: "Cinebox", plan: "Basic", kind: "subscription", category: "Subscriptions", amount: 11.99, cycle: "monthly", billingDay: 9, status: "active", cancellable: true, cancelChannel: "kernel_browser", lastUsedAt: "2026-10-05", since: "2022-04-09" },
+  { id: "sub_spotify", merchant: "Sonora", plan: "Premium Individual", kind: "subscription", category: "Subscriptions", amount: 11.99, cycle: "monthly", billingDay: 1, status: "active", cancellable: true, cancelChannel: "paypal_subscriptions_api", lastUsedAt: "2026-10-07", since: "2023-02-01" },
 ];
 
-/** PG&E bill by month (winter heating → spring low → late-summer bump). */
+/** Brightgrid Energy bill by month (winter heating → spring low → late-summer bump). */
 const PGE: Record<string, number> = { "2026-01": 118.2, "2026-02": 104.6, "2026-03": 79.1, "2026-04": 68.2, "2026-05": 61.5, "2026-06": 74.9, "2026-07": 92.3, "2026-08": 86.4, "2026-09": 86.4 };
 
 // ---------------------------------------------------------------------------
@@ -81,12 +81,12 @@ const MONTH_CATS: Record<string, [number, number, number, number]> = {
 // ---------------------------------------------------------------------------
 
 const offerSeeds: Offer[] = [
-  { id: "offer_uniqlo", merchant: "Uniqlo", title: "$10 back on $75+", description: "Get $10 back once when you spend $75 or more in one purchase at uniqlo.com and US stores.", type: "fixed_cashback", value: 10, minSpend: 75, validFrom: "2026-09-15", validUntil: "2026-10-15", status: "available", matchNote: "Matched because you’ve shopped at Uniqlo 3 times since August." },
-  { id: "offer_doordash", merchant: "DoorDash", title: "$7 back on $35+", description: "Get $7 back once on a DoorDash order of $35 or more in the app or on the website.", type: "fixed_cashback", value: 7, minSpend: 35, validFrom: "2026-10-01", validUntil: "2026-10-31", status: "available", matchNote: "Matched because you’ve placed 7 DoorDash orders since July." },
-  { id: "offer_uber", merchant: "Uber", title: "10% back on rides", description: "Earn 10% back on Uber rides in the US, up to $15.", type: "percent_cashback", value: 10, maxCashback: 15, validFrom: "2026-10-01", validUntil: "2026-10-31", status: "available", matchNote: "Matched because you’ve taken 5 Uber rides since August." },
-  { id: "offer_amazon", merchant: "Amazon", title: "2% back on any order", description: "Earn 2% back on any amazon.com order, up to $20.", type: "percent_cashback", value: 2, maxCashback: 20, validFrom: "2026-09-01", validUntil: "2026-11-30", status: "available", matchNote: "Matched because you’ve ordered from Amazon 6 times this year." },
-  { id: "offer_target", merchant: "Target", title: "5% back on any purchase", description: "Earn 5% back on any purchase at target.com and stores, up to $25.", type: "percent_cashback", value: 5, maxCashback: 25, validFrom: "2026-09-15", validUntil: "2026-10-31", status: "available" },
-  { id: "offer_wholefoods", merchant: "Whole Foods", title: "3% back on groceries", description: "Earn 3% back on groceries at Whole Foods Market stores, up to $10.", type: "percent_cashback", value: 3, maxCashback: 10, validFrom: "2026-09-20", validUntil: "2026-11-20", status: "available" },
+  { id: "offer_uniqlo", merchant: "Thistle", title: "$10 back on $75+", description: "Get $10 back once when you spend $75 or more in one purchase at thistle.com and US stores.", type: "fixed_cashback", value: 10, minSpend: 75, validFrom: "2026-09-15", validUntil: "2026-10-15", status: "available", matchNote: "Matched because you’ve shopped at Thistle 3 times since August." },
+  { id: "offer_doordash", merchant: "Plateful", title: "$7 back on $35+", description: "Get $7 back once on a Plateful order of $35 or more in the app or on the website.", type: "fixed_cashback", value: 7, minSpend: 35, validFrom: "2026-10-01", validUntil: "2026-10-31", status: "available", matchNote: "Matched because you’ve placed 7 Plateful orders since July." },
+  { id: "offer_uber", merchant: "Hopline", title: "10% back on rides", description: "Earn 10% back on Hopline rides in the US, up to $15.", type: "percent_cashback", value: 10, maxCashback: 15, validFrom: "2026-10-01", validUntil: "2026-10-31", status: "available", matchNote: "Matched because you’ve taken 5 Hopline rides since August." },
+  { id: "offer_amazon", merchant: "Cartly", title: "2% back on any order", description: "Earn 2% back on any cartly.com order, up to $20.", type: "percent_cashback", value: 2, maxCashback: 20, validFrom: "2026-09-01", validUntil: "2026-11-30", status: "available", matchNote: "Matched because you’ve ordered from Cartly 6 times this year." },
+  { id: "offer_target", merchant: "Corevale", title: "5% back on any purchase", description: "Earn 5% back on any purchase at corevale.com and stores, up to $25.", type: "percent_cashback", value: 5, maxCashback: 25, validFrom: "2026-09-15", validUntil: "2026-10-31", status: "available" },
+  { id: "offer_wholefoods", merchant: "Greenfold", title: "3% back on groceries", description: "Earn 3% back on groceries at Greenfold Market stores, up to $10.", type: "percent_cashback", value: 3, maxCashback: 10, validFrom: "2026-09-20", validUntil: "2026-11-20", status: "available" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -126,42 +126,42 @@ const spend = (date: string, merchant: string, description: string, amount: numb
   drafts.push({ date, merchant, description, amount: -Math.abs(amount), category, method, ...extra });
 
 // 1) The Clean design's transactions table, exactly.
-spend(at("2026-10-07", 17, 32), "Uniqlo", "Fall jackets", 89.8, "Shopping");
-spend(at("2026-10-07", 8, 14), "Starbucks", "Coffee", 6.15, "Dining");
-spend(at("2026-10-05", 19, 41), "DoorDash", "Food delivery", 54.96, "Dining");
-spend(at("2026-10-04", 15, 12), "Target", "Home essentials", 67.43, "Shopping", "paypal_balance");
-spend(at("2026-10-02", 22, 5), "Uber", "Ride", 30.58, "Transport");
+spend(at("2026-10-07", 17, 32), "Thistle", "Fall jackets", 89.8, "Shopping");
+spend(at("2026-10-07", 8, 14), "Ember Roast", "Coffee", 6.15, "Dining");
+spend(at("2026-10-05", 19, 41), "Plateful", "Food delivery", 54.96, "Dining");
+spend(at("2026-10-04", 15, 12), "Corevale", "Home essentials", 67.43, "Shopping", "paypal_balance");
+spend(at("2026-10-02", 22, 5), "Hopline", "Ride", 30.58, "Transport");
 drafts.push({ date: at("2026-10-02", 9, 0), merchant: "Acme Inc. payroll", description: "Payroll direct deposit", amount: userProfile.netPaycheck, category: "Income", method: "direct_deposit" });
 spend(at("2026-10-01", 9, 0), "Parkside Apartments", "Rent — October", 1450, "Essential bills", "bank_transfer", { recurringId: "bill_rent" });
-spend(at("2026-10-01", 7, 0), "Spotify", "Premium Individual — monthly", 11.99, "Subscriptions", "paypal_debit_card", { recurringId: "sub_spotify" });
-spend(at("2026-09-30", 9, 22), "SQ *BLUE BOTTLE 0412", "Card purchase", 7.25, "Other", "paypal_debit_card", { needsReview: true });
-spend(at("2026-09-29", 6, 0), "PG&E", "Electric & gas bill", PGE["2026-09"], "Essential bills", "paypal_balance", { recurringId: "bill_pge" });
-spend(at("2026-09-28", 17, 48), "Whole Foods", "Groceries", 68.39, "Groceries", "paypal_debit_card", { appliedOfferId: "offer_wholefoods" });
+spend(at("2026-10-01", 7, 0), "Sonora", "Premium Individual — monthly", 11.99, "Subscriptions", "paypal_debit_card", { recurringId: "sub_spotify" });
+spend(at("2026-09-30", 9, 22), "SQ *COPPER PEAK 0412", "Card purchase", 7.25, "Other", "paypal_debit_card", { needsReview: true });
+spend(at("2026-09-29", 6, 0), "Brightgrid Energy", "Electric & gas bill", PGE["2026-09"], "Essential bills", "paypal_balance", { recurringId: "bill_pge" });
+spend(at("2026-09-28", 17, 48), "Greenfold", "Groceries", 68.39, "Groceries", "paypal_debit_card", { appliedOfferId: "offer_wholefoods" });
 spend(at("2026-09-27", 19, 30), "Lilia", "Dinner", 98.18, "Dining");
 
 // 2) Named history behind the offer copy ("3 times since August", "7 orders since July", …).
 const NAMED: [string, string, string, number, Category][] = [
-  ["2026-08-14", "Uniqlo", "Card purchase", 64.9, "Shopping"],
-  ["2026-09-12", "Uniqlo", "Card purchase", 42.5, "Shopping"],
-  ["2026-07-11", "DoorDash", "Food delivery", 41.2, "Dining"],
-  ["2026-07-25", "DoorDash", "Food delivery", 38.75, "Dining"],
-  ["2026-08-09", "DoorDash", "Food delivery", 47.1, "Dining"],
-  ["2026-08-23", "DoorDash", "Food delivery", 36.4, "Dining"],
-  ["2026-09-06", "DoorDash", "Food delivery", 44.85, "Dining"],
-  ["2026-09-19", "DoorDash", "Food delivery", 52.3, "Dining"],
-  ["2026-08-02", "Uber", "Ride", 18.4, "Transport"],
-  ["2026-08-28", "Uber", "Ride", 24.15, "Transport"],
-  ["2026-09-10", "Uber", "Ride", 21.6, "Transport"],
-  ["2026-09-24", "Uber", "Ride", 27.35, "Transport"],
-  ["2026-02-12", "Amazon", "Online order", 34.99, "Shopping"],
-  ["2026-04-03", "Amazon", "Online order", 27.48, "Shopping"],
-  ["2026-05-20", "Amazon", "Online order", 61.2, "Shopping"],
-  ["2026-07-15", "Amazon", "Online order", 22.99, "Shopping"],
-  ["2026-08-30", "Amazon", "Online order", 45.67, "Shopping"],
-  ["2026-09-16", "Amazon", "Online order", 38.4, "Shopping"],
-  ["2026-03-08", "Target", "In-store purchase", 52.1, "Shopping"],
-  ["2026-06-21", "Target", "In-store purchase", 74.3, "Shopping"],
-  ["2026-08-16", "Target", "In-store purchase", 58.9, "Shopping"],
+  ["2026-08-14", "Thistle", "Card purchase", 64.9, "Shopping"],
+  ["2026-09-12", "Thistle", "Card purchase", 42.5, "Shopping"],
+  ["2026-07-11", "Plateful", "Food delivery", 41.2, "Dining"],
+  ["2026-07-25", "Plateful", "Food delivery", 38.75, "Dining"],
+  ["2026-08-09", "Plateful", "Food delivery", 47.1, "Dining"],
+  ["2026-08-23", "Plateful", "Food delivery", 36.4, "Dining"],
+  ["2026-09-06", "Plateful", "Food delivery", 44.85, "Dining"],
+  ["2026-09-19", "Plateful", "Food delivery", 52.3, "Dining"],
+  ["2026-08-02", "Hopline", "Ride", 18.4, "Transport"],
+  ["2026-08-28", "Hopline", "Ride", 24.15, "Transport"],
+  ["2026-09-10", "Hopline", "Ride", 21.6, "Transport"],
+  ["2026-09-24", "Hopline", "Ride", 27.35, "Transport"],
+  ["2026-02-12", "Cartly", "Online order", 34.99, "Shopping"],
+  ["2026-04-03", "Cartly", "Online order", 27.48, "Shopping"],
+  ["2026-05-20", "Cartly", "Online order", 61.2, "Shopping"],
+  ["2026-07-15", "Cartly", "Online order", 22.99, "Shopping"],
+  ["2026-08-30", "Cartly", "Online order", 45.67, "Shopping"],
+  ["2026-09-16", "Cartly", "Online order", 38.4, "Shopping"],
+  ["2026-03-08", "Corevale", "In-store purchase", 52.1, "Shopping"],
+  ["2026-06-21", "Corevale", "In-store purchase", 74.3, "Shopping"],
+  ["2026-08-16", "Corevale", "In-store purchase", 58.9, "Shopping"],
 ];
 for (const [d, m, desc, a, c] of NAMED) spend(at(d, 12 + Math.floor(rand() * 8)), m, desc, a, c);
 
@@ -183,16 +183,16 @@ for (const ym of months) {
     spend(at(date, r.id === "bill_rent" ? 9 : 7), r.merchant, r.kind === "subscription" ? `${r.plan} — monthly` : `${r.plan} bill`, amount, r.category, method, { recurringId: r.id });
   }
 }
-// October charges so far besides the table's rent and Spotify: Claude Pro on Oct 3.
-spend(at("2026-10-03", 7, 0), "Anthropic", "Claude Pro — monthly", 20, "Subscriptions", "paypal_debit_card", { recurringId: "sub_claude" });
+// October charges so far besides the table's rent and Sonora: Pro on Oct 3.
+spend(at("2026-10-03", 7, 0), "Sable", "Pro — monthly", 20, "Subscriptions", "paypal_debit_card", { recurringId: "sub_claude" });
 
 // 5) Everyday spend that fills each month to its Insights totals.
 const POOLS: Record<"Dining" | "Groceries" | "Shopping" | "Transport" | "Other", { merchants: string[]; desc: string; avg: number }> = {
-  Dining: { merchants: ["Starbucks", "Blue Bottle Coffee", "Philz Coffee", "Sweetgreen", "Tartine Bakery", "Souvla", "Joe's Pizza", "Lilia"], desc: "Food & drink", avg: 21 },
-  Groceries: { merchants: ["Whole Foods", "Trader Joe's", "Trader Joe's", "Safeway", "Bi-Rite Market"], desc: "Groceries", avg: 55 },
-  Shopping: { merchants: ["Muji", "Best Buy", "Sephora", "REI", "Everlane"], desc: "Card purchase", avg: 62 },
-  Transport: { merchants: ["Clipper", "Clipper", "Clipper", "Lyft"], desc: "Transit & rides", avg: 14 },
-  Other: { merchants: ["CVS Pharmacy", "Walgreens", "AMC Theatres", "Barnes & Noble", "Golden Gate Park Golf", "Sports Basement"], desc: "Card purchase", avg: 58 },
+  Dining: { merchants: ["Ember Roast", "Copper Peak Coffee", "Juniper Coffee", "Leafwell", "Larkspur Bakery", "Olive & Ash", "Marlow's Pizza", "Lilia"], desc: "Food & drink", avg: 21 },
+  Groceries: { merchants: ["Greenfold", "Fieldhand Market", "Fieldhand Market", "Harvest Lane", "Maple Street Market"], desc: "Groceries", avg: 55 },
+  Shopping: { merchants: ["Oakline Home", "Voltway", "Glowhaus", "Summit Hollow", "Linenworks"], desc: "Card purchase", avg: 62 },
+  Transport: { merchants: ["Bayline Transit", "Bayline Transit", "Bayline Transit", "Swiftcab"], desc: "Transit & rides", avg: 14 },
+  Other: { merchants: ["Wellmark Pharmacy", "Dayrite Pharmacy", "Starlit Cinemas", "Bookmarrow", "Hillcrest Park Golf", "Ridgeline Sports"], desc: "Card purchase", avg: 58 },
 };
 
 function fill(ym: string, category: keyof typeof POOLS, total: number, dayRange: [number, number]) {
@@ -252,7 +252,7 @@ for (const ym of months) {
   fill(ym, "Other", r2(left - r2(left * 0.38) - r2(left * 0.27) - r2(left * 0.07)), [1, 3]);
 }
 
-// 6) Offer payouts: Whole Foods 3% on the Sep 28 shop, added Oct 2.
+// 6) Offer payouts: Greenfold 3% on the Sep 28 shop, added Oct 2.
 drafts.push({ date: at("2026-10-02", 10, 0), merchant: "PayPal Offers", description: "Cash back — 3% back on groceries", amount: 2.05, category: "Cashback", method: "paypal_offer" });
 
 // ---------------------------------------------------------------------------
@@ -290,7 +290,7 @@ export const transactions: Transaction[] = ledger;
 userProfile.paypalBalance = balance;
 
 // ---------------------------------------------------------------------------
-// Finalise recurring payments (next charge dates, PG&E range) and offers.
+// Finalise recurring payments (next charge dates, Brightgrid Energy range) and offers.
 // ---------------------------------------------------------------------------
 
 function nextMonthlyDate(billingDay: number): string {
@@ -312,12 +312,12 @@ export const subscriptions: RecurringPayment[] = recurringSeeds.map((r) => {
   return { ...r, nextChargeDate: nextMonthlyDate(r.billingDay!) };
 });
 
-const targetOct4 = transactions.find((t) => t.merchant === "Target" && t.date.startsWith("2026-10-04"));
+const targetOct4 = transactions.find((t) => t.merchant === "Corevale" && t.date.startsWith("2026-10-04"));
 if (targetOct4) targetOct4.appliedOfferId = "offer_target";
 
 export const offers: Offer[] = offerSeeds.map((o) => {
   if (o.id === "offer_wholefoods") return { ...o, status: "applied", appliedToTransactionId: transactions.find((t) => t.appliedOfferId === o.id)?.id };
-  // Target: 5% of the Oct 4 shop is pending and posts on Oct 11.
+  // Corevale: 5% of the Oct 4 shop is pending and posts on Oct 11.
   if (o.id === "offer_target" && targetOct4) return { ...o, status: "pending", appliedToTransactionId: targetOct4.id, pendingCashback: r2(-targetOct4.amount * 0.05), postsOn: "2026-10-11" };
   return o;
 });

@@ -218,7 +218,7 @@ export function checkClaimAgainstSources(claim: string, sourceText: string, enti
   for (const d of claim.match(ISO_DATE) ?? []) if (!sourceText.includes(d)) missing.push(d);
   const lowerSources = sourceText.toLowerCase();
   for (const e of entities) {
-    // Case-sensitive in the claim ("Max" the service, not "max" the word); case-insensitive in the sources.
+    // Case-sensitive in the claim ("Vantage" the service, not a common word); case-insensitive in the sources.
     if (e.length < 3) continue;
     const re = new RegExp(String.raw`(?<![\w])${e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\w])`);
     if (re.test(claim) && !lowerSources.includes(e.toLowerCase())) missing.push(e);

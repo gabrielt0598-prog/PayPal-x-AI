@@ -102,7 +102,7 @@ export interface Offer {
   /** Pending offers only: cash back owed and the day it posts to the balance. */
   pendingCashback?: number;
   postsOn?: ISODate;
-  /** Why the offer was matched to this user ("you’ve shopped at Uniqlo 3 times since August"). */
+  /** Why the offer was matched to this user ("you’ve shopped at Thistle 3 times since August"). */
   matchNote?: string;
   appliedToTransactionId?: string;
 }

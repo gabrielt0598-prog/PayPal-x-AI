@@ -6,9 +6,7 @@ import { REWARD_CATS, useClean } from "../AppState";
 import { Logo, logoMark } from "../Logo";
 import { Card, cx, money, Pill, Section, shortDate } from "../ui";
 
-/** The design's fictional marks for the live demo merchants. */
-const MARK: Record<string, string> = { Uniqlo: "thistle", DoorDash: "plateful", Uber: "hopline", Amazon: "cartly", Target: "corevale", "Whole Foods": "greenfold" };
-const markFor = (merchant: string) => MARK[merchant] ?? logoMark(merchant) ?? "unknown";
+const markFor = (merchant: string) => logoMark(merchant) ?? "unknown";
 
 const PG = 10;
 const COLS = "grid grid-cols-[minmax(0,1.7fr)_minmax(72px,0.7fr)_minmax(0,1.6fr)_minmax(0,1fr)_minmax(88px,0.6fr)] items-center gap-4 px-5";

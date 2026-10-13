@@ -109,7 +109,7 @@ const CATEGORY_ALIASES: [RegExp, Category][] = [
   [/grocer|supermarket/i, "Groceries"],
   [/shopping|clothes|retail|clothing/i, "Shopping"],
   [/subscription|streaming|membership|software|\bapps?\b|gym/i, "Subscriptions"],
-  [/transport|transit|uber|lyft|commut|clipper|rides?\b/i, "Transport"],
+  [/transport|transit|hopline|swiftcab|commut|bayline|rides?\b/i, "Transport"],
   [/\bbills?\b|\brent\b|housing|utilit|electric|trash/i, "Essential bills"],
   [/\bother\b|pharmacy|movies?\b/i, "Other"],
   [/cash ?back/i, "Cashback"],

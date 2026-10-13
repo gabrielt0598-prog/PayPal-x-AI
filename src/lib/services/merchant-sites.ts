@@ -24,15 +24,17 @@ export interface MerchantPageOptions {
 }
 
 const ACCENTS: Record<string, string> = {
-  Netflix: "#e50914",
-  Max: "#5822b4",
-  "YouTube Premium": "#ff0033",
-  Anthropic: "#c96442",
-  Mobbin: "#111827",
-  Figma: "#a259ff",
-  "Apple iCloud+": "#0a84ff",
-  Adobe: "#fa0f00",
-  "Planet Fitness": "#6b21a8",
+  Cinebox: "#e50914",
+  Vantage: "#5822b4",
+  "Reelhouse Premium": "#ff0033",
+  Sable: "#c96442",
+  Parlo: "#58cc02",
+  "Kitebird+": "#1b4dff",
+  Lumenshot: "#111827",
+  Frameline: "#a259ff",
+  "Skyvault+": "#0a84ff",
+  Pixelforge: "#fa0f00",
+  "Forge Fitness": "#6b21a8",
 };
 
 const esc = (s: string) =>

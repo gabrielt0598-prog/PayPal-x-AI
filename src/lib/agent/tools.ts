@@ -104,7 +104,7 @@ export const TOOLS: Anthropic.Tool[] = [
   {
     name: "list_recurring",
     description:
-      "Recurring payments (subscriptions, bills, variable) with id, monthly cost, next charge date, last used date, cancellable flag, and flags for subscriptions unused for 30+ days and overlapping services (for example Spotify + YouTube Premium). Use this to resolve a name like 'Max' to its id.",
+      "Recurring payments (subscriptions, bills, variable) with id, monthly cost, next charge date, last used date, cancellable flag, and flags for subscriptions unused for 30+ days and overlapping services (for example Sonora + Reelhouse Premium). Use this to resolve a name like 'Vantage' to its id.",
     input_schema: {
       type: "object",
       properties: {
@@ -266,8 +266,8 @@ const row = (t: Transaction) => ({
 });
 
 const OVERLAP_GROUPS: { group: string; test: RegExp }[] = [
-  { group: "music streaming", test: /spotify|youtube premium|apple music|tidal|pandora/i },
-  { group: "video streaming", test: /netflix|disney|^max$|hulu|prime video|peacock|paramount/i },
+  { group: "music streaming", test: /sonora|reelhouse premium/i },
+  { group: "video streaming", test: /cinebox|kitebird|^vantage$/i },
 ];
 
 const isConfirmation = (m: string) =>

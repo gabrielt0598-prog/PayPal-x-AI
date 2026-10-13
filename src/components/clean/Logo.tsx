@@ -135,8 +135,8 @@ const MARKS: Record<string, React.ReactNode> = {
 
 const BY_NAME: Record<string, string> = {
   Thistle: "thistle", "Ember Roast": "ember", Plateful: "plateful", Corevale: "corevale", Hopline: "hopline", "Acme Inc. payroll": "acme",
-  "Parkside Apartments": "parkside", Sonora: "sonora", "SQ *COPPER PEAK 0412": "copper", "Brightgrid Energy": "brightgrid", "PG&E": "brightgrid",
-  Greenfold: "greenfold", Lilia: "lilia", Tidyloop: "tidyloop", Recology: "tidyloop", "Kitebird+": "kitebird", Vantage: "vantage", Parlo: "parlo",
+  "Parkside Apartments": "parkside", Sonora: "sonora", "SQ *COPPER PEAK 0412": "copper", "Brightgrid Energy": "brightgrid",
+  Greenfold: "greenfold", Lilia: "lilia", Tidyloop: "tidyloop", "Kitebird+": "kitebird", Vantage: "vantage", Parlo: "parlo",
   Pixelforge: "pixelforge", Sable: "sable", Frameline: "frameline", "Forge Fitness": "forge", "Reelhouse Premium": "reelhouse", Cinebox: "cinebox",
   Cartly: "cartly", PayPal: "paypal", "PayPal Offers": "paypal", "PayPal Rewards": "paypal", Various: "various",
 };

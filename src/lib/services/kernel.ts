@@ -35,15 +35,15 @@ const NAV_TIMEOUT_S = 75;
 
 /** Merchant account / cancellation pages (best effort; the live page may redirect through login). */
 export const MERCHANT_URLS: Record<string, string> = {
-  Netflix: "https://www.netflix.com/cancelplan",
-  Max: "https://www.max.com/account/subscription",
-  "YouTube Premium": "https://www.youtube.com/paid_memberships",
-  Anthropic: "https://claude.ai/settings/billing",
-  Mobbin: "https://mobbin.com/settings/billing",
-  Figma: "https://www.figma.com/settings",
-  "Apple iCloud+": "https://account.apple.com/account/manage",
-  Adobe: "https://account.adobe.com/plans",
-  "Planet Fitness": "https://www.planetfitness.com/my-account",
+  Cinebox: "https://www.cinebox.com/cancelplan",
+  Vantage: "https://www.vantage.tv/account/subscription",
+  "Reelhouse Premium": "https://www.reelhouse.tv/account/memberships",
+  Sable: "https://sable.app/settings/billing",
+  Lumenshot: "https://lumenshot.app/settings/billing",
+  Frameline: "https://www.frameline.app/settings",
+  "Skyvault+": "https://account.skyvault.app/account/manage",
+  Pixelforge: "https://account.pixelforge.com/plans",
+  "Forge Fitness": "https://www.forgefit.com/my-account",
 };
 
 export function kernelMode(): ServiceMode {

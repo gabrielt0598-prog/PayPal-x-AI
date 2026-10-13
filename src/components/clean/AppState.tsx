@@ -78,10 +78,10 @@ const Ctx = createContext<CleanState | null>(null);
 // PayPal Rewards has no public API, so points start from a sample balance.
 const SEED_LOG: RewardsLog[] = [
   { merchant: "Lilia", cat: "Restaurants · 5%", label: "Restaurants · 5%", date: "2026-10-07", status: "Earned", pts: 275 },
-  { merchant: "DoorDash", cat: "Restaurants · 5%", label: "Restaurants · 5%", date: "2026-10-05", status: "Earned", pts: 345 },
+  { merchant: "Plateful", cat: "Restaurants · 5%", label: "Restaurants · 5%", date: "2026-10-05", status: "Earned", pts: 345 },
   { merchant: "PayPal", cat: "Cash redemption", label: "Cash redemption", date: "2026-09-30", status: "Redeemed", pts: -1000 },
   { merchant: "Various", cat: "Restaurants · 5%", label: "Restaurants · 5%", date: "2026-09-30", status: "Earned", pts: 1640 },
-  { merchant: "Uniqlo", cat: "Offer bonus", label: "Offer bonus", date: "2026-09-12", status: "Earned", pts: 205 },
+  { merchant: "Thistle", cat: "Offer bonus", label: "Offer bonus", date: "2026-09-12", status: "Earned", pts: 205 },
 ];
 
 function pageFromHash(): PageId {

@@ -11,17 +11,15 @@ import { Avatar, Btn, cx, Drawer, money, money0, shortDate, Skeleton } from "../
 
 type Kind = "available" | "added" | "pending" | "earned" | "expired";
 
-/** The design's fictional marks for the live demo merchants. */
-const MARK: Record<string, string> = { Uniqlo: "thistle", DoorDash: "plateful", Uber: "hopline", Amazon: "cartly", Target: "corevale", "Whole Foods": "greenfold" };
-const markFor = (merchant: string) => MARK[merchant] ?? logoMark(merchant) ?? "unknown";
+const markFor = (merchant: string) => logoMark(merchant) ?? "unknown";
 
 const WHERE: Record<string, string> = {
-  Uniqlo: "uniqlo.com and US stores",
-  DoorDash: "DoorDash app and website",
-  Uber: "Uber rides in the US",
-  Amazon: "amazon.com",
-  Target: "target.com and stores",
-  "Whole Foods": "Whole Foods Market stores",
+  Thistle: "thistle.com and US stores",
+  Plateful: "Plateful app and website",
+  Hopline: "Hopline rides in the US",
+  Cartly: "cartly.com",
+  Corevale: "corevale.com and stores",
+  Greenfold: "Greenfold Market stores",
 };
 
 const STEPS = [
@@ -152,7 +150,7 @@ export function OffersPage() {
 
 function OfferDrawer({ offer: o, kind, cta, onAdd, onClose }: { offer: Offer; kind: Kind; cta: string; onAdd: () => void; onClose: () => void }) {
   const earn = o.type === "percent_cashback" ? `${o.value}%${o.maxCashback ? `, up to ${money0(o.maxCashback)}` : ""}` : `${money0(o.value)}, once`;
-  const min = o.minSpend ? `${money0(o.minSpend)} in one ${o.merchant === "DoorDash" ? "order" : "purchase"}` : "None";
+  const min = o.minSpend ? `${money0(o.minSpend)} in one ${o.merchant === "Plateful" ? "order" : "purchase"}` : "None";
   const rows: [string, string][] = [
     ["Cash back", earn],
     ["Minimum spend", min],

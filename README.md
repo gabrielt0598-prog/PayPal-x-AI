@@ -56,7 +56,7 @@ integration to live mode; the dashboard's integrations widget shows which are li
 |---|---|---|---|
 | **TypeSafe Jev** | Verifies every assistant reply against tool data before it's shown (blocks invented figures/transactions); classifies intents; categorises transactions | `TYPESAFE_API_KEY`, `JEV_HALLUCINATION_THRESHOLD` | `src/lib/services/jev.ts` |
 | **APIMatic / PayPal** | Source of truth for transactions, balance and PayPal-billed subscriptions (Transaction Search + Subscriptions controllers) | `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_ENVIRONMENT`, `PAYPAL_USE_MOCK` | `src/lib/services/paypal.ts` |
-| **Kernel** | Runs a cloud browser with a saved profile to cancel subscriptions on merchant sites that aren't billed through PayPal (Netflix, Max, …) | `KERNEL_API_KEY`, `KERNEL_PROFILE_NAME` | `src/lib/services/kernel.ts` |
+| **Kernel** | Runs a cloud browser with a saved profile to cancel subscriptions on merchant sites that aren't billed through PayPal (Cinebox, Vantage, …) | `KERNEL_API_KEY`, `KERNEL_PROFILE_NAME` | `src/lib/services/kernel.ts` |
 | **Zapier** | Fires an external notification when the balance drops below the auto-reload threshold | `ZAPIER_WEBHOOK_URL` | `src/lib/services/zapier.ts` |
 | **Claude** | The assistant: tool-using agent over the user's data | `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` | `src/lib/agent/` |
 
@@ -129,11 +129,11 @@ src/
 
 `src/lib/mock-data.ts` deterministically generates 1 Jan – 7 Oct 2026 for Jordan
 Lee ($75,000/yr, biweekly Acme Inc. payroll into PayPal), matching the Clean
-design in `design/clean`: the same recent transactions (Uniqlo, Starbucks,
-DoorDash, Target, Uber, Parkside Apartments rent, Spotify, PG&E, Whole Foods,
-Lilia, an unrecognised "SQ *BLUE BOTTLE" charge to review), the same bills
-(Parkside Apartments, PG&E, Recology) and subscriptions (Disney+, Max, Duolingo,
-Adobe, Claude Pro, Figma, Planet Fitness, YouTube Premium, Netflix, Spotify), the
+design in `design/clean`: the same recent transactions (Thistle, Ember Roast,
+Plateful, Corevale, Hopline, Parkside Apartments rent, Sonora, Brightgrid Energy, Greenfold,
+Lilia, an unrecognised "SQ *COPPER PEAK" charge to review), the same bills
+(Parkside Apartments, Brightgrid Energy, Tidyloop) and subscriptions (Kitebird+, Vantage, Parlo,
+Pixelforge, Sable, Frameline, Forge Fitness, Reelhouse Premium, Cinebox, Sonora), the
 same PayPal Offers (one pending, one earned), and monthly category totals that
 match the design's Insights page. Every transaction carries a reconciled running
 balance (closing at $2,033.90), so the assistant and the guardrail can check

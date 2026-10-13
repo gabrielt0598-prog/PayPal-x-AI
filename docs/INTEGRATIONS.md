@@ -27,7 +27,7 @@ Jev is TypeSafe AI's non-generative decision model: typed questions in, calibrat
 
 ```bash
 curl -s localhost:3000/api/jev/categorize -H 'content-type: application/json' \
-  -d '{"merchant":"Starbucks","description":"Coffee","amount":-5.75}'
+  -d '{"merchant":"Ember Roast","description":"Coffee","amount":-5.75}'
 curl -s localhost:3000/api/jev/verify -H 'content-type: application/json' \
   -d '{"reply":"Your balance is $123.45","groundTruth":"{\"balance\":1650}"}'
 # -> {"verdict":"block","unsupportedFigures":["$123.45"],...}
@@ -59,7 +59,7 @@ curl -s -X POST localhost:3000/api/paypal/subscriptions/sub_disney/cancel \
 ```bash
 curl -s -X POST localhost:3000/api/zapier/low-balance          # manual test with current state
 curl -s -X POST localhost:3000/api/demo/simulate-spend -H 'content-type: application/json' \
-  -d '{"merchant":"Apple Store","amount":2000}'                 # crosses the $250 threshold -> alert
+  -d '{"merchant":"Voltway","amount":2000}'                 # crosses the $250 threshold -> alert
 # -> {"transaction":{...},"balanceBefore":...,"balanceAfter":...,"crossedBelowThreshold":true,"zapier":{"delivered":true,...}}
 ```
 
@@ -67,7 +67,7 @@ Reset the demo balance with `curl -X DELETE localhost:3000/api/state`.
 
 ## Kernel (`kernel.ts`, `merchant-sites.ts`)
 
-Cloud browsers for cancelling subscriptions that have no PayPal API (Netflix, Max, YouTube Premium, Claude Pro, Mobbin, Figma, iCloud+, Adobe, Planet Fitness).
+Cloud browsers for cancelling subscriptions that have no PayPal API (Cinebox, Vantage, Reelhouse Premium, Sable, Lumenshot, Frameline, Skyvault+, Pixelforge, Forge Fitness).
 
 ### Targets (`KERNEL_TARGET`)
 

@@ -21,7 +21,7 @@ interface UIMessage {
 const STARTERS: [string, string][] = [
   ["Dining last month", "How much did I spend on dining last month?"],
   ["Unused subscriptions", "Which subscriptions am I not using?"],
-  ["Cancel Max", "Cancel my Max subscription"],
+  ["Cancel Vantage", "Cancel my Vantage subscription"],
   ["Best offer", "Apply my best offer"],
   ["What if I skip dining?", "What if I skip dining out for the rest of the month?"],
   ["Budget check", "Am I on track with my budget this month?"],
@@ -39,7 +39,7 @@ function followUps(r?: AgentResponse): string[] {
   if (types.has("subscription_cancelled")) return ["Which subscriptions am I not using?", "Apply my best offer"];
   if (types.has("offer_applied")) return ["Which subscriptions am I not using?", "How much did I spend on dining last month?"];
   if (types.has("fact_remembered")) return ["Am I on track with my budget this month?", "What if I skip dining out for the rest of the month?"];
-  if ([...tools].some((t) => /subscri/i.test(t))) return ["Cancel my Max subscription", "Apply my best offer"];
+  if ([...tools].some((t) => /subscri/i.test(t))) return ["Cancel my Vantage subscription", "Apply my best offer"];
   if ([...tools].some((t) => /offer/i.test(t))) return ["Which subscriptions am I not using?", "What if I skip dining out for the rest of the month?"];
   return FOLLOW_DEFAULT;
 }
