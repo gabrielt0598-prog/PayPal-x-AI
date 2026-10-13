@@ -76,6 +76,81 @@ button:not(:disabled) {
   cursor: pointer;
 }
 
+/* Motion. Short, ease-out, and switched off for people who ask for less. */
+:root {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(28px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes grow-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes grow-y {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+.anim-fade-up { animation: fade-up 0.4s var(--ease-out) both; }
+.anim-fade-in { animation: fade-in 0.2s ease-out both; }
+.anim-pop-in { animation: pop-in 0.28s var(--ease-out) both; }
+.anim-slide-in-right { animation: slide-in-right 0.35s var(--ease-out) both; }
+.anim-grow-x { transform-origin: left center; animation: grow-x 0.7s var(--ease-out) 0.15s both; }
+.anim-grow-y { transform-origin: center bottom; animation: grow-y 0.6s var(--ease-out) 0.15s both; }
+.anim-pulse { animation: pulse-dot 1.2s ease-in-out infinite; }
+
+/* Page content settles in section by section when you move between pages. */
+.page-enter > * > * { animation: fade-up 0.45s var(--ease-out) both; }
+.page-enter > * > :nth-child(2) { animation-delay: 60ms; }
+.page-enter > * > :nth-child(3) { animation-delay: 120ms; }
+.page-enter > * > :nth-child(4) { animation-delay: 180ms; }
+.page-enter > * > :nth-child(5) { animation-delay: 240ms; }
+.page-enter > * > :nth-child(n + 6) { animation-delay: 300ms; }
+
+/* Press and hover feedback on every control. */
+button,
+[role="tab"],
+a {
+  transition: transform 0.15s var(--ease-out), background-color 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s;
+}
+button:not(:disabled):active {
+  transform: scale(0.97);
+}
+article,
+section {
+  transition: box-shadow 0.2s, background-color 0.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;

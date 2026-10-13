@@ -175,7 +175,7 @@ export function HomePage() {
                 <span className="text-sm font-medium tracking-normal text-muted"> of {money(budgetTotal)} remaining</span>
               </span>
               <div role="img" aria-label={`Budget: ${money(left)} left of ${money(budgetTotal)}`} className="h-2 w-full overflow-hidden rounded-full bg-surface-3">
-                <div className={`h-full rounded-full ${budget.spent > budgetTotal ? "bg-negative" : "bg-accent"}`} style={{ width: `${Math.min(100, budgetTotal ? (budget.spent / budgetTotal) * 100 : 0)}%` }} />
+                <div className={`anim-grow-x h-full rounded-full ${budget.spent > budgetTotal ? "bg-negative" : "bg-accent"}`} style={{ width: `${Math.min(100, budgetTotal ? (budget.spent / budgetTotal) * 100 : 0)}%` }} />
               </div>
             </Card>
           </Section>

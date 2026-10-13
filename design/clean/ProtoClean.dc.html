@@ -1929,7 +1929,7 @@ class Component extends DCLogic {
     // dining, groceries, shopping, transport, subscriptions (bills = rent + Brightgrid Energy + trash; other = rest of the month's total)
     const MCATS = { Jan: [330, 370, 120, 115, 109.95], Feb: [372, 375, 210, 125, 109.95], Mar: [418, 395, 240, 138, 109.95], Apr: [402, 388, 245, 142, 109.95], May: [455, 372, 158, 128, 109.95],
       Jun: [430, 401, 260, 151, 109.95], Jul: [470, 410, 312, 166, 121.94], Aug: [484, 415.47, 356.66, 159.55, 121.94], Sep: [551.56, 402.18, 388.4, 141.2, 121.94] };
-    const CASHBACK = { Apr: [['Cartly', 4.6], ['Hopline', 2.1], ['Chipotle', 1.5]], May: [['Lumia', 4], ['Cartly', 3.9], ['Hopline', 3.3]], Jun: [['Cartly', 5.2], ['Hopline', 2.4], ['Ember Roast', 1.8]],
+    const CASHBACK = { Apr: [['Cartly', 4.6], ['Hopline', 2.1], ['Salsa Row', 1.5]], May: [['Lumia', 4], ['Cartly', 3.9], ['Hopline', 3.3]], Jun: [['Cartly', 5.2], ['Hopline', 2.4], ['Ember Roast', 1.8]],
       Jul: [['Corevale', 10], ['Cartly', 4.75], ['Hopline', 3.1]], Aug: [['Cartly', 8.1], ['Plateful', 3.5], ['Hopline', 2.9]], Sep: [['Cartly', 6.4], ['Corevale', 5], ['Hopline', 4.2]] };
     const catsOf = (k) => { const v = MCATS[k]; const bills = 1450 + PGE[k] + 38.5; const total = Y26[MKEYS.indexOf(k)]; return [bills, ...v, total - bills - sum(v)]; };
     const IM = INS_MONTHS.includes(S.insMonth) ? S.insMonth : 'Sep'; const PM = MKEYS[MKEYS.indexOf(IM) - 1];

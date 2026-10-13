@@ -79,7 +79,7 @@ export function Dock({ bubble, onBubble }: { bubble?: DockBubble | null; onBubbl
                 openAssistant(bubble.prompt);
               }}
               aria-label={`${bubble.title}. Open PayPal AI`}
-              className="absolute bottom-[calc(100%+14px)] left-1/2 flex w-80 max-w-[calc(100vw-24px)] -translate-x-1/2 gap-3 rounded-[18px] border border-border-strong bg-surface-2 px-4 py-3.5 text-left shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
+              className="anim-pop-in absolute bottom-[calc(100%+14px)] left-1/2 flex w-80 max-w-[calc(100vw-24px)] -translate-x-1/2 gap-3 rounded-[18px] border border-border-strong bg-surface-2 px-4 py-3.5 text-left shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
             >
               <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-accent-strong text-base font-bold italic text-white">P</span>
               <span className="flex min-w-0 flex-col gap-0.5">

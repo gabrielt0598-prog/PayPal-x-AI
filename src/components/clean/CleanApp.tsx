@@ -72,7 +72,7 @@ function Frame() {
       <main
         key={page}
         style={{ "--sec-gap": aiOpen ? "16px" : "32px" } as CSSProperties}
-        className={`@container h-full min-w-0 overflow-y-auto px-4 pb-28 pt-7 sm:px-20 ${aiOpen ? "lg:pr-[396px]" : ""}`}
+        className={`page-enter @container h-full min-w-0 overflow-y-auto px-4 pb-28 pt-7 sm:px-20 ${aiOpen ? "lg:pr-[396px]" : ""}`}
       >
         <Current />
       </main>

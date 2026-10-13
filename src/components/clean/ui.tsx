@@ -150,7 +150,7 @@ export function Drawer({ label, onClose, children, width = 380 }: { label: strin
     <aside
       aria-label={label}
       style={{ width }}
-      className="fixed inset-y-2 right-2 z-40 flex max-w-[calc(100%-16px)] flex-col gap-3.5 overflow-y-auto rounded-[20px] border border-border-strong bg-surface p-5 shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
+      className="anim-slide-in-right fixed inset-y-2 right-2 z-40 flex max-w-[calc(100%-16px)] flex-col gap-3.5 overflow-y-auto rounded-[20px] border border-border-strong bg-surface p-5 shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
     >
       <div className="flex items-center">
         <span className="flex-1 text-[13px] font-medium text-faint">{label}</span>
@@ -182,12 +182,12 @@ export function Skeleton({ className }: { className?: string }) {
 
 export function Modal({ label, onClose, children }: { label: string; onClose: () => void; children: ReactNode }) {
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6" onClick={onClose}>
+    <div className="anim-fade-in fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6" onClick={onClose}>
       <div
         role="dialog"
         aria-label={label}
         onClick={(e) => e.stopPropagation()}
-        className="flex w-full max-w-[440px] flex-col gap-4 rounded-[20px] border border-border-strong bg-surface p-6 shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
+        className="anim-pop-in flex w-full max-w-[440px] flex-col gap-4 rounded-[20px] border border-border-strong bg-surface p-6 shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
       >
         <div className="flex items-center">
           <h2 className="flex-1 text-xl font-semibold">{label}</h2>

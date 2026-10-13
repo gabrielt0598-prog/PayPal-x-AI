@@ -13,6 +13,15 @@ import { Sparkles } from "../SparkleIcon";
 
 const fmtPct = (p: number) => (Math.abs(p) < 0.05 ? "0.0%" : `${p > 0 ? "+" : "−"}${Math.abs(p).toFixed(1)}%`);
 
+const CASHBACK_SAMPLE: Record<string, [string, number][]> = {
+  "2026-04": [["Cartly", 4.6], ["Hopline", 2.1], ["Salsa Row", 1.5]],
+  "2026-05": [["Lumia", 4], ["Cartly", 3.9], ["Hopline", 3.3]],
+  "2026-06": [["Cartly", 5.2], ["Hopline", 2.4], ["Ember Roast", 1.8]],
+  "2026-07": [["Corevale", 10], ["Cartly", 4.75], ["Hopline", 3.1]],
+  "2026-08": [["Cartly", 8.1], ["Plateful", 3.5], ["Hopline", 2.9]],
+  "2026-09": [["Cartly", 6.4], ["Corevale", 5], ["Hopline", 4.2]],
+};
+
 export function InsightsPage() {
   const { state, loading } = useFinance();
   const { openAssistant } = useAssistantUI();
@@ -45,10 +54,9 @@ export function InsightsPage() {
       const k = o?.merchant ?? t.merchant;
       byMerchant.set(k, r2((byMerchant.get(k) ?? 0) + t.amount));
     }
-    const cashParts = [...byMerchant.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3)
-      .map(([label, value], i) => ({ label, value, color: ["var(--positive)", "var(--accent)", "var(--warning)"][i] }));
+    // Past months carry sample cash back (the seed data only has October payouts), matching the design.
+    const cashRows: [string, number][] = byMerchant.size ? [...byMerchant.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3) : (CASHBACK_SAMPLE[ym] ?? []);
+    const cashParts = cashRows.map(([label, value], i) => ({ label, value, color: ["var(--positive)", "var(--accent)", "var(--warning)"][i] }));
     const avail = state.offers.filter((o) => o.status === "available");
     const availEarn = r2(avail.reduce((a, o) => a + (o.type === "fixed_cashback" ? o.value : (o.maxCashback ?? 0)), 0));
     const history = months
@@ -228,7 +236,7 @@ function MoverBars({ state, months, category, current, color }: { state: NonNull
         return (
           <div key={m} className="flex h-full flex-1 flex-col items-center justify-end gap-1.5">
             <span className={cx("text-[10px]", last ? "font-semibold text-text" : "font-medium text-faint")}>{money0(vals[i])}</span>
-            <div className="w-full rounded-t-md rounded-b-[2px]" style={{ height: `${(vals[i] / max) * 60}px`, background: last ? color : "var(--surface-3)" }} />
+            <div className="anim-grow-y w-full rounded-t-md rounded-b-[2px]" style={{ height: `${(vals[i] / max) * 60}px`, background: last ? color : "var(--surface-3)" }} />
             <span className="text-[11px] text-faint">{monthShort(m)}</span>
           </div>
         );
@@ -242,7 +250,7 @@ function Split({ parts }: { parts: { label: string; value: number; color: string
     <>
       <div aria-hidden className="flex h-3.5 gap-[3px]">
         {parts.map((p) => (
-          <div key={p.label} className="min-w-1.5 rounded" style={{ flex: `${p.value} 1 0`, background: p.color }} />
+          <div key={p.label} className="anim-grow-x min-w-1.5 rounded" style={{ flex: `${p.value} 1 0`, background: p.color }} />
         ))}
       </div>
       <div className="flex flex-col gap-2">
