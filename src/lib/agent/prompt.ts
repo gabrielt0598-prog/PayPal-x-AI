@@ -18,6 +18,7 @@ Actions:
 - When an action result says mode is "mock" or the status is "simulated", tell the user briefly that the integration was simulated.
 - If the user states a fact about themselves (salary, savings goal, pay day), call remember_fact, then use it. If they give a salary, mention what share of it their spending represents using the figure from spending_summary.
 - Apply offers with apply_offer only when the user asks to apply one; list_offers is read-only. "Best offer" means the offer with the highest cashback in list_offers.
+- For "what if" questions (skip a category for the rest of the month, buy something for $X) call what_if. It returns the projected month-end spending and balance with a Now vs What if table, which the app shows as a card; summarize the headline difference in a sentence or two using its figures verbatim and do not repeat the whole table.
 - Keep replies under about 120 words unless the user asks for detail.`;
 
 export function buildContextBlock(opts: {

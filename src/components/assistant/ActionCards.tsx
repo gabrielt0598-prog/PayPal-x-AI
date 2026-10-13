@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { ArrowUpRight, BadgePercent, Brain, CheckCircle2, ShieldQuestion, Tags } from "lucide-react";
-import type { AgentAction } from "@/lib/agent/types";
+import type { AgentAction, RailStep } from "@/lib/agent/types";
+import { CompareCard } from "./CompareCard";
+import { StepRail } from "./StepRail";
 
 const card = "rounded-xl border px-3 py-2.5 text-[13px]";
 
@@ -110,6 +112,10 @@ export function ActionCard({
           <div className="mt-1 text-muted">Applied to {action.transactionId} · new balance {action.newBalanceLabel}</div>
         </div>
       );
+    case "steps_completed":
+      return <StepRail steps={action.steps} />;
+    case "what_if_compare":
+      return <CompareCard title={action.title} compare={action.compare} />;
     case "fact_remembered":
       return (
         <div className={`${card} border-accent/30 bg-accent/10`}>
@@ -134,4 +140,31 @@ export function ActionCard({
         </div>
       );
   }
+}
+
+/** A finished action that can be one row of a step rail. */
+function toStep(a: AgentAction): RailStep | null {
+  if (a.type === "subscription_cancelled")
+    return { title: `${a.merchant} cancelled`, sub: `${a.plan} · saves **${a.monthlySavingLabel}/mo** (${a.annualSavingLabel}/yr)${a.mode === "mock" ? " · simulated" : ""}`, status: "Done" };
+  if (a.type === "offer_applied")
+    return { title: `${a.merchant} offer applied`, sub: `**+${a.cashbackLabel}** cashback on ${a.transactionId} · new balance **${a.newBalanceLabel}**`, status: "Done" };
+  return null;
+}
+
+/** All actions of one reply. Two or more completed steps collapse into a single step rail; everything else keeps its own card. */
+export function ActionList({ actions, canAnswer, onSend }: { actions: AgentAction[]; canAnswer: boolean; onSend: (text: string) => void }) {
+  const steps = actions.map(toStep);
+  const railed = steps.filter(Boolean).length >= 2;
+  const firstRail = steps.findIndex(Boolean);
+  return (
+    <>
+      {actions.map((a, i) => {
+        if (railed && steps[i]) {
+          if (i !== firstRail) return null;
+          return <StepRail key={i} steps={steps.filter((x): x is RailStep => x !== null)} />;
+        }
+        return <ActionCard key={i} action={a} canAnswer={canAnswer} onSend={onSend} />;
+      })}
+    </>
+  );
 }

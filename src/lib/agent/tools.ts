@@ -23,7 +23,7 @@ import { applyOffer, cancelRecurring, getState, recategorize } from "@/lib/store
 import { jev, kernel, memory, paypal } from "@/lib/services";
 import { CATEGORIES, type Category, type RecurringPayment, type Transaction } from "@/lib/types";
 import type { IntentResult } from "@/lib/services/contracts";
-import type { AgentAction } from "./types";
+import type { AgentAction, CompareTable } from "./types";
 
 export interface ToolContext {
   sessionId: string;
@@ -139,6 +139,22 @@ export const TOOLS: Anthropic.Tool[] = [
       type: "object",
       properties: { offer_id: { type: "string" }, transaction_id: { type: "string" } },
       required: ["offer_id"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "what_if",
+    description:
+      "Project month-end spending and PayPal balance for a hypothetical, from the live account, and return a Now vs What if comparison table (shown to the user as a card). scenario=skip_category: no spending in `category` for the rest of this month. scenario=purchase: a one-off purchase of `amount` USD today. All figures are computed here; quote them exactly. Projections extend the last 30 days' income and spending pace to month end.",
+    input_schema: {
+      type: "object",
+      properties: {
+        scenario: { type: "string", enum: ["skip_category", "purchase"] },
+        category: { type: "string", enum: [...CATEGORIES], description: "For skip_category" },
+        amount: { type: "number", description: "For purchase: price in USD" },
+        label: { type: "string", description: "For purchase: what is being bought, for example laptop" },
+      },
+      required: ["scenario"],
       additionalProperties: false,
     },
   },
@@ -634,6 +650,75 @@ async function applyOfferTool(input: Record<string, unknown>, ctx: ToolContext):
   };
 }
 
+const signedUSD = (n: number) => `${n < 0 ? "-" : "+"}${formatUSD(Math.abs(n))}`;
+
+async function whatIf(input: Record<string, unknown>, ctx: ToolContext): Promise<ToolOutput> {
+  const s = getState();
+  const today = s.asOf.slice(0, 10);
+  const y = Number(today.slice(0, 4));
+  const m = Number(today.slice(5, 7));
+  const day = Number(today.slice(8, 10));
+  const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const remaining = daysInMonth - day;
+  const monthName = MONTH_NAMES[m - 1];
+  const monthStart = `${today.slice(0, 7)}-01`;
+  const d30 = new Date(today + "T00:00:00Z");
+  d30.setUTCDate(d30.getUTCDate() - 29);
+  const from30 = isoDay(d30);
+
+  // Baseline: month-to-date spend plus the trailing-30-day daily run rate for the remaining days.
+  const mtd = periodTotals(s.transactions, monthStart, today).spend;
+  const last30 = periodTotals(s.transactions, from30, today);
+  const rate = last30.spend / 30;
+  const incomeRate = last30.income / 30;
+  const baseSpend = r2(mtd + rate * remaining);
+  const balance = s.userProfile.paypalBalance;
+  const baseBalance = r2(balance + (incomeRate - rate) * remaining);
+
+  const scenario = str(input.scenario);
+  const rows: CompareTable["rows"] = [];
+  let title: string;
+  let lead: string;
+  let whatSpend: number;
+  let whatBalance: number;
+  if (scenario === "skip_category") {
+    const cat = asCategory(input.category);
+    if (!cat) return { summary: "Which spending category should I skip in the projection?", error: "invalid_input" };
+    const catRate = categoryBreakdown(s.transactions, from30, today).find((c) => c.category === cat)?.spend ?? 0;
+    const saved = r2((catRate / 30) * remaining);
+    whatSpend = r2(baseSpend - saved);
+    whatBalance = r2(baseBalance + saved);
+    title = `Skip ${cat} until ${monthName} ${daysInMonth}`;
+    lead = `Skipping ${cat} for the remaining ${remaining} days of ${monthName} ${y} would save about ${formatUSD(saved)}.`;
+    rows.push({ label: `${cat} to month end`, now: formatUSD(r2((catRate / 30) * remaining)), whatIf: formatUSD(0), delta: signedUSD(-saved), tone: "pos" });
+  } else if (scenario === "purchase") {
+    const amount = num(input.amount);
+    if (amount === undefined || amount <= 0) return { summary: "How much is the purchase, in dollars?", error: "invalid_input" };
+    const what = str(input.label)?.slice(0, 40) ?? "purchase";
+    whatSpend = r2(baseSpend + amount);
+    whatBalance = r2(baseBalance - amount);
+    title = `Buy a ${formatUSD(amount)} ${what}`;
+    lead = `Buying a ${formatUSD(amount)} ${what} today would take the projected month-end balance from ${formatUSD(baseBalance)} to ${formatUSD(whatBalance)}.`;
+  } else {
+    return { summary: "Unknown what-if scenario; use skip_category or purchase.", error: "invalid_input" };
+  }
+  rows.unshift(
+    { label: "Month-end spending", now: formatUSD(baseSpend), whatIf: formatUSD(whatSpend), delta: signedUSD(r2(whatSpend - baseSpend)), tone: whatSpend <= baseSpend ? "pos" : "neg" },
+    { label: "Month-end balance", now: formatUSD(baseBalance), whatIf: formatUSD(whatBalance), delta: signedUSD(r2(whatBalance - baseBalance)), tone: whatBalance >= baseBalance ? "pos" : "neg" },
+  );
+  const compare: CompareTable = { colA: "Now", colB: "What if", rows };
+  ctx.actions.push({ type: "what_if_compare", title, compare });
+  return {
+    summary: `${lead} Projected ${monthName} month-end spending: ${formatUSD(baseSpend)} now vs ${formatUSD(whatSpend)} in this scenario; month-end balance: ${formatUSD(baseBalance)} now vs ${formatUSD(whatBalance)}. Based on ${formatUSD(mtd)} spent so far and your last 30 days' income and spending pace.`,
+    scenario,
+    title,
+    daysRemaining: remaining,
+    spentSoFar: formatUSD(mtd),
+    currentBalance: formatUSD(balance),
+    compare,
+  };
+}
+
 async function rememberFact(input: Record<string, unknown>, ctx: ToolContext): Promise<ToolOutput> {
   const key = str(input.key);
   const value = str(input.value);
@@ -663,6 +748,7 @@ export async function executeTool(name: string, rawInput: unknown, ctx: ToolCont
       case "cancel_subscription": output = await cancelSubscription(input, ctx); break;
       case "list_offers": output = await listOffers(); break;
       case "apply_offer": output = await applyOfferTool(input, ctx); break;
+      case "what_if": output = await whatIf(input, ctx); break;
       case "remember_fact": output = await rememberFact(input, ctx); break;
       case "forget_fact": output = await forgetFact(input, ctx); break;
       default: output = { summary: `Unknown tool ${name}.`, error: "unknown_tool" };

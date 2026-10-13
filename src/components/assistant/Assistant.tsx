@@ -5,7 +5,7 @@ import { ArrowUp, Brain, ChartLine, ChevronDown, Gift, Repeat, ShieldCheck, Shie
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import type { AgentResponse } from "@/lib/agent/types";
 import type { MemoryFact } from "@/lib/services/contracts";
-import { ActionCard } from "./ActionCards";
+import { ActionList } from "./ActionCards";
 import { Markdown } from "./Markdown";
 
 interface UIMessage {
@@ -349,9 +349,7 @@ function AssistantMessage({ message: m, canAnswer, onSend }: { message: UIMessag
           <p className={info ? "text-text" : "text-negative"}>{info ? info.text : "This citation does not match any evidence or tool result from this turn."}</p>
         </div>
       )}
-      {response?.actions.map((a, i) => (
-        <ActionCard key={i} action={a} canAnswer={canAnswer} onSend={onSend} />
-      ))}
+      {response && <ActionList actions={response.actions} canAnswer={canAnswer} onSend={onSend} />}
       {response && <GuardrailBadge response={response} />}
     </div>
   );

@@ -17,6 +17,22 @@ export interface AgentRequest {
 
 type Mode = "live" | "mock";
 
+/** One completed step of a multi-step result, rendered as a rail row (avatar + connector, title/subtitle left, status right). */
+export interface RailStep {
+  title: string;
+  /** Supports **bold** segments; put dates here. */
+  sub?: string;
+  /** Right-hand status, e.g. "Done", "Submitted", "Ordered". */
+  status: string;
+}
+
+/** "Now vs What if" comparison table. Every string comes from the what_if tool result. */
+export interface CompareTable {
+  colA: string;
+  colB: string;
+  rows: { label: string; now: string; whatIf: string; delta?: string; tone?: "pos" | "neg" }[];
+}
+
 export type AgentAction =
   | {
       type: "cancellation_preview";
@@ -62,6 +78,8 @@ export type AgentAction =
       creditTransactionId: string;
       newBalanceLabel: string;
     }
+  | { type: "steps_completed"; steps: RailStep[] }
+  | { type: "what_if_compare"; title: string; compare: CompareTable }
   | { type: "fact_remembered"; key: string; value: string }
   | { type: "fact_forgotten"; key: string }
   | {

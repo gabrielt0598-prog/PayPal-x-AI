@@ -43,6 +43,18 @@ export async function mockAgent(ctx: ToolContext): Promise<string> {
     }
   }
 
+  // 1b. What-if projections.
+  if (/what if|what happens if|\bwhat would happen\b/i.test(lower)) {
+    const amount = /\b(buy|bought|purchase|spend|get)\b|laptop|\$\s*\d/i.test(lower) ? parseSalary(m) : undefined;
+    if (amount !== undefined) {
+      const item = lower.match(/\$\s*[\d,.]+k?\s+([a-z]+)/)?.[1] ?? lower.match(/\b(?:buy|buying|purchase|get)\s+(?:a|an|the)?\s*([a-z]+)/)?.[1];
+      return cite(await call("what_if", { scenario: "purchase", amount, ...(item && !/^(a|an|the|for)$/.test(item) ? { label: item } : {}) }));
+    }
+    const category = CATEGORY_ALIASES.find(([re]) => re.test(lower))?.[1];
+    if (category) return cite(await call("what_if", { scenario: "skip_category", category }));
+    return "Happy to model that. Try \"What if I skip dining out for the rest of the month?\" or \"What if I buy a $900 laptop?\"";
+  }
+
   // 2. Cancel a subscription (or explain why it can't be).
   if (/\b(cancel|unsubscribe|stop paying)\b/i.test(lower) || hint?.intent === "cancel_subscription") {
     const list = await call("list_recurring", { status: "active" });
