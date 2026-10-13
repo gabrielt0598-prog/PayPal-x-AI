@@ -9,13 +9,14 @@ import { useEffect, useRef, useState } from "react";
 import { Check, ChevronLeft, ChevronRight, ShoppingCart, Wallet } from "lucide-react";
 import { useFinance } from "@/components/state/AppProviders";
 import { useClean } from "../AppState";
-import { Product, type ProductKind } from "../Product";
+import type { ProductKind } from "../Product";
 import { Btn, Card, cx, money, Page, Pill } from "../ui";
 
 const MERCHANT = "Harbor & Home";
 
 interface Item {
   id: ProductKind;
+  img: string;
   brand: string;
   n: string;
   short: string;
@@ -26,12 +27,12 @@ interface Item {
 }
 
 const ITEMS: Item[] = [
-  { id: "tp", brand: "Cloudsoft", n: "Ultra Comfort Toilet Paper", short: "Cloudsoft toilet paper", price: 31.99, was: 36.99, every: 35, last: "Sep 2" },
-  { id: "sponge", brand: "Scrubwell", n: "Zero Scratch Scrub Sponges", short: "Scrubwell sponges", price: 7.99, every: 42, last: "Aug 20" },
-  { id: "bodywash", brand: "Tideline Men", n: "Body Wash, Sea + Surf", short: "Tideline body wash", price: 11.48, every: 45, last: "Sep 14" },
-  { id: "toothpaste", brand: "Calmwhite", n: "Extra Whitening Toothpaste, Cool Mint", short: "Calmwhite toothpaste", price: 21.24, was: 26.55, every: 120, last: "Jun 30" },
-  { id: "soap", brand: "Purelather", n: "Aquarium Hand Soap Refill", short: "Purelather refill", price: 8.29, every: 60, last: "Aug 1" },
-  { id: "filter", brand: "Clearpour", n: "Replacement Water Filters", short: "Clearpour filters", price: 23.39, was: 29.24, every: 240, last: "Mar 18" },
+  { id: "tp", img: "https://images.unsplash.com/photo-1584743579083-b331c4adbb15?crop=entropy&fit=crop&fm=jpg&q=80&w=600&h=600", brand: "Cloudsoft", n: "Ultra Comfort Toilet Paper", short: "Cloudsoft toilet paper", price: 31.99, was: 36.99, every: 35, last: "Sep 2" },
+  { id: "sponge", img: "https://images.unsplash.com/photo-1778178965223-e5a29e612504?crop=entropy&fit=crop&fm=jpg&q=80&w=600&h=600", brand: "Scrubwell", n: "Zero Scratch Scrub Sponges", short: "Scrubwell sponges", price: 7.99, every: 42, last: "Aug 20" },
+  { id: "bodywash", img: "https://images.unsplash.com/photo-1772037533346-203fc4d2dca0?crop=entropy&fit=crop&fm=jpg&q=80&w=600&h=600", brand: "Tideline Men", n: "Body Wash, Sea + Surf", short: "Tideline body wash", price: 11.48, every: 45, last: "Sep 14" },
+  { id: "toothpaste", img: "https://images.unsplash.com/photo-1763048819607-ea55217cff34?crop=entropy&fit=crop&fm=jpg&q=80&w=600&h=600", brand: "Calmwhite", n: "Extra Whitening Toothpaste, Cool Mint", short: "Calmwhite toothpaste", price: 21.24, was: 26.55, every: 120, last: "Jun 30" },
+  { id: "soap", img: "https://images.unsplash.com/photo-1611861317409-7dcc62856a8a?crop=entropy&fit=crop&fm=jpg&q=80&w=600&h=600", brand: "Purelather", n: "Aquarium Hand Soap Refill", short: "Purelather refill", price: 8.29, every: 60, last: "Aug 1" },
+  { id: "filter", img: "https://images.unsplash.com/photo-1768853099411-b0405e07c73d?crop=entropy&fit=crop&fm=jpg&q=80&w=600&h=600", brand: "Clearpour", n: "Replacement Water Filters", short: "Clearpour filters", price: 23.39, was: 29.24, every: 240, last: "Mar 18" },
 ];
 
 interface Order {
@@ -191,7 +192,8 @@ export function EssentialsPage() {
             return (
               <article key={e.id} className={cx("flex h-full flex-col gap-3 rounded-[20px] bg-surface p-3.5", on && "ring-1 ring-accent")}>
                 <div className="flex aspect-square w-full shrink-0 items-center justify-center rounded-[10px] bg-surface-2">
-                  <Product kind={e.id} size={170} />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={e.img} alt={e.n} loading="lazy" className="size-full rounded-[10px] object-cover" />
                 </div>
                 <div className="flex min-w-0 flex-col gap-2">
                   <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -221,6 +223,7 @@ export function EssentialsPage() {
               </article>
             );
           })}
+          <p className="col-span-full text-xs text-faint">Product photos from Unsplash: Christine Sandu, Gaana Srinivas, andrew davies, Tosan Dudun, Jonathan Cooper and Jim Luo.</p>
         </div>
       ) : (
         <>
