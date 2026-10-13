@@ -1864,10 +1864,10 @@ class Component extends DCLogic {
         x: [[0, 'Oct 1'], [7, 'Oct 8'], [14, 'Oct 15'], [21, 'Oct 22'], [28, 'Oct 29']], label: 'Spent in October vs September', value: '$2,220.81', delta: '+6.2%', deltaTone: 'neg',
         curLabel: 'October to date', prevLabel: 'September', calloutV: '$2,220.81 today', calloutSub: 'Sep 7 was $2,091.00', prevAtToday: 2091 },
       '3M': { n: 4, cur: [[0, 3608.74], [1, 3679.44], [2, 3759]], tail: [[2, 3759], [3, 2220.81]], prev: [[0, 3010], [1, 3150], [2, 3420], [3, 3380]],
-        x: [[0, 'Jul'], [1, 'Aug'], [2, 'Sep'], [3, 'Oct']], label: 'Monthly spend · Jul – Oct vs last year', value: this.money(3608.74 + 3679.44 + 3759 + 2220.81), delta: '+15.3% vs Jul – Sep 2025', deltaTone: 'neg',
+        x: [[0, 'Jul'], [1, 'Aug'], [2, 'Sep'], [3, 'Oct']], label: 'Monthly spend · Jul – Oct vs last year', value: this.money(3608.74 + 3679.44 + 3759 + 2220.81), delta: '+15.3%', deltaTone: 'neg',
         curLabel: '2026', prevLabel: '2025', calloutV: '$2,220.81 Oct to date', calloutSub: 'Oct 2025 was $3,380.00', prevAtToday: 3380 },
       Year: { n: 12, cur: Y26.slice(0, 9).map((v, i) => [i, v]), tail: [[8, 3759], [9, 2220.81]], prev: Y25.map((v, i) => [i, v]),
-        x: MON.map((m, i) => [i, m]), label: 'Monthly spend · 2026 vs 2025', value: this.money(sum(Y26)), delta: '+12.5% vs Jan – Sep 2025', deltaTone: 'neg',
+        x: MON.map((m, i) => [i, m]), label: 'Monthly spend · 2026 vs 2025', value: this.money(sum(Y26)), delta: '+12.5%', deltaTone: 'neg',
         curLabel: '2026', prevLabel: '2025', calloutV: '$2,220.81 Oct to date', calloutSub: 'Oct 2025 was $3,380.00', prevAtToday: 3380 },
     };
     const R = RNG[S.range];
