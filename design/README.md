@@ -10,5 +10,3 @@
 | `canvas.json` | The canvas layout. |
 
 The prototype runs on sample data. The Next.js app in `src/` implements the same design against the live PayPal SDK and Claude endpoints.
-
-Earlier explorations (dark Geist/Nova variants, flows 1–6, chat placement variations A–C) are kept on a separate archive canvas: https://claude.ai/artifact/3vg9hQFaoBJtCFqjrvYM4h.
