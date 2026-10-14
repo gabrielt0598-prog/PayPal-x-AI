@@ -256,7 +256,7 @@ div:has(> .m-by):nth-child(3n+2) > .m-by{animation-delay:150ms}div:has(> .m-by):
 <div style="min-width: 0; display: flex; flex-direction: column; gap: 12px">
 <div style="display: flex; align-items: center; gap: 10px; min-height: 28px"><h2 style="margin: 0; font-size: 18px; font-weight: 600">Budget</h2></div>
 <section aria-label="Budget" style="{{card}}; flex: 1 1 auto">
-<div style="display: flex; align-items: flex-start; min-height: 36px"><span style="font-size: 32px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.1; white-space: nowrap">{{bud.leftShort}}<span style="font-size: 14px; font-weight: 500; letter-spacing: 0; color: var(--t2)"> of {{bud.totalShort}} remaining</span></span></div>
+<div style="display: flex; align-items: flex-start; min-height: 36px"><span style="font-size: 32px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.1; white-space: nowrap">{{bud.leftShort}}<span style="font-size: 14px; font-weight: 500; letter-spacing: 0; color: var(--t2)"> of {{bud.totalShort}} left</span></span></div>
 <div style="display: flex; align-items: center; height: 20px"><span role="img" aria-label="{{bud.homeAria}}" style="display: block; width: 100%; height: 8px; border-radius: 999px; background: var(--s3); overflow: hidden"><span class="m-bx" style="{{bud.homeBar}}"></span></span></div>
 </section>
 </div>
@@ -363,7 +363,7 @@ div:has(> .m-by):nth-child(3n+2) > .m-by{animation-delay:150ms}div:has(> .m-by):
 <div style="min-width: 0; display: flex; flex-direction: column; gap: 12px">
 <div style="display: flex; align-items: center; gap: 10px; min-height: 28px"><h2 style="margin: 0; font-size: 18px; font-weight: 600">Budget</h2></div>
 <section aria-label="Budget" style="{{card}}; flex: 1 1 auto">
-<div style="display: flex; align-items: flex-start; min-height: 36px"><span style="font-size: 32px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.1; white-space: nowrap">{{bud.left}}<span style="font-size: 14px; font-weight: 500; letter-spacing: 0; color: var(--t2)"> of {{bud.total}} remaining</span></span></div>
+<div style="display: flex; align-items: flex-start; min-height: 36px"><span style="font-size: 32px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.1; white-space: nowrap">{{bud.left}}<span style="font-size: 14px; font-weight: 500; letter-spacing: 0; color: var(--t2)"> of {{bud.total}} left</span></span></div>
 <div style="display: flex; align-items: center; height: 20px"><span role="img" aria-label="{{bud.homeAria}}" style="display: block; width: 100%; height: 8px; border-radius: 999px; background: var(--s3); overflow: hidden"><span class="m-bx" style="{{bud.homeBar}}"></span></span></div>
 </section>
 </div>
@@ -527,7 +527,7 @@ div:has(> .m-by):nth-child(3n+2) > .m-by{animation-delay:150ms}div:has(> .m-by):
 <div style="min-width: 0; display: flex; flex-direction: column; gap: 12px">
 <div style="display: flex; align-items: center; gap: 10px; min-height: 28px"><h2 style="margin: 0; font-size: 18px; font-weight: 600">Budget</h2></div>
 <section aria-label="Budget" style="{{card}}">
-<span style="font-size: 24px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.1">{{bud.left}}<span style="font-size: 14px; font-weight: 500; letter-spacing: 0; color: var(--t2)"> of {{bud.total}} remaining</span></span>
+<span style="font-size: 24px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.1">{{bud.left}}<span style="font-size: 14px; font-weight: 500; letter-spacing: 0; color: var(--t2)"> of {{bud.total}} left</span></span>
 <span role="img" aria-label="{{bud.homeAria}}" style="display: block; width: 100%; height: 8px; border-radius: 999px; background: var(--s3); overflow: hidden"><span class="m-bx" style="{{bud.homeBar}}"></span></span>
 </section>
 </div>
@@ -1981,7 +1981,7 @@ class Component extends DCLogic {
     // Chat
     const briefVals = (() => { const row = (i) => 'display: flex; align-items: center; gap: 10px; padding: 14px 0; ' + (i ? 'border-top: 1px solid var(--b1)' : '');
       const rows = [['T', 'Thistle', 'Shopping · card ••4821', '−$89.80', ''], ['E', 'Ember Roast', 'Dining · card ••4821', '−$6.15', ''], ['L', 'Lilia', 'Restaurants · 5% cash back', '+275 pts', 'color: var(--pos)'], ['P', 'Parlo', 'Renews tomorrow · Super plan', '$12.99', 'color: var(--t2)']].map(([m, l, sub, v, vStyle], i) => ({ m, l, sub, v, vStyle, style: row(i) }));
-      const stats = [['Spent today', '$95.95', '2 purchases'], ['Earned', '+275 pts', 'Lilia · 5% back'], ['Left to spend', '$916.37', 'of $3,000 this month']].map(([k, v, s]) => ({ k, v, s }));
+      const stats = [['Spent today', '$95.95', '2 purchases'], ['Earned', '+275 pts', 'Lilia · 5% back'], ['Left to spend', '$916.37', 'of $3,000']].map(([k, v, s]) => ({ k, v, s }));
       return { rows, stats, dateLabel: 'Wed, Oct 7', headsUp: 'Shopping is $7.23 over its $150 limit', headsUpSub: 'Thistle pushed it over today. Want me to look at your Shopping limit?', headsUpCta: 'Review Shopping limit' }; })();
     const chatRow = (m, l, sub, v, i) => ({ m, l, sub, v, style: 'display: flex; align-items: center; gap: 10px; padding: 16px 0; ' + (i ? 'border-top: 1px solid var(--b1)' : '') });
     const act = (label, fn, primary) => ({ label, go: fn, style: smallBase + (primary ? TH.primary : TH.secondary) });

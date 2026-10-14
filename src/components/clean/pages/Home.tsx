@@ -173,7 +173,7 @@ export function HomePage() {
             <Card>
               <span className="num text-2xl font-semibold leading-tight tracking-tight">
                 <CountText text={money(left)} />
-                <span className="text-sm font-medium tracking-normal text-muted"> of {money(budgetTotal)} remaining</span>
+                <span className="text-sm font-medium tracking-normal text-muted"> of {money(budgetTotal)} left</span>
               </span>
               <div role="img" aria-label={`Budget: ${money(left)} left of ${money(budgetTotal)}`} className="h-2 w-full overflow-hidden rounded-full bg-surface-3">
                 <div className={`m-bx h-full rounded-full ${budget.spent > budgetTotal ? "bg-negative" : "bg-accent"}`} style={{ width: `${Math.min(100, budgetTotal ? (budget.spent / budgetTotal) * 100 : 0)}%` }} />
