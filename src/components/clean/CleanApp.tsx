@@ -88,7 +88,8 @@ function Frame() {
       >
         <Current />
       </main>
-      <Assistant />
+      {/* Mounted once the page data is in, so on first load the panel slides in after the page content has settled. */}
+      {!loading && state && <Assistant />}
       <Dock bubble={bubble} onBubble={() => setBubble(null)} />
     </div>
   );

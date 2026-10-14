@@ -115,6 +115,7 @@ button:not(:disabled):active { transform: scale(0.97); }
 .m-fade { animation: m-fade var(--m-med) ease backwards; }
 .m-pop { animation: m-pop var(--m-med) var(--m-ease) backwards; }
 .m-in-right { animation: m-in-right var(--m-med) var(--m-ease) backwards; }
+.m-late { animation-delay: 600ms; }
 .m-bx { transform-origin: left center; animation: m-grow-x 700ms var(--m-ease) 120ms backwards; }
 .m-by { transform-origin: bottom center; animation: m-grow-y 650ms var(--m-ease) 100ms backwards; }
 div:has(> .m-by):nth-child(3n + 2) > .m-by { animation-delay: 150ms; }
