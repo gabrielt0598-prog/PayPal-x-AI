@@ -196,7 +196,6 @@ function PaymentTable({ title, count, rows, today, selected, onOpen }: { title: 
                   <span className="flex min-w-0 items-center gap-2">
                     <span className={cx("truncate text-[15px]", cancelled && "text-faint line-through")}>{r.merchant}</span>
                     {trial && <Pill tone="acc">Free trial</Pill>}
-                    {flash?.page === "recurring" && flash.ids.includes(r.id) && <Pill tone="acc" className="m-pop">✦ Updated by Stella</Pill>}
                   </span>
                   <span className="truncate text-[13px] text-faint">{trial || isBill(r) ? r.plan : `${r.plan} · monthly`}</span>
                 </span>
