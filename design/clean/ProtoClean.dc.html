@@ -121,7 +121,16 @@ div:has(> .m-by):nth-child(3n+2) > .m-by{animation-delay:150ms}div:has(> .m-by):
 <button type="button" onClick="{{rail.toggleAi}}" aria-label="Close Stella" title="Close" style="width: 32px; height: 32px; border: 0; border-radius: 8px; background: transparent; display: flex; align-items: center; justify-content: center"><dc-import name="Icon" icon="{{rail.aiCloseIcon}}" color="var(--t2)" size="18" hint-size="18px,18px"></dc-import></button>
 </div>
 <div aria-live="polite" style="flex: 1 1 0; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 18px">
-<sc-if value="{{chat.empty}}" hint-placeholder-val="{{true}}">
+<sc-if value="{{chat.briefOn}}" hint-placeholder-val="{{false}}">
+<div style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 16px; padding-bottom: 12px">
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 36px; height: 36px; flex-shrink: 0; border-radius: 999px; background: var(--acc-bg); display: flex; align-items: center; justify-content: center"><dc-import name="Icon" icon="sparkle" color="var(--acc)" size="20" hint-size="20px,20px"></dc-import></span><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 600">Good evening, Jordan</span><span style="font-size: 13px; color: var(--t3)">Here’s what happened so far today · {{chat.brief.dateLabel}}</span></span></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px"><sc-for list="{{chat.brief.stats}}" as="s" hint-placeholder-count="3"><div style="min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 12px; border-radius: var(--radius); background: var(--s2); border: 1px solid var(--b1)"><span style="font-size: 11px; color: var(--t3)">{{s.k}}</span><span style="font-size: 16px; font-weight: 600; letter-spacing: -0.01em">{{s.v}}</span><span style="font-size: 11px; color: var(--t3); line-height: 1.3">{{s.s}}</span></div></sc-for></div>
+<div style="{{panel}}"><sc-for list="{{chat.brief.rows}}" as="r" hint-placeholder-count="4"><div style="{{r.style}}"><span style="{{avatarSm}}">{{r.m}}</span><span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; font-weight: 500">{{r.l}}</span><span style="font-size: 12px; color: var(--t3)">{{r.sub}}</span></span><span style="flex-shrink: 0; font-size: 13px; font-weight: 600; {{r.vStyle}}">{{r.v}}</span></div></sc-for></div>
+<div role="note" style="background: var(--warn-bg); border: 1px solid var(--warn-bd); border-radius: var(--radius); padding: 12px 14px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 13px; font-weight: 600; color: var(--warn)">{{chat.brief.headsUp}}</span><span style="font-size: 13px; line-height: 1.5">{{chat.brief.headsUpSub}}</span></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><span style="font-size: 12px; color: var(--t3)">Try asking</span><div style="display: flex; flex-wrap: wrap; gap: 8px"><sc-for list="{{chat.starters}}" as="p" hint-placeholder-count="4"><button type="button" onClick="{{p.pick}}" style="height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--b2); background: transparent; color: var(--t2); font-family: inherit; font-size: 13px; white-space: nowrap">{{p.label}}</button></sc-for></div></div>
+</div>
+</sc-if>
+<sc-if value="{{chat.emptyPlain}}" hint-placeholder-val="{{true}}">
 <div style="flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding-bottom: 32px; text-align: center">
 <span style="width: 44px; height: 44px; border-radius: 999px; background: var(--acc-bg); display: flex; align-items: center; justify-content: center"><dc-import name="Icon" icon="sparkle" color="var(--acc)" size="22" hint-size="22px,22px"></dc-import></span>
 <span style="font-size: 17px; font-weight: 600">How can I help, Jordan?</span>
@@ -563,7 +572,16 @@ div:has(> .m-by):nth-child(3n+2) > .m-by{animation-delay:150ms}div:has(> .m-by):
 <button type="button" onClick="{{toggleHistory}}" aria-expanded="{{chat.historyAria}}" style="{{btn.smallGhost}}"><dc-import name="Icon" icon="memory" color="var(--t2)" size="16" hint-size="16px,16px"></dc-import>Chat history</button>
 <button type="button" onClick="{{newChat}}" style="{{btn.small}}"><dc-import name="Icon" icon="pencil" color="var(--t1)" size="14" hint-size="14px,14px"></dc-import>New chat</button>
 </div>
-<sc-if value="{{chat.empty}}" hint-placeholder-val="{{true}}">
+<sc-if value="{{chat.briefOn}}" hint-placeholder-val="{{false}}">
+<div style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 16px; padding-bottom: 12px">
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 36px; height: 36px; flex-shrink: 0; border-radius: 999px; background: var(--acc-bg); display: flex; align-items: center; justify-content: center"><dc-import name="Icon" icon="sparkle" color="var(--acc)" size="20" hint-size="20px,20px"></dc-import></span><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 600">Good evening, Jordan</span><span style="font-size: 13px; color: var(--t3)">Here’s what happened so far today · {{chat.brief.dateLabel}}</span></span></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px"><sc-for list="{{chat.brief.stats}}" as="s" hint-placeholder-count="3"><div style="min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 12px; border-radius: var(--radius); background: var(--s2); border: 1px solid var(--b1)"><span style="font-size: 11px; color: var(--t3)">{{s.k}}</span><span style="font-size: 16px; font-weight: 600; letter-spacing: -0.01em">{{s.v}}</span><span style="font-size: 11px; color: var(--t3); line-height: 1.3">{{s.s}}</span></div></sc-for></div>
+<div style="{{panel}}"><sc-for list="{{chat.brief.rows}}" as="r" hint-placeholder-count="4"><div style="{{r.style}}"><span style="{{avatarSm}}">{{r.m}}</span><span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; font-weight: 500">{{r.l}}</span><span style="font-size: 12px; color: var(--t3)">{{r.sub}}</span></span><span style="flex-shrink: 0; font-size: 13px; font-weight: 600; {{r.vStyle}}">{{r.v}}</span></div></sc-for></div>
+<div role="note" style="background: var(--warn-bg); border: 1px solid var(--warn-bd); border-radius: var(--radius); padding: 12px 14px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 13px; font-weight: 600; color: var(--warn)">{{chat.brief.headsUp}}</span><span style="font-size: 13px; line-height: 1.5">{{chat.brief.headsUpSub}}</span></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><span style="font-size: 12px; color: var(--t3)">Try asking</span><div style="display: flex; flex-wrap: wrap; gap: 8px"><sc-for list="{{chat.starters}}" as="p" hint-placeholder-count="4"><button type="button" onClick="{{p.pick}}" style="height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--b2); background: transparent; color: var(--t2); font-family: inherit; font-size: 13px; white-space: nowrap">{{p.label}}</button></sc-for></div></div>
+</div>
+</sc-if>
+<sc-if value="{{chat.emptyPlain}}" hint-placeholder-val="{{true}}">
 <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; padding: 8px 0 48px">
 <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center">
 <span style="width: 56px; height: 56px; border-radius: 999px; background: var(--acc-bg); display: flex; align-items: center; justify-content: center"><dc-import name="Icon" icon="sparkle" color="var(--acc)" size="28" hint-size="28px,28px"></dc-import></span>
@@ -1381,6 +1399,7 @@ class Component extends DCLogic {
       'budget-edit': { page: 'budget', budAi: true },
       'whatif-1': { page: 'budget', ...mkc('wi1', [U('What if I skip dining out for the rest of October?'), A('whatif1')]) },
       'whatif-2': { page: 'budget', ...mkc('wi2', [U('What if I buy a $900 laptop today?'), A('whatif2')]) },
+      'daily-brief': { page: 'home', navDock: true, aiOpen: true, navOpen: false, navAuto: true, brief: true },
       'ai-change': { page: 'budget', navDock: true, budgets: { essential: 1600, dining: 212, shopping: 150, groceries: 400, transport: 80, subs: 180 }, aiFlash: ['dining'], ...mkc('sd1', [U('Set my dining limit to $212'), A('setdining')]), toast: { title: 'Stella updated Dining', sub: '$250 → $212 · saved to Budget', undo: true, kind: 'success' } },
       'ai-paypal-pay': { page: 'essentials', navDock: true, ...mkc('pp1', [U('Pay for my Essentials order with PayPal'), A('ppay')]), toast: { title: 'Paid with PayPal', sub: '$84.35 · Order 8XY12345AB678901C', undo: false, kind: 'success' } },
       'whatif-result': { page: 'budget', budgets: { essential: 1600, dining: 212, shopping: 150, groceries: 400, transport: 80, subs: 180 }, ...mkc('wi1', [U('What if I skip dining out for the rest of October?'), A('whatif1')]), toast: { title: 'Dining limit set to $212', sub: 'Down from $250 · saved to Budget', undo: false, kind: 'success' } },
@@ -1960,6 +1979,10 @@ class Component extends DCLogic {
     const availEarn = sum(availOffers.filter((o) => o.earn).map((o) => o.earn));
 
     // Chat
+    const briefVals = (() => { const row = (i) => 'display: flex; align-items: center; gap: 10px; padding: 14px 0; ' + (i ? 'border-top: 1px solid var(--b1)' : '');
+      const rows = [['T', 'Thistle', 'Shopping · card ••4821', '−$89.80', ''], ['E', 'Ember Roast', 'Dining · card ••4821', '−$6.15', ''], ['L', 'Lilia', 'Restaurants · 5% cash back', '+275 pts', 'color: var(--pos)'], ['P', 'Parlo', 'Renews tomorrow · Super plan', '$12.99', 'color: var(--t2)']].map(([m, l, sub, v, vStyle], i) => ({ m, l, sub, v, vStyle, style: row(i) }));
+      const stats = [['Spent today', '$95.95', '2 purchases'], ['Earned', '+275 pts', 'Lilia · 5% back'], ['Left to spend', '$916.37', 'of $3,000 this month']].map(([k, v, s]) => ({ k, v, s }));
+      return { rows, stats, dateLabel: 'Wed, Oct 7', headsUp: 'Shopping is $7.23 over its $150 limit', headsUpSub: 'Thistle pushed it over today. Want me to look at your Shopping limit?', headsUpCta: 'Review Shopping limit' }; })();
     const chatRow = (m, l, sub, v, i) => ({ m, l, sub, v, style: 'display: flex; align-items: center; gap: 10px; padding: 16px 0; ' + (i ? 'border-top: 1px solid var(--b1)' : '') });
     const act = (label, fn, primary) => ({ label, go: fn, style: smallBase + (primary ? TH.primary : TH.secondary) });
     const P = (p, h, muted) => ({ p, h: h || '', hasH: !!h, pStyle: muted ? 'color: var(--t2)' : '' });
@@ -2179,7 +2202,7 @@ class Component extends DCLogic {
       linkNew: () => this.showToast('Link a bank or card', 'Opens PayPal’s secure linking flow', false, 'info'),
       banks: pmLive.filter((p) => p.kind === 'bank').map(prefRow), cardsLinked: pmLive.filter((p) => p.kind === 'card').map(prefRow),
       bankNone: !pmLive.some((p) => p.kind === 'bank'), cardNone: !pmLive.some((p) => p.kind === 'card'), pm: pmVals,
-      chat: { empty: !curChat, has: !!curChat, title: curChat ? curChat.title : 'New chat', query: S.chatQuery, typing: S.typing, msgs,
+      chat: { empty: !curChat, emptyPlain: !curChat && !S.brief, briefOn: !curChat && !!S.brief, brief: briefVals, has: !!curChat, title: curChat ? curChat.title : 'New chat', query: S.chatQuery, typing: S.typing, msgs,
         historyOpen: S.historyOpen, historyAria: S.historyOpen ? 'true' : 'false', history: histGroups,
         prompts: PROMPTS.map(([icon, q, meta]) => ({ icon, q, meta, pick: startChat(q) })),
         starters: [['What if I skip dining?', 'What if I skip dining out for the rest of October?'], ['Set dining limit to $212', 'Set my dining limit to $212'], ['Pay for Essentials', 'Pay for my Essentials order with PayPal'], ['Cancel Vantage', 'Cancel my Vantage subscription'], ['Best offer', PROMPTS[3][1]], ['What’s due soon', PROMPTS[1][1]]].map(([label, q]) => ({ label, pick: startChat(q) })),
