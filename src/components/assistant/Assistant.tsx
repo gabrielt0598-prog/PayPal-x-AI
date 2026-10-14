@@ -8,6 +8,7 @@ import type { MemoryFact } from "@/lib/services/contracts";
 import { ActionList } from "./ActionCards";
 import { Markdown } from "./Markdown";
 import { Sparkles } from "@/components/clean/SparkleIcon";
+import { DailyBrief, useDailyBrief } from "./DailyBrief";
 
 interface UIMessage {
   id: string;
@@ -171,6 +172,8 @@ export function Assistant() {
     return () => clearTimeout(id);
   }, [open]);
 
+  const brief = useDailyBrief();
+
   if (!open) return null;
 
   const lastAssistantId = [...messages].reverse().find((m) => m.role === "assistant")?.id;
@@ -243,7 +246,8 @@ export function Assistant() {
       </header>
 
       <div ref={scrollRef} aria-live="polite" className="flex min-h-0 flex-1 flex-col gap-[18px] overflow-y-auto p-4">
-        {messages.length === 0 && (
+        {messages.length === 0 && brief && <DailyBrief brief={brief} firstName={firstName} starters={STARTERS} onAsk={(q) => void send(q)} />}
+        {messages.length === 0 && !brief && (
           <div className="flex flex-1 flex-col items-center justify-center gap-5 pb-8 text-center">
             <span className="flex size-11 items-center justify-center rounded-full bg-accent-bg text-accent">
               <Sparkles size={22} />
