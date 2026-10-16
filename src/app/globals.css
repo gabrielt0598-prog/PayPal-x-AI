@@ -85,6 +85,8 @@ button:not(:disabled) {
 }
 @keyframes m-rise { from { opacity: 0; transform: translateY(10px); } }
 @keyframes m-fade { from { opacity: 0; } }
+@keyframes m-toast-in { from { opacity: 0; transform: scale(0.96); } }
+@keyframes m-toast-out { to { opacity: 0; transform: scale(0.98); } }
 @keyframes m-pop { from { opacity: 0; transform: scale(0.96) translateY(6px); } }
 @keyframes m-in-right { from { opacity: 0; transform: translateX(28px); } }
 @keyframes m-grow-x { from { transform: scaleX(0); } }
@@ -113,6 +115,8 @@ button:not(:disabled):active { transform: scale(0.97); }
 .m-ring { animation: m-ring 900ms var(--m-ease) 150ms backwards; }
 .m-rise { animation: m-rise var(--m-med) var(--m-ease) backwards; }
 .m-fade { animation: m-fade var(--m-med) ease backwards; }
+.m-toast-in { animation: m-toast-in 400ms cubic-bezier(0.215, 0.61, 0.355, 1) backwards; }
+.m-toast-out { animation: m-toast-out 350ms cubic-bezier(0.645, 0.045, 0.355, 1) forwards; }
 .m-pop { animation: m-pop var(--m-med) var(--m-ease) backwards; }
 .m-in-right { animation: m-in-right var(--m-med) var(--m-ease) backwards; }
 .m-late { animation-delay: 600ms; }

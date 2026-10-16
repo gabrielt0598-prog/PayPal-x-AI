@@ -121,6 +121,44 @@ export function Assistant() {
     [refresh],
   );
 
+  // Prompts picked from a chip or queued by a page are typed into the field (with the caret blinking) and then sent,
+  // like a person typing them. ~45ms a character, at most ~1.8s. With motion off they send straight away.
+  const typingRef = useRef(false);
+  const typeTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [typing, setTyping] = useState(false);
+  useEffect(
+    () => () => {
+      if (typeTimer.current) clearInterval(typeTimer.current);
+    },
+    [],
+  );
+  const typeAndSend = useCallback(
+    (text: string) => {
+      if (typingRef.current || loadingRef.current) return;
+      if (document.documentElement.dataset.motion === "off") {
+        void send(text);
+        return;
+      }
+      typingRef.current = true;
+      setTyping(true);
+      inputRef.current?.focus();
+      const step = Math.max(1, Math.ceil(text.length / 40));
+      let i = 0;
+      typeTimer.current = setInterval(() => {
+        i = Math.min(text.length, i + step);
+        setInput(text.slice(0, i));
+        if (i < text.length) return;
+        if (typeTimer.current) clearInterval(typeTimer.current);
+        typeTimer.current = setTimeout(() => {
+          typingRef.current = false;
+          setTyping(false);
+          void send(text);
+        }, 350) as unknown as ReturnType<typeof setInterval>;
+      }, 45);
+    },
+    [send],
+  );
+
   // Global shortcuts: Cmd/Ctrl+K toggles, Esc closes.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -151,8 +189,8 @@ export function Assistant() {
     if (lastPending.current === pendingPrompt) return;
     lastPending.current = pendingPrompt;
     clearPendingPrompt();
-    void send(pendingPrompt);
-  }, [pendingPrompt, clearPendingPrompt, send]);
+    typeAndSend(pendingPrompt);
+  }, [pendingPrompt, clearPendingPrompt, typeAndSend]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -212,7 +250,7 @@ export function Assistant() {
       </header>
 
       <div ref={scrollRef} aria-live="polite" className="flex min-h-0 flex-1 flex-col gap-[18px] overflow-y-auto p-4">
-        {messages.length === 0 && brief && <DailyBrief brief={brief} firstName={firstName} starters={STARTERS} onAsk={(q) => void send(q)} />}
+        {messages.length === 0 && brief && <DailyBrief brief={brief} firstName={firstName} starters={STARTERS} onAsk={(q) => typeAndSend(q)} />}
         {messages.length === 0 && !brief && (
           <div className="flex flex-1 flex-col items-center justify-center gap-5 pb-8 text-center">
             <span className="flex size-11 items-center justify-center rounded-full bg-accent-bg text-accent">
@@ -224,7 +262,7 @@ export function Assistant() {
                 <button
                   key={label}
                   type="button"
-                  onClick={() => void send(prompt)}
+                  onClick={() => typeAndSend(prompt)}
                   className="h-9 whitespace-nowrap rounded-full border border-border-strong bg-transparent px-3.5 text-[13px] text-muted transition hover:text-text"
                 >
                   {label}
@@ -254,7 +292,7 @@ export function Assistant() {
         {messages.length > 0 && !loading && (
           <div className="flex flex-wrap gap-1.5">
             {(lastAssistant?.error ? FOLLOW_DEFAULT : followUps(lastAssistant?.response)).map((q) => (
-              <button key={q} type="button" onClick={() => void send(q)} className="h-[34px] rounded-full border border-border bg-surface px-3.5 text-[13px] text-muted transition hover:border-border-strong hover:text-text">
+              <button key={q} type="button" onClick={() => typeAndSend(q)} className="h-[34px] rounded-full border border-border bg-surface px-3.5 text-[13px] text-muted transition hover:border-border-strong hover:text-text">
                 {q}
               </button>
             ))}
@@ -265,7 +303,7 @@ export function Assistant() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          void send(input);
+          if (!typingRef.current) void send(input);
         }}
         className="mx-3 mb-3 flex items-center gap-2 rounded-[14px] border border-border-strong bg-surface-2 py-1.5 pl-3.5 pr-1.5 focus-within:border-accent/60"
       >
@@ -277,11 +315,11 @@ export function Assistant() {
           ref={inputRef}
           type="text"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => !typingRef.current && setInput(e.target.value)}
           placeholder="Ask about this page or your money…"
           className="h-9 min-w-0 flex-1 bg-transparent text-sm text-text outline-none placeholder:text-faint"
         />
-        <button type="submit" disabled={!input.trim() || loading} aria-label="Send" className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-[#0a0a0a] transition disabled:cursor-not-allowed disabled:opacity-40">
+        <button type="submit" disabled={!input.trim() || loading || typing} aria-label="Send" className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-[#0a0a0a] transition disabled:cursor-not-allowed disabled:opacity-40">
           <ArrowUp size={14} />
         </button>
       </form>

@@ -43,6 +43,8 @@ interface Toast {
   sub?: string;
   kind: ToastKind;
   undo?: () => void;
+  /** Fading out; removed once the exit animation has played. */
+  out?: boolean;
 }
 
 export interface ToastOpts {
@@ -121,12 +123,19 @@ export function CleanStateProvider({ children }: { children: ReactNode }) {
 
   const flashChange = useCallback((p: PageId, ids: string[]) => setFlash({ page: p, ids }), []);
 
-  const toast = useCallback((title: string, sub?: string, opts?: ToastOpts) => {
-    const id = ++tid.current;
-    setToasts([{ id, title, sub, kind: opts?.kind ?? "success", undo: opts?.undo }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 4500);
+  // Toasts fade/scale in and fade out (the film's motion): dismissing marks them `out`, then removes them after the exit.
+  const dismissToast = useCallback((id?: number) => {
+    setToasts((t) => t.map((x) => (id === undefined || x.id === id ? { ...x, out: true } : x)));
+    setTimeout(() => setToasts((t) => t.filter((x) => !x.out)), 350);
   }, []);
-  const dismissToast = useCallback((id?: number) => setToasts((t) => (id === undefined ? [] : t.filter((x) => x.id !== id))), []);
+  const toast = useCallback(
+    (title: string, sub?: string, opts?: ToastOpts) => {
+      const id = ++tid.current;
+      setToasts([{ id, title, sub, kind: opts?.kind ?? "success", undo: opts?.undo }]);
+      setTimeout(() => dismissToast(id), 4150);
+    },
+    [dismissToast],
+  );
 
   const moveMoney = useCallback(
     async (kind: MoneyMove, amount: number, merchant?: string, note?: string) => {
@@ -191,7 +200,7 @@ export function CleanStateProvider({ children }: { children: ReactNode }) {
         {toasts.map((t) => {
           const [bg, bd, icon, fg, act] = TOAST_COLORS[t.kind];
           return (
-            <div key={t.id} role="status" style={{ background: bg, borderColor: bd, color: fg }} className="pointer-events-auto flex items-center gap-3 rounded-2xl border py-3 pl-3.5 pr-4 shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
+            <div key={t.id} role="status" style={{ background: bg, borderColor: bd, color: fg }} className={`${t.out ? "m-toast-out" : "m-toast-in"} pointer-events-auto flex items-center gap-3 rounded-2xl border py-3 pl-3.5 pr-4 shadow-[0_20px_40px_rgba(0,0,0,0.6)]`}>
               <span style={{ background: icon }} className="flex size-[30px] shrink-0 items-center justify-center rounded-full text-base font-bold text-white">
                 {t.kind === "success" ? <Check size={18} /> : t.kind === "warn" ? "!" : "i"}
               </span>
