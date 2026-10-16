@@ -26,7 +26,7 @@ export function StepRail({ steps }: { steps: RailStep[] }) {
               <span className={`m-av flex size-7 items-center justify-center rounded-full text-[11px] font-semibold ${avatar}`}>
                 {state === "done" ? <Check size={13} strokeWidth={2.5} /> : state === "current" ? "●" : i + 1}
               </span>
-              {!last && <span aria-hidden="true" className={`m-line my-1 min-h-3 w-0.5 flex-1 rounded-full ${state === "done" ? "bg-positive" : "bg-border-strong"}`} />}
+              {!last && <span aria-hidden="true" className={`m-line min-h-3 w-0.5 flex-1 ${state === "done" ? "bg-positive" : "bg-border-strong"}`} />}
             </span>
             <div className={`flex min-w-0 flex-1 items-start gap-3 ${last ? "" : "pb-4"}`}>
               <div className="flex min-w-0 flex-1 flex-col gap-0.5">

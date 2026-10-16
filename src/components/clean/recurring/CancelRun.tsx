@@ -199,7 +199,7 @@ export function RunPanel({ run, onStop, onClose }: { run: RunState; onStop: () =
                 >
                   {complete ? <Check size={13} /> : now ? "●" : failed ? "!" : i + 1}
                 </span>
-                {!last && <span className={cx("mt-1.5 min-h-3 w-0.5 flex-1 rounded-sm", complete && i < step ? "bg-positive" : done ? "bg-positive" : "bg-border-strong")} />}
+                {!last && <span className={cx("min-h-3 w-0.5 flex-1", complete && i < step ? "bg-positive" : done ? "bg-positive" : "bg-border-strong")} />}
               </span>
               <span className={cx("flex min-h-[22px] min-w-0 flex-1 items-start gap-3", !last && "pb-5")}>
                 <span className={cx("flex-1 text-[13px]", complete ? "text-text" : now ? "font-medium text-text" : "text-faint")}>{label}</span>

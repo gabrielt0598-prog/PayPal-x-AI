@@ -17,6 +17,27 @@ type CancelledAction = Extract<AgentAction, { type: "subscription_cancelled" }>;
 
 const linkCls = "inline-flex items-center gap-1 text-accent hover:underline";
 
+/** Kernel's step log is verbose; the rail shows short labels so every row is the same height. Unknown steps pass through. */
+function shortStep(raw: string, merchant: string): string {
+  const t = raw.replace(/\s*\(simulated\)$/i, "");
+  const plan = /Found membership: (.+?) (?:Active|Paused|Cancelled)? ?at /i.exec(t)?.[1];
+  if (/mock mode/i.test(t)) return "Simulated run (no Kernel key set)";
+  const sim = /^Found (.+?)(?: \(.+\))? membership$/i.exec(t)?.[1];
+  if (sim) return `Found “${sim}” membership`;
+  if (/sandbox merchant shows/i.test(t)) return "Merchant confirmed the cancellation";
+  if (/recorded locally/i.test(t)) return "Cancellation recorded";
+  if (/launched .*cloud browser/i.test(t)) return "Launched secure cloud browser";
+  if (/replay recording/i.test(t)) return "Started session replay";
+  if (/loaded .*account page|opened .*account page/i.test(t)) return `Opened ${merchant} account page`;
+  if (/found membership/i.test(t)) return plan ? `Found “${plan}” membership` : "Found your membership";
+  if (/clicked "?.?cancel membership/i.test(t)) return "Clicked “Cancel membership”";
+  if (/declined the offer/i.test(t)) return "Declined retention offer";
+  if (/clicked "?.?confirm cancellation/i.test(t)) return "Confirmed cancellation";
+  if (/merchant confirmed/i.test(t)) return "Merchant confirmed the cancellation";
+  if (/saved kernel replay/i.test(t)) return "Saved screenshot and replay";
+  return t;
+}
+
 function CancelledCard({ action }: { action: CancelledAction }) {
   const [zoom, setZoom] = useState(false);
   const viaKernel = action.channel === "kernel_browser";
@@ -72,14 +93,14 @@ function CancelledCard({ action }: { action: CancelledAction }) {
           {action.steps.map((t, i, all) => {
             const last = i === all.length - 1;
             return (
-              <li key={i} className="m-step flex items-stretch gap-3.5" style={{ "--d": `${i * 350}ms` } as CSSProperties}>
+              <li key={i} className={`m-step flex items-stretch gap-3.5 ${last ? "" : "min-h-[52px]"}`} style={{ "--d": `${i * 350}ms` } as CSSProperties}>
                 <span className="flex flex-col items-center self-stretch">
                   <span className="m-av flex size-[22px] shrink-0 items-center justify-center rounded-full bg-positive text-[11px] font-semibold text-white">
                     <Check size={13} />
                   </span>
-                  {!last && <span aria-hidden="true" className="m-line mt-1.5 min-h-3 w-0.5 flex-1 rounded-sm bg-positive" />}
+                  {!last && <span aria-hidden="true" className="m-line min-h-3 w-0.5 flex-1 bg-positive" />}
                 </span>
-                <span className={`min-h-[22px] min-w-0 flex-1 text-[13px] font-medium leading-snug text-text ${last ? "" : "pb-5"}`}>{t.replace(/\s*\(simulated\)$/i, "")}</span>
+                <span className={`min-h-[22px] min-w-0 flex-1 text-[13px] font-medium leading-snug text-text ${last ? "" : "pb-4"}`}>{shortStep(t, action.merchant)}</span>
               </li>
             );
           })}

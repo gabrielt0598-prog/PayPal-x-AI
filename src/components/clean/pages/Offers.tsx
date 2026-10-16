@@ -88,7 +88,7 @@ export function OffersPage() {
                 <li key={t} className="grid grid-cols-[28px_minmax(0,1fr)] gap-x-3">
                   <span className="flex flex-col items-center">
                     <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-accent-bg text-[13px] font-semibold text-accent">{i + 1}</span>
-                    {i < STEPS.length - 1 && <span aria-hidden className="mx-auto my-1 min-h-3 w-0.5 flex-auto rounded-sm bg-border-strong" />}
+                    {i < STEPS.length - 1 && <span aria-hidden className="mx-auto min-h-3 w-0.5 flex-auto bg-border-strong" />}
                   </span>
                   <span className={cx("flex flex-col gap-0.5 pt-0.5", i < STEPS.length - 1 && "pb-3.5")}>
                     <span className="text-sm font-semibold">{t}</span>

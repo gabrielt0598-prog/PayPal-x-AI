@@ -364,7 +364,7 @@ export function EssentialsPage() {
                         <span className={cx("flex size-[22px] shrink-0 items-center justify-center rounded-full text-[11px] font-semibold", past ? "bg-positive-bg text-positive" : cur ? "bg-accent-bg text-accent" : "bg-surface-3 text-faint")}>
                           {past ? "✓" : cur ? "●" : i + 1}
                         </span>
-                        {!last && <span className={cx("mt-1.5 min-h-3 w-0.5 flex-1 rounded-sm", past ? "bg-positive" : "bg-border-strong")} />}
+                        {!last && <span className={cx("min-h-3 w-0.5 flex-1", past ? "bg-positive" : "bg-border-strong")} />}
                       </span>
                       <span className={cx("flex min-h-[22px] min-w-0 grow items-center gap-3", !last && "pb-[22px]")}>
                         <span className={cx("flex-1 text-[13px]", i <= rStep ? (cur ? "font-semibold" : "font-normal") : "text-faint")}>{label}</span>
