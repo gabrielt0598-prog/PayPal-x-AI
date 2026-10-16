@@ -7,6 +7,7 @@ import { useClean } from "../AppState";
 import { CountText, Btn, cx, Drawer, Modal, money, Page, Pill, Skeleton } from "../ui";
 import { useLiveBalance } from "../liveBalance";
 import { Rows, Toggle } from "./accountShared";
+import { AmountField } from "../AmountField";
 import { TransferModal } from "../TransferModal";
 
 interface PM {
@@ -274,7 +275,7 @@ export function WalletPage() {
         <Modal label="Top up PayPal" onClose={() => setMove(null)}>
           <div className="flex flex-col gap-1">
             <span className="text-xs text-faint">Amount</span>
-            <span className="num text-[40px] font-semibold tracking-tight">{money(move.amt)}</span>
+            <AmountField value={move.amt} onChange={(amt) => setMove({ ...move, amt })} />
           </div>
           <div role="group" aria-label="Amount" className="flex flex-wrap gap-2">
             {[50, 100, 250, 500].map((v) => (
@@ -295,6 +296,7 @@ export function WalletPage() {
             <Btn onClick={() => setMove(null)}>Cancel</Btn>
             <Btn
               kind="primary"
+              disabled={!(move.amt > 0)}
               onClick={async () => {
                 const m = move;
                 setMove(null);

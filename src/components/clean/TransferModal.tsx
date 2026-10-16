@@ -4,6 +4,7 @@
 // Shared by Home's balance card and the Wallet page. The people are fictional contacts.
 
 import { useState } from "react";
+import { AmountField } from "./AmountField";
 import { Avatar, Btn, cx, Modal, money } from "./ui";
 
 export const PEERS = ["Maya Chen", "Dev Patel", "Sam Rivera", "Lena Okafor", "Noah Brooks"] as const;
@@ -36,7 +37,7 @@ export function TransferModal({ balance, onClose, onConfirm }: { balance: number
       </div>
       <div className="flex flex-col gap-1">
         <span className="text-xs text-faint">Amount</span>
-        <span className="num text-[40px] font-semibold tracking-tight">{money(n)}</span>
+        <AmountField value={n} onChange={setN} />
       </div>
       <div role="group" aria-label="Amount" className="flex flex-wrap gap-2">
         {[10, 25, 50, 100].map((c) => (
@@ -70,7 +71,7 @@ export function TransferModal({ balance, onClose, onConfirm }: { balance: number
         <Btn onClick={onClose}>Cancel</Btn>
         <Btn
           kind="primary"
-          disabled={busy || n > balance}
+          disabled={busy || !(n > 0) || n > balance}
           onClick={async () => {
             setBusy(true);
             await onConfirm(peer, n, note.trim());

@@ -13,6 +13,7 @@ import { Logo, logoMark } from "../Logo";
 import { asOfDate, cumulative, daysInMonth, monthTotals, PREV_YEAR_MONTHLY, prevYm, ymOf } from "../data";
 import { TxDrawer, TxGrid } from "../TxTable";
 import { CountText, Avatar, Btn, Card, Modal, money, monthName, monthShort, Page, Pill, Section, Segmented, shortDate, Skeleton } from "../ui";
+import { AmountField } from "../AmountField";
 import { TransferModal } from "../TransferModal";
 
 /** Merchant logo mark from the design, or a letter avatar for names without one. */
@@ -297,7 +298,7 @@ function MoveMoneyModal({ bank, balance, onClose, onConfirm }: { bank: string; b
     <Modal label="Top up" onClose={onClose}>
       <div className="flex flex-col gap-1">
         <span className="text-xs text-faint">Amount</span>
-        <span className="num text-[40px] font-semibold tracking-tight">{money(n)}</span>
+        <AmountField value={n} onChange={setN} />
       </div>
       <div role="group" aria-label="Amount" className="flex flex-wrap gap-2">
         {chips.map((c) => (
@@ -324,7 +325,7 @@ function MoveMoneyModal({ bank, balance, onClose, onConfirm }: { bank: string; b
         <Btn onClick={onClose}>Cancel</Btn>
         <Btn
           kind="primary"
-          disabled={busy}
+          disabled={busy || !(n > 0)}
           onClick={async () => {
             setBusy(true);
             await onConfirm(n);
