@@ -33,7 +33,8 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid #52a8
 @keyframes m-pop{from{opacity:0;transform:scale(.96) translateY(6px)}}
 @keyframes m-in-right{from{opacity:0;transform:translateX(28px)}}
 @keyframes m-in-left{from{opacity:0;transform:translateX(-16px)}}
-@keyframes m-toast{from{opacity:0;transform:translateX(-50%) translateY(14px)}}
+@keyframes m-toast{from{opacity:0;transform:translateX(-50%) scale(.96)}}
+@keyframes m-toast-out{to{opacity:0;transform:translateX(-50%) scale(.98)}}
 button{transition:background-color var(--m-fast) ease,color var(--m-fast) ease,opacity var(--m-fast) ease,transform var(--m-fast) var(--m-ease),filter var(--m-fast) ease}
 button:not(:disabled):hover{filter:brightness(1.15)}
 button:not(:disabled):active{transform:scale(.97)}
@@ -46,7 +47,7 @@ aside[style*="position: absolute"]{animation:m-in-right var(--m-med) var(--m-eas
 [role="menu"]{animation:m-pop var(--m-fast) var(--m-ease) backwards;transform-origin:top left}
 div[style*="background: var(--scrim)"]{animation:m-fade var(--m-med) ease backwards}
 [role="dialog"],[role="alertdialog"]{animation:m-pop var(--m-med) var(--m-ease) backwards}
-[role="status"]{animation:m-toast var(--m-med) var(--m-ease) backwards}
+[role="status"]{animation:m-toast 400ms cubic-bezier(.215,.61,.355,1) backwards}
 div[aria-live="polite"] > article,div[aria-live="polite"] > div[style*="align-self: flex-end"]{animation:m-rise var(--m-med) var(--m-ease) backwards}
 @keyframes m-grow-x{from{transform:scaleX(0)}}
 @keyframes m-grow-y{from{transform:scaleY(0)}}
@@ -1489,8 +1490,9 @@ class Component extends DCLogic {
   componentDidMount() { this.kickCount(); this.aT = setTimeout(() => this.setState({ aiFirst: false }), 1600); }
   kickCount() { try { if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch (e) {} clearTimeout(this.nT); const t0 = Date.now(); const step = () => { const p = Math.min(1, (Date.now() - t0) / 800); this.setState({ cnt: 1 - Math.pow(1 - p, 3) }); if (p < 1) this.nT = setTimeout(step, 40); }; this.setState({ cnt: 0 }); this.nT = setTimeout(step, 40); }
   cnt(str) { const c = this.state.cnt; if (c == null || c >= 1) return str; return str.replace(/\d[\d,]*(\.\d+)?/, (m) => (parseFloat(m.replace(/,/g, '')) * c).toFixed((m.split('.')[1] || '').length).replace(/\B(?=(\d{3})+(?!\d))/g, ',')); }
-  componentWillUnmount() { clearTimeout(this.nT); clearInterval(this.kTimer); clearInterval(this.oTimer); clearTimeout(this.tTimer); clearTimeout(this.cTimer); }
-  showToast(title, sub, undo, kind) { clearTimeout(this.tTimer); this.setState({ toast: { title, sub, undo: !!undo, kind: kind || 'success' } }); this.tTimer = setTimeout(() => this.setState({ toast: null }), 4500); }
+  componentWillUnmount() { clearInterval(this.tyTimer); clearTimeout(this.tyTimer); clearTimeout(this.nT); clearInterval(this.kTimer); clearInterval(this.oTimer); clearTimeout(this.tTimer); clearTimeout(this.cTimer); }
+  showToast(title, sub, undo, kind) { clearTimeout(this.tTimer); this.setState({ toast: { title, sub, undo: !!undo, kind: kind || 'success' } }); this.tTimer = setTimeout(() => this.fadeToast(), 4150); }
+  fadeToast() { clearTimeout(this.tTimer); const t = this.state.toast; if (!t) return; this.setState({ toast: { ...t, out: true } }); this.tTimer = setTimeout(() => this.setState({ toast: null }), 350); }
   money(n) { const s = Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); return (n < 0 ? '−$' : '$') + s; }
   get SUBS() {
     const card = 'PayPal Debit Card ••4821';
@@ -1586,6 +1588,20 @@ class Component extends DCLogic {
     if (/uniqlo|starbucks|doordash|target|uber|whole foods|lilia|spotify|charge/.test(l)) return 'merchant';
     return 'general';
   }
+  typeChat(text, fresh) {
+    const q = (text || '').trim(); if (!q || this.typingNow) return;
+    this.typingNow = true; clearInterval(this.tyTimer);
+    const S = this.state, rail = this.props.chatDock === 'rail';
+    this.setState({ ...(rail ? { aiOpen: true, ...(S.aiOpen !== true && S.navOpen ? { navOpen: false, navAuto: true } : {}) } : { page: 'chat' }), ...(fresh ? { chatId: null } : {}), chatQuery: '', historyOpen: false });
+    const step = Math.max(1, Math.ceil(q.length / 40)); let i = 0;
+    this.tyTimer = setInterval(() => {
+      i = Math.min(q.length, i + step); this.setState({ chatQuery: q.slice(0, i) });
+      const el = document.getElementById('rail-chat-input') || document.getElementById('chat-input-new') || document.getElementById('chat-input-thread'); if (el) el.focus();
+      if (i < q.length) return;
+      clearInterval(this.tyTimer);
+      this.tyTimer = setTimeout(() => { this.typingNow = false; this.sendChat(q, fresh); }, 350);
+    }, 45);
+  }
   sendChat(text, fresh) {
     const q = (text || '').trim(); if (!q) return;
     const S = this.state; let chats = S.chats; let id = fresh ? null : S.chatId;
@@ -1653,7 +1669,7 @@ class Component extends DCLogic {
     const dot = 'width: 22px; height: 22px; flex-shrink: 0; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; ';
     const panel = 'background: var(--s2); border: 1px solid var(--b1); border-radius: var(--radius); padding: 0 14px';
     const avatar = 'width: 34px; height: 34px; flex-shrink: 0; border-radius: 999px; background: var(--s3); border: 0; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; color: var(--t1)';
-    const startChat = (q) => () => this.sendChat(q, true);
+    const startChat = (q) => () => this.typeChat(q, true);
 
     // Offers: available → added → pending → earned
     const LOGO = { Thistle: 'thistle', 'Ember Roast': 'ember', Plateful: 'plateful', Corevale: 'corevale', Hopline: 'hopline', 'Acme Inc. payroll': 'acme', 'Parkside Apartments': 'parkside', Sonora: 'sonora',
@@ -2206,7 +2222,7 @@ class Component extends DCLogic {
         historyOpen: S.historyOpen, historyAria: S.historyOpen ? 'true' : 'false', history: histGroups,
         prompts: PROMPTS.map(([icon, q, meta]) => ({ icon, q, meta, pick: startChat(q) })),
         starters: [['What if I skip dining?', 'What if I skip dining out for the rest of October?'], ['Set dining limit to $212', 'Set my dining limit to $212'], ['Pay for Essentials', 'Pay for my Essentials order with PayPal'], ['Cancel Vantage', 'Cancel my Vantage subscription'], ['Best offer', PROMPTS[3][1]], ['What’s due soon', PROMPTS[1][1]]].map(([label, q]) => ({ label, pick: startChat(q) })),
-        followups: follow.map((q) => ({ q, pick: () => this.sendChat(q) })) },
+        followups: follow.map((q) => ({ q, pick: () => this.typeChat(q) })) },
       onChatInput: (e) => this.setState({ chatQuery: e.target.value }),
       onChatKey: (e) => { if (e.key === 'Enter') { e.preventDefault(); this.sendChat(this.state.chatQuery); } },
       sendChat: () => this.sendChat(this.state.chatQuery),
@@ -2253,7 +2269,7 @@ class Component extends DCLogic {
         return { on, off: !on, current: txSel ? txSel.c : '', saveOff: !sel, saveStyle: btnBase + TH.primary + (sel ? '' : '; opacity: 0.45'),
           opts: ['Dining', 'Shopping', 'Groceries', 'Transport', 'Essential bills', 'Subscriptions', 'Income'].filter((l) => !txSel || l !== txSel.c).map((label, i) => ({ label, on: sel === label ? 'true' : 'false', mark: sel === label ? '✓' : '', style: 'display: flex; align-items: center; gap: 12px; width: 100%; box-sizing: border-box; padding: 16px 0; border: 0; background: transparent; color: var(--t1); font-family: inherit; font-size: 13px; text-align: left; ' + (i ? 'border-top: 1px solid var(--b1)' : ''), pick: () => this.setState({ txPick: { id: txSel.id, sel: label } }) })),
           save: () => { if (!on || !sel) return; this.setState({ txCat: { ...S.txCat, [txSel.id]: sel }, txPick: null }); this.showToast('Category set to ' + sel, 'Similar ' + txSel.n + ' charges will be sorted the same way'); } }; })(),
-      askAboutTx: () => txSel && this.sendChat('Tell me about my ' + txSel.n + ' charges', true),
+      askAboutTx: () => txSel && this.typeChat('Tell me about my ' + txSel.n + ' charges', true),
       recategorize: () => { if (!txSel) return; if (!txSel.review) { this.setState({ txPick: { id: txSel.id, sel: null } }); return; } const next = txSel.review ? 'Dining' : txSel.c === 'Dining' ? 'Groceries' : 'Dining'; this.setState({ txCat: { ...S.txCat, [txSel.id]: next } }); this.showToast('Category set to ' + next, 'Similar ' + txSel.n + ' charges will be sorted the same way'); },
       subs: { subRows: subPg.rows.map((x) => subRow(x.c ? x.s : x, !!x.c)), subPager: subPg.pager, billRows: billPg.rows.map((x) => subRow(x)), billPager: billPg.pager, billsCount: String(bills.length),
         subtitle: subsActive.length + ' subscriptions · ' + bills.length + ' bills · ' + this.money(subsMonthly + billsMonthly) + ' per month',
@@ -2476,9 +2492,9 @@ class Component extends DCLogic {
       onMemInput: (e) => this.setState({ newMem: e.target.value }),
       onMemKey: (e) => { if (e.key === 'Enter') { e.preventDefault(); this.saveMemory(); } },
       saveMem: () => this.saveMemory(),
-      closeToast: () => { clearTimeout(this.tTimer); this.setState({ toast: null }); },
+      closeToast: () => this.fadeToast(),
       toast: S.toast ? (() => { const K = { success: ['#0f2b1e', '#1d5a3b', '#1f9d5c', '#d8f3e4', '#7fe0a8', ''], warn: ['#2c2209', '#6a4d12', '#c27a04', '#fbe8bd', '#f2c466', '!'], info: ['#0d2236', '#1c4a78', '#1f6fd1', '#d5e7fb', '#8cc4ff', 'i'] }[S.toast.kind || 'success'];
-        return { show: true, ...S.toast, bottom: 'bottom: ' + (S.navDock ? 88 : 24) + 'px', fg: K[3], box: 'background: ' + K[0] + '; color: ' + K[3] + '; border: 1px solid ' + K[1], iconStyle: 'width: 30px; height: 30px; flex-shrink: 0; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #ffffff; background: ' + K[2], isCheck: !K[5], glyph: K[5], undoStyle: 'min-height: 36px; padding: 0 4px; border: 0; background: transparent; font-family: inherit; font-size: 13px; font-weight: 600; text-decoration: underline; color: ' + K[4] }; })() : { show: false },
+        return { show: true, ...S.toast, bottom: 'bottom: ' + (S.navDock ? 88 : 24) + 'px', fg: K[3], box: 'background: ' + K[0] + '; color: ' + K[3] + '; border: 1px solid ' + K[1] + (S.toast.out ? '; animation: m-toast-out 350ms cubic-bezier(.645,.045,.355,1) forwards' : ''), iconStyle: 'width: 30px; height: 30px; flex-shrink: 0; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #ffffff; background: ' + K[2], isCheck: !K[5], glyph: K[5], undoStyle: 'min-height: 36px; padding: 0 4px; border: 0; background: transparent; font-family: inherit; font-size: 13px; font-weight: 600; text-decoration: underline; color: ' + K[4] }; })() : { show: false },
     };
   }
 }
