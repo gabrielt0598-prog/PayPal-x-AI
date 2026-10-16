@@ -224,8 +224,8 @@ async function cancelOnRealMerchant(sub: RecurringPayment, apiKey: string): Prom
       };
     } catch (err) {
       console.error("[kernel] cancellation run failed:", errMsg(err));
-      steps.push("Kernel request failed; see server logs");
-      return { status: "failed", mode: "live", target: "real", steps, message: "Kernel could not run the cancellation" };
+      steps.push(`Kernel request failed: ${errMsg(err).slice(0, 160)}`);
+      return { status: "failed", mode: "live", target: "real", steps, message: `Kernel could not run the cancellation (${errMsg(err).slice(0, 160)})` };
     } finally {
       // Clean up unless the user needs the browser (login / final confirm). Inactivity timeout reaps the rest.
       if (sessionId && !keepAlive) {
@@ -347,7 +347,7 @@ async function cancelOnSandboxMerchant(sub: RecurringPayment, apiKey: string): P
     }
   } catch (err) {
     console.error("[kernel] sandbox cancellation failed:", errMsg(err));
-    steps.push("Kernel request failed; see server logs");
+    steps.push(`Kernel request failed: ${errMsg(err).slice(0, 160)}`);
     return {
       status: "failed",
       mode: "live",
@@ -355,7 +355,7 @@ async function cancelOnSandboxMerchant(sub: RecurringPayment, apiKey: string): P
       steps,
       previewUrl,
       ...(liveViewUrl ? { liveViewUrl } : {}),
-      message: "Kernel could not run the cancellation",
+      message: `Kernel could not run the cancellation (${errMsg(err).slice(0, 160)})`,
     };
   } finally {
     if (sessionId) await scheduleDelete(client, sessionId, graceS);
