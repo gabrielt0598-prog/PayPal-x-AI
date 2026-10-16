@@ -48,9 +48,9 @@ function CancelledCard({ action }: { action: CancelledAction }) {
         </div>
       ) : null}
       {action.steps?.length ? (
-        <ul className="mt-1.5 list-disc space-y-0.5 pl-4 text-[12px] text-faint">
-          {action.steps.map((s, i) => <li key={i}>{s}</li>)}
-        </ul>
+        <div className="mt-2.5">
+          <StepRail steps={action.steps.map((t) => ({ title: t.replace(/\s*\(simulated\)$/i, ""), status: "Done" }))} />
+        </div>
       ) : null}
       {action.replayUrl || action.liveViewUrl || action.previewUrl ? (
         <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
