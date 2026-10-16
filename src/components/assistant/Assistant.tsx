@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowUp, SquarePen, X } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import type { AgentResponse } from "@/lib/agent/types";
@@ -327,94 +327,19 @@ export function Assistant() {
   );
 }
 
-type CiteInfo = { kind: "evidence" | "tool"; title: string; text: string } | null;
-
-function lookupCitation(response: AgentResponse | undefined, id: string): CiteInfo {
-  const ev = response?.evidence?.find((d) => d.id === id);
-  if (ev) return { kind: "evidence", title: ev.title, text: ev.text };
-  const tool = response?.toolResults?.find((t) => t.id === id);
-  if (tool) return { kind: "tool", title: `Tool result: ${tool.tool.replace(/_/g, " ")}`, text: tool.summary };
-  return null;
-}
-
-/** Assistant bubble with [ev_n]/[tool_n] citations rendered as chips; hover previews, click pins the source below the bubble. */
+/** Assistant bubble. The model's [ev_n]/[tool_n] source markers (used by the fact-check) are stripped from what the user reads. */
 function AssistantMessage({ message: m, canAnswer, onSend }: { message: UIMessage; canAnswer: boolean; onSend: (text: string) => void }) {
-  const [hover, setHover] = useState<string | null>(null);
-  const [pinned, setPinned] = useState<string | null>(null);
   const response = m.response;
-  const shown = hover ?? pinned;
-  const info = shown ? lookupCitation(response, shown) : null;
-
-  const cite = (id: string, key: string): ReactNode => {
-    const known = lookupCitation(response, id);
-    const active = shown === id;
-    return (
-      <button
-        key={key}
-        type="button"
-        onMouseEnter={() => setHover(id)}
-        onMouseLeave={() => setHover(null)}
-        onFocus={() => setHover(id)}
-        onBlur={() => setHover(null)}
-        onClick={() => setPinned((p) => (p === id ? null : id))}
-        aria-expanded={active}
-        aria-label={known ? `Source ${id}: ${known.title}` : `Source ${id} (not found)`}
-        className={`rounded-md border px-1 font-mono text-[10px] leading-4 transition ${
-          !known
-            ? "border-negative/40 bg-negative-bg text-negative"
-            : active
-              ? "border-accent/60 bg-accent/20 text-text"
-              : known.kind === "tool"
-                ? "border-border-strong bg-surface-3 text-muted hover:text-text"
-                : "border-accent/30 bg-accent/10 text-accent hover:border-accent/60"
-        }`}
-      >
-        {id}
-      </button>
-    );
-  };
-
-  const cited = Array.from(new Set(m.content.match(/(?:ev|tool)_\d+/g) ?? [])).filter((id) => lookupCitation(response, id));
+  const text = m.content.replace(/\s*\[?(?:ev|tool)_\d+\]?/g, "");
 
   return (
     <article className="flex items-start gap-3">
       <AiAvatar />
       <div className="flex min-w-0 flex-1 flex-col gap-2.5 pt-1">
         <div className={`max-w-[36em] text-sm leading-relaxed ${m.error ? "rounded-2xl bg-negative-bg px-3.5 py-2.5" : ""}`}>
-          <Markdown text={m.content} cite={response ? cite : undefined} />
+          <Markdown text={text} />
         </div>
         {response && <ActionList actions={response.actions} canAnswer={canAnswer} onSend={onSend} />}
-        {cited.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {cited.map((id, i) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setPinned((p) => (p === id ? null : id))}
-                onMouseEnter={() => setHover(id)}
-                onMouseLeave={() => setHover(null)}
-                aria-expanded={shown === id}
-                className={`max-w-full truncate rounded-full border px-2.5 py-1 text-[12px] transition ${shown === id ? "border-border-strong bg-surface-3 text-text" : "border-border bg-surface-2 text-muted hover:text-text"}`}
-              >
-                {i + 1} · {lookupCitation(response, id)?.title}
-              </button>
-            ))}
-          </div>
-        )}
-        {shown && (
-          <div className="rounded-[10px] border border-border-strong bg-surface-2 px-3 py-2 text-[12px] leading-relaxed" role="note">
-            <div className="mb-0.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-faint">
-              <span className="font-mono normal-case">{shown}</span>
-              <span className="truncate normal-case tracking-normal text-muted">{info ? info.title : "Not a known source"}</span>
-              {pinned === shown && (
-                <button type="button" onClick={() => setPinned(null)} aria-label="Close source" className="ml-auto rounded p-0.5 hover:text-text">
-                  <X size={11} />
-                </button>
-              )}
-            </div>
-            <p className={info ? "text-text" : "text-negative"}>{info ? info.text : "This citation does not match any evidence or tool result from this turn."}</p>
-          </div>
-        )}
       </div>
     </article>
   );
