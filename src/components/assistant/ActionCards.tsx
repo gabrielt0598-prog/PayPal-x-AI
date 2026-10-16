@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useFinance } from "@/components/state/AppProviders";
 import { useClean } from "@/components/clean/AppState";
 import { completeOrder } from "@/components/clean/paypalOrder";
 import { DEFAULT_STATE, loadBudget, saveBudget } from "@/components/clean/budget/model";
 import { money } from "@/components/clean/ui";
-import { ArrowUpRight, BadgePercent, Brain, CheckCircle2, ShieldQuestion, Tags } from "lucide-react";
+import { ArrowUpRight, BadgePercent, Brain, Check, CheckCircle2, ShieldQuestion, Tags } from "lucide-react";
 import type { AgentAction, RailStep } from "@/lib/agent/types";
 import { CompareCard } from "./CompareCard";
 import { StepRail } from "./StepRail";
@@ -37,10 +37,17 @@ function CancelledCard({ action }: { action: CancelledAction }) {
             : `Cancelled by Kernel${sandbox ? " · sandbox merchant site" : ""}`}
       </div>
       {action.screenshotDataUrl ? (
-        <button type="button" onClick={() => setZoom(true)} className="mt-2 block overflow-hidden rounded-lg border border-border-strong" title="Click to enlarge">
-          {/* eslint-disable-next-line @next/next/no-img-element -- inline data: URL screenshot from Kernel */}
-          <img src={action.screenshotDataUrl} alt={`${action.merchant} cancellation confirmation (screenshot)`} className="h-24 w-auto" />
-        </button>
+        <figure aria-label="Kernel browser screenshot" className="mt-2.5 overflow-hidden rounded-xl border border-border-strong bg-surface-2">
+          <div className="flex px-3 py-2">
+            <span className="flex-1 truncate rounded-[10px] border border-border bg-surface px-2.5 py-1 font-mono text-xs text-muted">
+              {action.merchant.toLowerCase().replace(/[^a-z0-9]/g, "")}.com/account/cancelled
+            </span>
+          </div>
+          <button type="button" onClick={() => setZoom(true)} className="block w-full cursor-zoom-in border-t border-border bg-white" title="Click to enlarge">
+            {/* eslint-disable-next-line @next/next/no-img-element -- inline data: URL screenshot from Kernel */}
+            <img src={action.screenshotDataUrl} alt={`${action.merchant} cancellation confirmation (screenshot)`} className="block h-auto w-full" />
+          </button>
+        </figure>
       ) : null}
       {action.confirmationNumber ? (
         <div className="mt-1.5 text-[12px] text-muted">
@@ -48,9 +55,22 @@ function CancelledCard({ action }: { action: CancelledAction }) {
         </div>
       ) : null}
       {action.steps?.length ? (
-        <div className="mt-2.5">
-          <StepRail steps={action.steps.map((t) => ({ title: t.replace(/\s*\(simulated\)$/i, ""), status: "Done" }))} />
-        </div>
+        <ol aria-label="Steps" className="m-0 mt-2.5 list-none rounded-xl bg-surface-2 px-4 py-5">
+          {action.steps.map((t, i, all) => {
+            const last = i === all.length - 1;
+            return (
+              <li key={i} className="m-step flex items-stretch gap-3.5" style={{ "--d": `${i * 350}ms` } as CSSProperties}>
+                <span className="flex flex-col items-center self-stretch">
+                  <span className="m-av flex size-[22px] shrink-0 items-center justify-center rounded-full bg-positive text-[11px] font-semibold text-white">
+                    <Check size={13} />
+                  </span>
+                  {!last && <span aria-hidden="true" className="m-line mt-1.5 min-h-3 w-0.5 flex-1 rounded-sm bg-positive" />}
+                </span>
+                <span className={`min-h-[22px] min-w-0 flex-1 text-[13px] leading-snug text-text ${last ? "" : "pb-5"}`}>{t.replace(/\s*\(simulated\)$/i, "")}</span>
+              </li>
+            );
+          })}
+        </ol>
       ) : null}
       {action.replayUrl || action.liveViewUrl || action.previewUrl ? (
         <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">

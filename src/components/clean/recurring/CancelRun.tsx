@@ -38,6 +38,8 @@ export interface RunState {
   conf?: string;
   liveViewUrl?: string;
   replayUrl?: string;
+  /** Kernel's real final screenshot (JPEG data URL), shown in place of the placeholder page once the run completes. */
+  screenshotDataUrl?: string;
 }
 
 const clock = (ms: number) => `${Math.floor(ms / 60000)}:${String(Math.floor(ms / 1000) % 60).padStart(2, "0")}`;
@@ -94,7 +96,7 @@ export function useCancelRun(onDone: (r: RecurringPayment, conf?: string) => voi
         stopTimer();
         const elapsed = performance.now() - t0;
         const conf = json.result?.confirmationNumber;
-        setRun((c) => (c ? { ...c, step: total, marks: Array.from({ length: total }, (_, i) => c.marks[i] ?? elapsed), status: "done", elapsed, conf, replayUrl: json.result?.replayUrl } : c));
+        setRun((c) => (c ? { ...c, step: total, marks: Array.from({ length: total }, (_, i) => c.marks[i] ?? elapsed), status: "done", elapsed, conf, replayUrl: json.result?.replayUrl, screenshotDataUrl: json.result?.screenshotDataUrl } : c));
         await refresh();
         setTimeout(() => {
           setRun(null);
@@ -167,11 +169,16 @@ export function RunPanel({ run, onStop, onClose }: { run: RunState; onStop: () =
               {step >= 6 ? "/account/cancelled" : "/account/membership"}
             </span>
           </div>
-          <div className="flex h-[200px] flex-col items-center justify-center gap-2 border-t border-border bg-white px-5 text-center text-black">
-            <span className="text-xs font-medium text-[#555]">{r.merchant} · sandbox merchant</span>
-            <span className="text-[17px] font-semibold">{pages[Math.min(step, 6)]}</span>
-            <span className="text-xs font-medium text-[#0062c4]">{done ? (run.conf ? `Confirmation ${run.conf}` : "Cancelled") : `Kernel: ${labels[Math.min(step, labels.length - 1)]}`}</span>
-          </div>
+          {done && run.screenshotDataUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- inline data: URL screenshot from Kernel
+            <img src={run.screenshotDataUrl} alt={`${r.merchant} cancellation confirmation (Kernel screenshot)`} className="block h-auto w-full border-t border-border bg-white" />
+          ) : (
+            <div className="flex h-[200px] flex-col items-center justify-center gap-2 border-t border-border bg-white px-5 text-center text-black">
+              <span className="text-xs font-medium text-[#555]">{r.merchant} · sandbox merchant</span>
+              <span className="text-[17px] font-semibold">{pages[Math.min(step, 6)]}</span>
+              <span className="text-xs font-medium text-[#0062c4]">{done ? (run.conf ? `Confirmation ${run.conf}` : "Cancelled") : `Kernel: ${labels[Math.min(step, labels.length - 1)]}`}</span>
+            </div>
+          )}
         </figure>
       )}
 
