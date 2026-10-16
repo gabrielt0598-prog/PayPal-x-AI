@@ -22,7 +22,6 @@ interface UIMessage {
 // cancellation (Kernel), and a PayPal offer.
 const STARTERS: [string, string][] = [
   ["What if I skip dining?", "What if I skip dining out for the rest of the month?"],
-  ["Unused subscriptions", "Which subscriptions am I not using?"],
   ["Set dining limit to $212", "Set my dining limit to $212"],
   ["Pause Kitebird+", "Pause my Kitebird+ subscription"],
   ["Pay for Essentials", "Pay for my Essentials order with PayPal"],
