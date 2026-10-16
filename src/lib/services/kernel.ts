@@ -286,15 +286,27 @@ async function cancelOnSandboxMerchant(sub: RecurringPayment, apiKey: string): P
   try {
     // Profile is optional for sandbox merchants: only attach it when KERNEL_PROFILE_NAME is explicitly set.
     const profileName = process.env.KERNEL_PROFILE_NAME?.trim();
-    const browser = await client.browsers.create({
-      stealth: true,
-      headless: false,
-      timeout_seconds: graceS + 120,
-      ...(profileName ? { profile: { name: profileName, save_changes: false } } : {}),
-    });
+    const launch = (withProfile: boolean) =>
+      client.browsers.create({
+        stealth: true,
+        headless: false,
+        timeout_seconds: graceS + 120,
+        ...(withProfile && profileName ? { profile: { name: profileName, save_changes: false } } : {}),
+      });
+    let usedProfile = Boolean(profileName);
+    let browser;
+    try {
+      browser = await launch(true);
+    } catch (err) {
+      // The fake merchant needs no login, so a missing profile must not block the demo: launch without it.
+      if (!profileName || !/profile/i.test(errMsg(err))) throw err;
+      console.error("[kernel] profile unavailable, launching without it:", errMsg(err));
+      usedProfile = false;
+      browser = await launch(false);
+    }
     sessionId = browser.session_id;
     liveViewUrl = browser.browser_live_view_url;
-    steps.push(`Launched Kernel cloud browser (stealth)${profileName ? ` with profile "${profileName}"` : ""}`);
+    steps.push(`Launched Kernel cloud browser (stealth)${usedProfile ? ` with profile "${profileName}"` : ""}`);
 
     try {
       const rep = await client.browsers.replays.start(sessionId);
