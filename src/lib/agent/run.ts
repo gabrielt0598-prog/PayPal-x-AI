@@ -16,7 +16,7 @@ import { getState } from "@/lib/store";
 import { mockAgent } from "./mock";
 import { DEFAULT_MODEL, modelName, runLoop } from "./llm";
 import { buildContextBlock } from "./prompt";
-import { accountOverview, type ToolContext } from "./tools";
+import { accountOverview, pendingCancels, type ToolContext } from "./tools";
 import type { AgentRequest, AgentResponse, GuardrailOutcome, ToolEvidence } from "./types";
 
 const MAX_HISTORY = 12;
@@ -128,6 +128,13 @@ export async function runAgent(req: AgentRequest): Promise<AgentResponse> {
   const latest = [...history].reverse().find((m) => m.role === "user")?.content ?? "";
   const facts = await memory.list(req.sessionId);
   const ctx: ToolContext = { sessionId: req.sessionId, latestUserMessage: latest, origin: req.origin, actions: [], results: [] };
+  // The pending cancellation lives in server memory, which a serverless deploy may not share between requests. If this
+  // instance lost it, rebuild it from the conversation: the last reply previewed a cancellation and named the merchant.
+  const lastReply = [...history].reverse().find((m) => m.role === "assistant")?.content ?? "";
+  if (!pendingCancels.has(req.sessionId) && /needs the user.s confirmation first/i.test(lastReply)) {
+    const named = getState().recurring.find((r) => lastReply.includes(r.merchant));
+    if (named) pendingCancels.set(req.sessionId, named.id);
+  }
 
   // 1. Evidence retrieval + Jev reranking. A failure only means "no pre-retrieved evidence": tools still work.
   let retrieval = emptyRetrieval();
