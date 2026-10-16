@@ -4,6 +4,9 @@ import { limit } from "@/lib/services/limits";
 import type { ChatMessage } from "@/lib/agent/types";
 
 // POST /api/agent — one assistant turn. Non-streaming JSON.
+// A Kernel cloud-browser run takes 20-40s; the default serverless limit would cut it off.
+export const maxDuration = 60;
+
 export async function POST(request: Request) {
   const limited = limit(request, "agent");
   if (limited) return limited;

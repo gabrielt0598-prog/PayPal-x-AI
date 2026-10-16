@@ -11,6 +11,9 @@ const Body = z.object({ recurringId: z.string().trim().min(1).max(100) });
 // store only when the result is "completed" or "simulated" (never while a human still has to confirm).
 // result also carries replayUrl, screenshotDataUrl (JPEG data: URL), confirmationNumber, previewUrl and
 // target ("sandbox" = fake merchant page, the default; "real" = KERNEL_TARGET=real, stops before the final click).
+// A Kernel cloud-browser run takes 20-40s; the default serverless limit would cut it off.
+export const maxDuration = 60;
+
 export async function POST(req: Request) {
   const limited = limit(req, "kernel");
   if (limited) return limited;
