@@ -630,7 +630,7 @@ async function cancelSubscription(input: Record<string, unknown>, ctx: ToolConte
       ...(r.target ? { target: r.target } : {}),
     };
     done = r.status === "completed" || r.status === "simulated";
-    detail = done ? "" : `Browser automation ended with status ${r.status}`;
+    detail = done ? "" : r.message || [...r.steps].reverse().find((x) => /fail|never|could not|unable/i.test(x)) || `Browser automation ended with status ${r.status}`;
     if (done) {
       const c = cancelRecurring(sub.id);
       if (!c.ok && !/already cancelled/.test(c.error)) {

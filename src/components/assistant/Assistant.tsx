@@ -1,10 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowUp, Brain, ChevronDown, ShieldCheck, ShieldAlert, SquarePen, X } from "lucide-react";
+import { ArrowUp, ChevronDown, ShieldCheck, ShieldAlert, SquarePen, X } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import type { AgentResponse } from "@/lib/agent/types";
-import type { MemoryFact } from "@/lib/services/contracts";
 import { ActionList } from "./ActionCards";
 import { Markdown } from "./Markdown";
 import { Sparkles } from "@/components/clean/SparkleIcon";
@@ -77,9 +76,7 @@ export function Assistant() {
   const [messages, setMessages] = useState<UIMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [memory, setMemory] = useState<MemoryFact[]>([]);
   const [mode, setMode] = useState<AgentResponse["mode"] | null>(null);
-  const [showMemory, setShowMemory] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<UIMessage[]>([]);
@@ -113,7 +110,6 @@ export function Assistant() {
         }
         if (!res.ok || "error" in data) throw new Error("error" in data ? data.error : `HTTP ${res.status}`);
         setMessages((m) => [...m, { id: uid(), role: "assistant", content: data.reply, response: data }]);
-        setMemory(data.memory);
         setMode(data.mode);
         if (data.actions.length) void refresh();
       } catch (e) {
@@ -133,13 +129,12 @@ export function Assistant() {
         e.preventDefault();
         toggleAssistant();
       } else if (e.key === "Escape" && open) {
-        if (showMemory) setShowMemory(false);
-        else closeAssistant();
+        closeAssistant();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [toggleAssistant, closeAssistant, open, showMemory]);
+  }, [toggleAssistant, closeAssistant, open]);
 
   // Focus the input when the drawer opens.
   useEffect(() => {
@@ -177,7 +172,6 @@ export function Assistant() {
   if (!open) return null;
 
   const lastAssistantId = [...messages].reverse().find((m) => m.role === "assistant")?.id;
-  const salary = memory.find((f) => /salary/i.test(f.key));
   const firstUser = messages.find((m) => m.role === "user")?.content;
   const title = firstUser ? (firstUser.length > 40 ? `${firstUser.slice(0, 38)}…` : firstUser) : "Stella";
   const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
@@ -203,16 +197,6 @@ export function Assistant() {
         )}
         <button
           type="button"
-          onClick={() => setShowMemory((v) => !v)}
-          aria-expanded={showMemory}
-          aria-label="Memory"
-          title={salary ? `Remembers: salary ${salary.value}` : memory.length ? `Remembers ${memory.length}` : "Memory"}
-          className="flex size-8 items-center justify-center rounded-lg text-muted hover:bg-white/[0.06] hover:text-text"
-        >
-          <Brain size={16} />
-        </button>
-        <button
-          type="button"
           onClick={() => {
             setMessages([]);
             setInput("");
@@ -226,23 +210,6 @@ export function Assistant() {
         <button type="button" onClick={closeAssistant} aria-label="Close Stella" title="Close" className="flex size-8 items-center justify-center rounded-lg text-muted hover:bg-white/[0.06] hover:text-text">
           <X size={18} />
         </button>
-        {showMemory && (
-          <div className="absolute right-3 top-full z-10 mt-1 w-72 rounded-xl border border-border-strong bg-surface-2 p-3 shadow-xl">
-            <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-faint">Remembered this session</div>
-            {memory.length ? (
-              <ul className="space-y-1.5 text-[13px]">
-                {memory.map((f) => (
-                  <li key={f.key} className="flex justify-between gap-3">
-                    <span className="text-muted">{f.key}</span>
-                    <span className="text-right text-text">{f.value}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-[13px] text-muted">Nothing yet. Tell me your salary or a savings goal.</p>
-            )}
-          </div>
-        )}
       </header>
 
       <div ref={scrollRef} aria-live="polite" className="flex min-h-0 flex-1 flex-col gap-[18px] overflow-y-auto p-4">
