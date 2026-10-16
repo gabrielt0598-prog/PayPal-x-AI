@@ -5,7 +5,7 @@ import { useFinance } from "@/components/state/AppProviders";
 import { useClean } from "@/components/clean/AppState";
 import { completeOrder } from "@/components/clean/paypalOrder";
 import { DEFAULT_STATE, loadBudget, saveBudget } from "@/components/clean/budget/model";
-import { money } from "@/components/clean/ui";
+import { Avatar, money, Pill } from "@/components/clean/ui";
 import { ArrowUpRight, BadgePercent, Brain, Check, CheckCircle2, ShieldQuestion, Tags } from "lucide-react";
 import type { AgentAction, RailStep } from "@/lib/agent/types";
 import { CompareCard } from "./CompareCard";
@@ -23,19 +23,32 @@ function CancelledCard({ action }: { action: CancelledAction }) {
   const simulated = action.mode === "mock";
   const sandbox = action.target !== "real";
   return (
-    <div className={`${card} border-positive/30 bg-positive-bg`}>
-      <div className="flex items-center gap-2 font-medium text-positive">
-        <CheckCircle2 size={15} /> {action.merchant} cancelled
-        <span className="font-normal">· saves {action.monthlySavingLabel}/mo</span>
-      </div>
-      <div className="mt-1 text-muted">
-        {action.annualSavingLabel}/yr ·{" "}
-        {!viaKernel
-          ? `PayPal Subscriptions${simulated ? " · simulated" : ""}`
-          : simulated
-            ? "Simulated (add KERNEL_API_KEY to run in a real Kernel browser)"
-            : `Cancelled by Kernel${sandbox ? " · sandbox merchant site" : ""}`}
-      </div>
+    <div className={viaKernel ? `${card} border-border bg-surface` : `${card} border-positive/30 bg-positive-bg`}>
+      {viaKernel ? (
+        <>
+          <div className="flex items-center gap-2.5">
+            <Avatar name={action.merchant} size={34} />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <span className="truncate text-[15px] font-semibold leading-tight">{action.merchant} cancelled</span>
+              <span className="text-xs text-faint">Kernel secure cloud browser{simulated ? " · simulated" : sandbox ? " · sandbox merchant" : ""}</span>
+            </div>
+            <Pill tone="pos">Completed</Pill>
+          </div>
+          <div className="mt-2 text-muted">
+            Saves {action.monthlySavingLabel}/mo · {action.annualSavingLabel}/yr
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex items-center gap-2 font-medium text-positive">
+            <CheckCircle2 size={15} /> {action.merchant} cancelled
+            <span className="font-normal">· saves {action.monthlySavingLabel}/mo</span>
+          </div>
+          <div className="mt-1 text-muted">
+            {action.annualSavingLabel}/yr · PayPal Subscriptions{simulated ? " · simulated" : ""}
+          </div>
+        </>
+      )}
       {action.screenshotDataUrl ? (
         <figure aria-label="Kernel browser screenshot" className="mt-2.5 overflow-hidden rounded-xl border border-border-strong bg-surface-2">
           <div className="flex px-3 py-2">
@@ -66,7 +79,7 @@ function CancelledCard({ action }: { action: CancelledAction }) {
                   </span>
                   {!last && <span aria-hidden="true" className="m-line mt-1.5 min-h-3 w-0.5 flex-1 rounded-sm bg-positive" />}
                 </span>
-                <span className={`min-h-[22px] min-w-0 flex-1 text-[13px] leading-snug text-text ${last ? "" : "pb-5"}`}>{t.replace(/\s*\(simulated\)$/i, "")}</span>
+                <span className={`min-h-[22px] min-w-0 flex-1 text-[13px] font-medium leading-snug text-text ${last ? "" : "pb-5"}`}>{t.replace(/\s*\(simulated\)$/i, "")}</span>
               </li>
             );
           })}
