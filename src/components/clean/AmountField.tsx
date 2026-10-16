@@ -17,8 +17,8 @@ export function AmountField({ value, onChange, autoFocus }: { value: number; onC
   // Show what was typed while it still means `value` (so "12." stays "12."), otherwise the externally-set value.
   const shown = parse(text) === value ? text : fmt(value);
   return (
-    <label className="flex items-baseline gap-1 border-b border-border-strong pb-1 focus-within:border-accent/60">
-      <span aria-hidden="true" className="num text-[40px] font-semibold tracking-tight text-faint">$</span>
+    <label className="flex items-baseline gap-1 rounded-xl border border-border-strong bg-surface-2 px-4 py-2.5 focus-within:border-accent/60">
+      <span aria-hidden="true" className="num text-[40px] font-semibold tracking-tight">$</span>
       <input
         value={shown}
         onChange={(e) => {
