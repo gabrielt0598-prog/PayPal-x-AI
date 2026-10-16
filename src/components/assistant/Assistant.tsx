@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowUp, ChevronDown, ShieldCheck, ShieldAlert, SquarePen, X } from "lucide-react";
+import { ArrowUp, SquarePen, X } from "lucide-react";
 import { useAssistantUI, useFinance } from "@/components/state/AppProviders";
 import type { AgentResponse } from "@/lib/agent/types";
 import { ActionList } from "./ActionCards";
@@ -415,7 +415,6 @@ function AssistantMessage({ message: m, canAnswer, onSend }: { message: UIMessag
             <p className={info ? "text-text" : "text-negative"}>{info ? info.text : "This citation does not match any evidence or tool result from this turn."}</p>
           </div>
         )}
-        {response && <GuardrailBadge response={response} />}
       </div>
     </article>
   );
@@ -429,76 +428,4 @@ function AiAvatar() {
   );
 }
 
-const pctLabel = (p: number) => `${Math.round(p * 100)}%`;
 
-function GuardrailBadge({ response }: { response: AgentResponse }) {
-  const [open, setOpen] = useState(false);
-  const g = response.guardrail;
-  const corrected = g.outcome !== "verified";
-  const Icon = corrected ? ShieldAlert : ShieldCheck;
-  const claims = g.claims ?? [];
-  const removed = g.removedClaims ?? [];
-  const supportedCount = claims.filter((c) => c.verdict === "supported").length;
-  const label = g.outcome === "blocked" ? "Restated by Jev" : corrected ? "Corrected by Jev" : "Verified by Jev";
-  const count =
-    g.outcome === "verified" ? (claims.length ? ` · ${supportedCount}/${claims.length} claims` : "") : removed.length ? ` · ${removed.length} claim${removed.length === 1 ? "" : "s"} removed` : "";
-  const hasDetail = claims.length > 0 || removed.length > 0 || response.evidence?.length > 0;
-  const retrieval = response.retrieval;
-  return (
-    <div className={`text-[11px] ${corrected ? "text-warning" : "text-faint"}`}>
-      <button
-        type="button"
-        onClick={() => hasDetail && setOpen((v) => !v)}
-        aria-expanded={open}
-        title={`TypeSafe Jev (${g.mode})${g.unsupportedFigures.length ? ` · flagged: ${g.unsupportedFigures.join(", ")}` : ""}${response.warning ? ` · ${response.warning}` : ""}`}
-        className={`inline-flex items-center gap-1 ${hasDetail ? "cursor-pointer hover:text-text" : "cursor-default"}`}
-      >
-        <Icon size={12} /> {label}
-        {count}
-        {g.mode === "mock" ? " (mock)" : ""}
-        {hasDetail && <ChevronDown size={11} className={`transition ${open ? "rotate-180" : ""}`} />}
-      </button>
-      {open && (
-        <div className="mt-1.5 space-y-2 rounded-xl border border-border bg-surface-2 p-2.5 text-muted">
-          {retrieval && (
-            <p className="text-[11px] text-faint">
-              Evidence: {response.evidence.length} of {retrieval.candidates.prefiltered} reranked candidates ({retrieval.candidates.built} built) · {retrieval.mode === "live" ? "Jev rerank" : "lexical rerank (mock)"}
-              {retrieval.intent ? ` · intent: ${retrieval.intent.intent.replace(/_/g, " ")}` : ""}
-            </p>
-          )}
-          {claims.length > 0 && (
-            <ul className="space-y-1.5">
-              {claims.map((c, i) => (
-                <ClaimRow key={i} text={c.text} supported={c.supported} citations={c.citations} ok={c.verdict === "supported"} />
-              ))}
-            </ul>
-          )}
-          {removed.length > 0 && (
-            <div>
-              <div className="mb-1 text-[10.5px] font-medium uppercase tracking-wide text-warning">Removed (unsupported, threshold {pctLabel(g.claimThreshold ?? 0.6)})</div>
-              <ul className="space-y-1.5">
-                {removed.map((c, i) => (
-                  <ClaimRow key={i} text={c.text} supported={c.supported} citations={c.citations} ok={false} removed />
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function ClaimRow({ text, supported, citations, ok, removed }: { text: string; supported: number; citations: string[]; ok: boolean; removed?: boolean }) {
-  return (
-    <li className="flex items-start gap-2 text-[12px] leading-snug">
-      <span className={`mt-px w-9 shrink-0 text-right font-mono text-[11px] ${ok ? "text-positive" : "text-negative"}`} title="Jev: probability the cited evidence supports this claim">
-        {pctLabel(supported)}
-      </span>
-      <span className={`min-w-0 flex-1 ${removed ? "text-faint line-through decoration-negative/50" : "text-text"}`}>
-        {text}
-        {citations.length > 0 && <span className="ml-1 font-mono text-[10px] text-faint">{citations.join(" ")}</span>}
-      </span>
-    </li>
-  );
-}
