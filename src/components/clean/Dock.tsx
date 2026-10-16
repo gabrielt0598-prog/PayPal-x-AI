@@ -36,7 +36,7 @@ export function Dock({ bubble, onBubble }: { bubble?: DockBubble | null; onBubbl
   const { page, go } = useClean();
   const { open: aiOpen, toggleAssistant, openAssistant } = useAssistantUI();
   const { state } = useFinance();
-  const name = state?.userProfile.name ?? "Jordan Lee";
+  const name = state?.userProfile.name ?? "John Doe";
   const initials = name.split(" ").map((p) => p[0]).join("").slice(0, 2);
 
   return (

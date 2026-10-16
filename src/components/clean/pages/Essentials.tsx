@@ -178,7 +178,7 @@ export function EssentialsPage() {
     ? [
         "Found the items in Harbor & Home’s Store Sync catalog",
         `Checked price and stock · ${money(sheetT.total)}`,
-        `Created a cart with ${sheetT.items.length} item${sheetT.items.length === 1 ? "" : "s"} · shipping to 1458 Fell St`,
+        `Created a cart with ${sheetT.items.length} item${sheetT.items.length === 1 ? "" : "s"} · shipping to 2211 N First St`,
         run?.orderId ? `Created PayPal order ${run.orderId}` : "Creating a PayPal order (Orders API)",
         "Approved with PayPal",
         run?.captureId ? `Captured the payment · ${run.captureId}` : "Captured the payment",
@@ -340,8 +340,8 @@ export function EssentialsPage() {
                     </span>
                   </div>
                   <div className="flex min-w-0 flex-col justify-center rounded-[10px] border border-border px-3 py-2.5">
-                    <span className="text-[13px] font-medium">Ship to Jordan Lee</span>
-                    <span className="block truncate text-xs text-faint">1458 Fell St · arrives Mon, Oct 12</span>
+                    <span className="text-[13px] font-medium">Ship to John Doe</span>
+                    <span className="block truncate text-xs text-faint">2211 N First St · arrives Mon, Oct 12</span>
                   </div>
                 </div>
                 <p className="text-xs leading-normal text-faint">Sold and shipped by {MERCHANT} through PayPal Store Sync. Your receipt and tracking land in PayPal Activity.</p>

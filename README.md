@@ -184,8 +184,8 @@ src/
 
 ## Mock data
 
-`src/lib/mock-data.ts` deterministically generates 1 Jan – 7 Oct 2026 for Jordan
-Lee ($75,000/yr, biweekly Acme Inc. payroll into PayPal), matching the Clean
+`src/lib/mock-data.ts` deterministically generates 1 Jan – 7 Oct 2026 for John
+Doe ($75,000/yr, biweekly Acme Inc. payroll into PayPal), matching the Clean
 design in `design/clean`: the same recent transactions (Thistle, Ember Roast,
 Plateful, Corevale, Hopline, Parkside Apartments rent, Sonora, Brightgrid Energy, Greenfold,
 Lilia, an unrecognised "SQ *COPPER PEAK" charge to review), the same bills

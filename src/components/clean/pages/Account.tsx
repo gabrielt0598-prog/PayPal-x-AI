@@ -99,7 +99,7 @@ export function AccountPage() {
     toast("Forgotten", `${factLabel(f.key)} won’t be used in future answers`, { kind: "warn" });
   };
   const settings: { title: string; rows: ({ label: string; sub?: string } & ({ value: string } | { key: string }))[] }[] = [
-    { title: "Profile", rows: [{ label: "Name", value: p.name }, { label: "Email", value: p.email }, { label: "Phone", value: "•••• 0142" }, { label: "Address", value: "1458 Fell St", sub: "Used for deliveries from Essentials" }] },
+    { title: "Profile", rows: [{ label: "Name", value: p.name }, { label: "Email", value: p.email }, { label: "Phone", value: "•••• 0142" }, { label: "Address", value: "2211 N First St", sub: "Used for deliveries from Essentials" }] },
     { title: "Security", rows: [{ label: "Password", value: "Changed 3 months ago" }, { label: "Two-step verification", key: "twoStep", sub: "Ask for a code when signing in on a new device" }, { label: "Face ID sign-in", key: "bio" }] },
     { title: "Notifications", rows: [{ label: "Push notifications", key: "push" }, { label: "Payment alerts", key: "pay", sub: "Every purchase over $25" }, { label: "Low balance alerts", key: "low", sub: "When your balance drops under $25" }, { label: "Offers and news", key: "news" }] },
     { title: "Stella", rows: [{ label: "Learn from my chats", key: "learn", sub: "Remember preferences you share to personalise answers" }, { label: "Actions", value: "Asks before acting", sub: "Cancellations, payments and disputes always need your approval" }] },

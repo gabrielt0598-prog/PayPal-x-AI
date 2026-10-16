@@ -20,8 +20,8 @@ const SWEEP_KEEP = 2900;
 
 export const userProfile: UserProfile = {
   id: "user_jordan",
-  name: "Jordan Lee",
-  email: "jordan.lee@example.com",
+  name: "John Doe",
+  email: "john.doe@example.com",
   currency: "USD",
   annualSalary: 75000,
   // $75k gross → ~$57.6k net after federal/state/FICA, paid biweekly.
