@@ -1496,6 +1496,23 @@
    "w": 120,
    "x": 4540,
    "y": 417
+  },
+  "Screen-ess-link-paypal.dc.html": {
+   "expand": "fill",
+   "h": 875,
+   "page": "addlink",
+   "title": "5 · PayPal's approval page (illustration)",
+   "w": 1400,
+   "x": 6240,
+   "y": 0
+  },
+  "Arrow-p4-4.dc.html": {
+   "h": 40,
+   "page": "addlink",
+   "title": "→",
+   "w": 120,
+   "x": 6100,
+   "y": 417
   }
  },
  "createdOnFiles": {
@@ -1904,7 +1921,7 @@
    "fill": "green",
    "maxH": 875,
    "page": "addlink",
-   "text": "NEW · Add an item from a link (static preview, not on Final yet).\n\nPaste any product link; Stella reads the page, builds a listing with photo and price, and it joins the Essentials grid. Paying uses a PayPal order with the item link and photo.\n\n1. Paste a link\n2. Listing built · price editable\n3. Added to the grid · Undo\n4. Pay with PayPal",
+   "text": "NEW · Add an item from a link (static preview, not on Final yet).\n\nPaste any product link; Stella reads the page, builds a listing with photo and price, and it joins the Essentials grid. Paying uses a PayPal order with the item link and photo.\n\n1. Paste a link\n2. Listing built · price editable\n3. Added to the grid · Undo\n4. Pay with PayPal · our order sheet\n5. PayPal's own approval page (illustration)",
    "w": 480,
    "x": -560,
    "y": 0
@@ -2079,6 +2096,8 @@
   "Arrow-p4-1.dc.html",
   "Arrow-p4-2.dc.html",
   "Arrow-p4-3.dc.html",
+  "Screen-ess-link-paypal.dc.html",
+  "Arrow-p4-4.dc.html",
   "Screen-p3-10-4-whatif-apply.dc.html",
   "ProtoClean.dc.html",
   "Icon.dc.html",
