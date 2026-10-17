@@ -865,7 +865,7 @@ div:has(> .m-by):nth-child(3n+2) > .m-by{animation-delay:150ms}div:has(> .m-by):
 
 <sc-if value="{{is.essentials}}" hint-placeholder-val="{{false}}">
 <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; height: 100%; overflow-y: auto; padding: 28px 32px; display: flex; flex-direction: column; gap: 18px">
-<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px"><div style="flex-grow: 1; display: flex; flex-direction: column"><span style="display: flex; align-items: center; gap: 12px"><sc-if value="{{rail.dockNav}}" hint-placeholder-val="{{false}}"><img src="{{stellaLogo}}" alt="" aria-hidden="true" style="width: 36px; height: 36px; flex-shrink: 0; display: block"></sc-if><h1 style="margin: 0; font-size: 24px; font-weight: 600; line-height: 1.2">Essentials</h1></span></div><button type="button" onClick="{{reorderSel}}" disabled="{{ess.noneSel}}" style="{{ess.headBtn}}"><dc-import name="Icon" icon="cart" color="#0a0a0a" size="16" hint-size="16px,16px"></dc-import>{{ess.headLabel}}</button></header>
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px"><div style="flex-grow: 1; display: flex; flex-direction: column"><span style="display: flex; align-items: center; gap: 12px"><sc-if value="{{rail.dockNav}}" hint-placeholder-val="{{false}}"><img src="{{stellaLogo}}" alt="" aria-hidden="true" style="width: 36px; height: 36px; flex-shrink: 0; display: block"></sc-if><h1 style="margin: 0; font-size: 24px; font-weight: 600; line-height: 1.2">Essentials</h1></span></div><button type="button" onClick="{{reorderSel}}" disabled="{{ess.noneSel}}" style="{{ess.headBtn}}"><dc-import name="Icon" icon="cart" color="#0a0a0a" size="16" hint-size="16px,16px"></dc-import>{{ess.headLabel}}</button><sc-if value="{{ess.linkOn}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{openLink}}" style="{{btn.secondary}}"><dc-import name="Icon" icon="plus" color="var(--t1)" size="16" hint-size="16px,16px"></dc-import>Add item</button></sc-if></header>
 <div role="tablist" aria-label="Essentials views" style="display: flex; gap: 4px; align-self: flex-start; padding: 3px; border-radius: 999px; background: var(--s2); border: 1px solid var(--b1)">
 <sc-for list="{{ess.tabs}}" as="t" hint-placeholder-count="2"><button type="button" role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="{{t.style}}">{{t.label}}</button></sc-for>
 </div>
@@ -878,12 +878,13 @@ div:has(> .m-by):nth-child(3n+2) > .m-by{animation-delay:150ms}div:has(> .m-by):
 <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px"><span style="font-size: 18px; font-weight: 600">{{e.priceText}}</span><sc-if value="{{e.hasDisc}}" hint-placeholder-val="{{false}}"><span style="font-size: 14px; color: var(--t3); text-decoration: line-through">{{e.wasText}}</span><span style="{{pill.pos}}">{{e.discPct}}</span></sc-if></div>
 <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
 <span style="{{oneLine}} font-size: 16px; font-weight: 400; line-height: 22px">{{e.n}}</span>
-<span style="{{oneLine}} font-size: 13px; color: var(--t3)">Sold by Harbor &amp; Home</span>
+<span style="{{oneLine}} font-size: 13px; color: var(--t3)">{{e.soldBy}}</span>
 </div>
 </div>
 <div style="margin-top: auto; padding-top: 12px"><button type="button" onClick="{{e.toggle}}" aria-pressed="{{e.selAria}}" style="{{e.selStyle}}">{{e.selLabel}}</button></div>
 </article>
 </sc-for>
+<sc-if value="{{ess.linkOn}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{openLink}}" aria-label="Add an item from a link" style="min-height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 14px; border-radius: var(--radius-lg); border: 1px dashed var(--b2); background: transparent; color: var(--t2); font-family: inherit; cursor: pointer"><dc-import name="Icon" icon="plus" color="var(--t2)" size="22" hint-size="22px,22px"></dc-import><span style="font-size: 15px; font-weight: 500; color: var(--t1)">Add an item</span><span style="font-size: 13px">Paste a product link</span></button></sc-if>
 </div>
 </sc-if>
 <sc-if value="{{ess.showHistory}}" hint-placeholder-val="{{false}}">
@@ -1274,6 +1275,27 @@ div:has(> .m-by):nth-child(3n+2) > .m-by{animation-delay:150ms}div:has(> .m-by):
 </div>
 </sc-if>
 
+<sc-if value="{{link.open}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; z-index: 20; background: var(--scrim); display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box">
+<div role="dialog" aria-labelledby="ess-link-title" style="{{modalWide}}">
+<div style="display: flex; align-items: center; gap: 10px"><h2 id="ess-link-title" style="margin: 0; flex-grow: 1; font-size: 20px; font-weight: 600">Add an item</h2><span style="{{link.pill}}">{{link.pillText}}</span></div>
+<p style="margin: 0; font-size: 13px; line-height: 1.5; color: var(--t2)">Paste a link to any product. Stella reads the page and builds a listing you can pay for with PayPal.</p>
+<label style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 14px; border-radius: var(--radius); background: var(--s2); border: 1px solid var(--b2)"><span style="font-size: 13px; color: var(--t3)">Link</span><input id="ess-link-input" type="text" value="{{link.url}}" onChange="{{link.onUrl}}" placeholder="https://" aria-label="Product link" style="min-width: 0; flex-grow: 1; padding: 0; background: transparent; border: 0; outline: none; color: var(--t1); font-family: inherit; font-size: 14px"></label>
+<sc-if value="{{link.built}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: var(--radius); background: var(--s1); border: 1px solid var(--b1)">
+<img src="{{link.img}}" alt="" style="width: 88px; height: 88px; flex-shrink: 0; border-radius: var(--radius); object-fit: cover">
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px"><span style="font-size: 15px; font-weight: 600; line-height: 1.3">{{link.title}}</span><span style="font-size: 12px; color: var(--t3)">{{link.host}}</span>
+<label style="display: flex; align-items: center; gap: 8px; align-self: flex-start; height: 36px; padding: 0 12px; border-radius: 10px; background: var(--s2); border: 1px solid var(--b2)"><span style="font-size: 12px; color: var(--t3)">Price</span><span style="font-size: 14px; color: var(--t2)">$</span><input type="text" inputmode="decimal" value="{{link.price}}" onChange="{{link.onPrice}}" aria-label="Price" style="width: 64px; padding: 0; background: transparent; border: 0; outline: none; color: var(--t1); font-family: inherit; font-size: 14px; font-weight: 500"></label></div>
+</div>
+<p style="margin: 0; font-size: 12px; line-height: 1.5; color: var(--t3)">The price is read from the page, so check it matches before you pay.</p>
+<div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px"><button type="button" onClick="{{closeLink}}" style="{{btn.secondary}}">Cancel</button><button type="button" onClick="{{link.add}}" style="{{btn.primary}}">Add to Essentials</button></div>
+</sc-if>
+<sc-if value="{{link.paste}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px"><button type="button" onClick="{{closeLink}}" style="{{btn.secondary}}">Cancel</button><button type="button" onClick="{{link.build}}" disabled="{{link.cantBuild}}" style="{{btn.primary}}">Build listing</button></div>
+</sc-if>
+</div>
+</div>
+</sc-if>
 <sc-if value="{{sheet.open}}" hint-placeholder-val="{{false}}">
 <div style="position: absolute; inset: 0; z-index: 20; background: var(--scrim); display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box">
 <div role="dialog" aria-labelledby="ess-sheet-title" aria-live="polite" style="{{modalWide}}">
@@ -1290,7 +1312,7 @@ div:has(> .m-by):nth-child(3n+2) > .m-by{animation-delay:150ms}div:has(> .m-by):
 <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius); border: 1px solid var(--acc)"><dc-import name="Icon" icon="wallet" color="var(--acc)" hint-size="18px,18px"></dc-import><span style="min-width: 0; display: flex; flex-direction: column"><span style="font-size: 13px; font-weight: 500">PayPal balance</span><span style="{{oneLine}} font-size: 12px; color: var(--t3)">{{balance}} · backup Northwind ••7712</span></span></div>
 <div style="display: flex; flex-direction: column; justify-content: center; padding: 10px 12px; border-radius: var(--radius); border: 1px solid var(--b1)"><span style="font-size: 13px; font-weight: 500">Ship to John Doe</span><span style="{{oneLine}} font-size: 12px; color: var(--t3)">2211 N First St · arrives Mon, Oct 12</span></div>
 </div>
-<p style="margin: 0; font-size: 12px; line-height: 1.5; color: var(--t3)">Sold and shipped by Harbor &amp; Home through PayPal Store Sync. Your receipt and tracking land in PayPal Activity.</p>
+<p style="margin: 0; font-size: 12px; line-height: 1.5; color: var(--t3)">{{sheet.note}}</p>
 <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px"><button type="button" onClick="{{closeSheet}}" style="{{btn.secondary}}">Not now</button><button type="button" onClick="{{runOrder}}" style="{{btn.primary}}">Pay with PayPal · {{sheet.total}}</button></div>
 </sc-if>
 <sc-if value="{{sheet.running}}" hint-placeholder-val="{{false}}">
@@ -1360,7 +1382,7 @@ class Component extends DCLogic {
         { id: 'c3', title: 'What’s due in the next two weeks', group: 'This week', ago: '3d', msgs: [{ u: 'What’s due in the next two weeks?' }, { ai: 'due' }] },
         { id: 'c4', title: 'Reorder toilet paper', group: 'This week', ago: '4d', msgs: [{ u: 'Reorder my toilet paper' }, { ai: 'reorder' }] },
       ],
-      essTab: 'items', txRange: '1M', txMenu: null, txSearch: false, txQuery: '', txDate: 'all', rwPts: 1845, rwMode: 'cash', rwAmt: 1000, rwIn: '1000', rwCat: 'Restaurants', rwLog: [], insMonth: 'Sep', insMenu: false, eQty: {}, eSel: { tp: true, sponge: true, soap: true }, eLast: {}, eSheet: null, eRun: null,
+      essTab: 'items', eLink: null, eWeb: [], eLinkOn: false, txRange: '1M', txMenu: null, txSearch: false, txQuery: '', txDate: 'all', rwPts: 1845, rwMode: 'cash', rwAmt: 1000, rwIn: '1000', rwCat: 'Restaurants', rwLog: [], insMonth: 'Sep', insMenu: false, eQty: {}, eSel: { tp: true, sponge: true, soap: true }, eLast: {}, eSheet: null, eRun: null,
       orders: [
         { date: 'Sep 14', m: 'a', via: 'Cartly', ids: ['bodywash'], items: 'Tideline Men Body Wash', total: 12.47, conf: '112-6620418-3381024', status: 'Delivered' },
         { date: 'Sep 2', m: 'a', via: 'Cartly', ids: ['tp'], items: 'Cloudsoft Toilet Paper', total: 34.75, conf: '112-9083317-5520941', status: 'Delivered' },
@@ -1433,6 +1455,10 @@ class Component extends DCLogic {
       'ess-running': { page: 'essentials', eSheet: { ...sheet }, eRun: { step: 3 } },
       'ess-done': { page: 'essentials', eSheet: { ...sheet }, eRun: { step: 7, done: true, conf: '112-7704418-2260931' } },
       'ess-history': { page: 'essentials', essTab: 'history' },
+      'ess-link-paste': { page: 'essentials', eLinkOn: true, eLink: { stage: 'paste', url: 'https://fernwoodhome.co/products/linen-napkins-4' } },
+      'ess-link-built': { page: 'essentials', eLinkOn: true, eLink: { stage: 'built', url: 'https://fernwoodhome.co/products/linen-napkins-4' } },
+      'ess-link-added': { page: 'essentials', eLinkOn: true, eWeb: [this.webItem(24)], eSel: { w1: true }, toast: { title: 'Added Linen napkins to Essentials', sub: 'From fernwoodhome.co · $24.00', undo: true, kind: 'success', web: true } },
+      'ess-link-pay': { page: 'essentials', eLinkOn: true, eWeb: [this.webItem(24)], eSel: { w1: true }, eSheet: { w1: true }, eRun: null },
       'offers': { page: 'offers' },
       'offers-detail': { page: 'offers', offerSel: 'doordash' },
       'offers-added': { page: 'offers', offerSel: 'doordash', offers: { target: 'pending', wholefoods: 'earned', doordash: 'added' } },
@@ -1491,7 +1517,7 @@ class Component extends DCLogic {
   kickCount() { try { if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch (e) {} clearTimeout(this.nT); const t0 = Date.now(); const step = () => { const p = Math.min(1, (Date.now() - t0) / 800); this.setState({ cnt: 1 - Math.pow(1 - p, 3) }); if (p < 1) this.nT = setTimeout(step, 40); }; this.setState({ cnt: 0 }); this.nT = setTimeout(step, 40); }
   cnt(str) { const c = this.state.cnt; if (c == null || c >= 1) return str; return str.replace(/\d[\d,]*(\.\d+)?/, (m) => (parseFloat(m.replace(/,/g, '')) * c).toFixed((m.split('.')[1] || '').length).replace(/\B(?=(\d{3})+(?!\d))/g, ',')); }
   componentWillUnmount() { clearTimeout(this.nT); clearInterval(this.kTimer); clearInterval(this.oTimer); clearTimeout(this.tTimer); clearTimeout(this.cTimer); }
-  showToast(title, sub, undo, kind) { clearTimeout(this.tTimer); this.setState({ toast: { title, sub, undo: !!undo, kind: kind || 'success' } }); this.tTimer = setTimeout(() => this.fadeToast(), 4150); }
+  showToast(title, sub, undo, kind, web) { clearTimeout(this.tTimer); this.setState({ toast: { title, sub, undo: !!undo, kind: kind || 'success', web: !!web } }); this.tTimer = setTimeout(() => this.fadeToast(), 4150); }
   fadeToast() { clearTimeout(this.tTimer); const t = this.state.toast; if (!t) return; this.setState({ toast: { ...t, out: true } }); this.tTimer = setTimeout(() => this.setState({ toast: null }), 350); }
   money(n) { const s = Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); return (n < 0 ? '−$' : '$') + s; }
   get SUBS() {
@@ -1522,10 +1548,11 @@ class Component extends DCLogic {
       { id: 'brita', img: 'https://images.unsplash.com/photo-1768853099411-b0405e07c73d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDE3MjIwfDB8MXxzZWFyY2h8Nnx8d2F0ZXIlMjBmaWx0ZXIlMjBwaXRjaGVyJTIwa2l0Y2hlbnxlbnwwfHx8fDE3OTE4NjQ1Mzd8Mg&ixlib=rb-4.1.0&q=80&w=600', asin: 'B0CKV2BNZL', brand: 'Clearpour', n: 'Replacement Water Filters', short: 'Clearpour filters', size: '4 filters', price: 23.39, was: 29.24, every: 240, last: 'Mar 18' },
     ];
   }
+  webItem(price) { return { id: 'w1', img: 'https://images.unsplash.com/photo-1770731206301-43a9683f3438?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDE3MjIwfDB8MXxzZWFyY2h8MXx8bGluZW4lMjBkaXNoJTIwdG93ZWxzfGVufDB8Mnx8fDE3OTIyNjQzNTF8Mg&ixlib=rb-4.1.0&q=80&w=600', asin: '', brand: 'Fernwood Home', n: 'Linen Napkins, set of 4', short: 'Linen napkins', size: '4 napkins', price, every: 9999, last: 'Oct 7', web: true, host: 'fernwoodhome.co', url: 'https://fernwoodhome.co/products/linen-napkins-4' }; }
   dayOf(s) { const [mo, d] = s.split(' '); return { Jan: 0, Feb: 31, Mar: 59, Apr: 90, May: 120, Jun: 151, Jul: 181, Aug: 212, Sep: 243, Oct: 273, Nov: 304, Dec: 334 }[mo] + +d; }
   essView() {
     const S = this.state;
-    return this.ESSENTIALS.map((e) => {
+    return [...(S.eWeb || []), ...this.ESSENTIALS].map((e) => {
       const last = S.eLast[e.id] || e.last; const since = 280 - this.dayOf(last); const left = e.every - since;
       return { ...e, last, qty: S.eQty[e.id] || 1, due: left <= 5, left };
     });
@@ -1874,7 +1901,7 @@ class Component extends DCLogic {
     const essItems = ESS.map((e) => {
       const on = !!S.eSel[e.id];
       const setQty = (n) => () => this.setState({ eQty: { ...this.state.eQty, [e.id]: Math.max(1, Math.min(9, n)) } });
-      return { ...e, url: 'https://www.cartly.com/dp/' + e.asin, priceText: this.money(e.price), hasDisc: !!e.was, wasText: e.was ? this.money(e.was) : '', discPct: e.was ? Math.round((1 - e.price / e.was) * 100) + '% off' : '', lastText: e.last, cadence: cadence(e.every),
+      return { ...e, soldBy: e.web ? 'From ' + e.host : 'Sold by Harbor & Home', url: e.web ? e.url : 'https://www.cartly.com/dp/' + e.asin, priceText: this.money(e.price), hasDisc: !!e.was, wasText: e.was ? this.money(e.was) : '', discPct: e.was ? Math.round((1 - e.price / e.was) * 100) + '% off' : '', lastText: e.last, cadence: cadence(e.every),
         status: e.due ? (e.left < 0 ? 'Due ' + -e.left + 'd ago' : 'Due now') : 'In ' + e.left + ' days', pill: e.due ? PILL.warn : PILL.neu,
         card: cardBase + 'height: 100%; padding: 14px; display: flex; flex-direction: column; gap: 12px; ' + (on ? 'border-color: var(--acc)' : ''),
         dec: setQty(e.qty - 1), inc: setQty(e.qty + 1), decAria: 'Fewer ' + e.short, incAria: 'More ' + e.short,
@@ -1885,7 +1912,8 @@ class Component extends DCLogic {
     });
     const sheetT = S.eSheet ? this.orderTotals(S.eSheet) : null;
     const r = S.eRun; const rStep = r ? r.step : 0;
-    const ORDER_STEPS = sheetT ? ['Found the items in Harbor & Home’s Store Sync catalog', 'Checked price and stock · ' + this.money(sheetT.total), 'Created a cart with ' + sheetT.items.length + ' item' + (sheetT.items.length === 1 ? '' : 's'), 'Added shipping to 2211 N First St', 'Paid with PayPal balance', 'Harbor & Home confirmed the order', 'Saved the receipt to PayPal Activity'] : [];
+    const sheetWeb = !!(sheetT && sheetT.items.some((e) => e.web));
+    const ORDER_STEPS = sheetT && sheetWeb ? ['Read the listing from fernwoodhome.co', 'Checked price · ' + this.money(sheetT.total), 'Created a PayPal order with the item link', 'Added shipping to 2211 N First St', 'Paid with PayPal balance', 'Order sent to Fernwood Home', 'Saved the receipt to PayPal Activity'] : sheetT ? ['Found the items in Harbor & Home’s Store Sync catalog', 'Checked price and stock · ' + this.money(sheetT.total), 'Created a cart with ' + sheetT.items.length + ' item' + (sheetT.items.length === 1 ? '' : 's'), 'Added shipping to 2211 N First St', 'Paid with PayPal balance', 'Harbor & Home confirmed the order', 'Saved the receipt to PayPal Activity'] : [];
 
     // Spending chart: one line style for every range (solid = current, dashed = comparison, dotted = month to date)
     const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -2281,7 +2309,7 @@ class Component extends DCLogic {
       startKernel: () => sel && this.runKernel(sel.n),
       stopKernel: () => { clearInterval(this.kTimer); this.setState({ kernel: null }); this.showToast('Cancellation stopped', 'Nothing was changed on ' + (sel ? sel.n : 'the merchant site'), false, 'warn'); },
       showProof: () => this.setState({ kernel: null }),
-      undoCancel: () => { const n = S.subSel || cancelledNames[cancelledNames.length - 1]; if (!n) return; const c = { ...S.cancelled }; delete c[n]; this.setState({ cancelled: c, kernel: null, toast: null }); },
+      undoCancel: () => { if (S.toast && S.toast.web) { const w = (S.eWeb || []).slice(0, -1); const sel = { ...S.eSel }; delete sel.w1; this.setState({ eWeb: w, eSel: sel, toast: null }); return; } const n = S.subSel || cancelledNames[cancelledNames.length - 1]; if (!n) return; const c = { ...S.cancelled }; delete c[n]; this.setState({ cancelled: c, kernel: null, toast: null }); },
       kernel: sel && k ? { running: !k.done, done: !!k.done, title: k.done ? sel.n + ' cancelled' : 'Cancelling ' + sel.n + '…',
         pill: k.done ? PILL.pos : PILL.neg, pillText: k.done ? 'Completed' : '● Live',
         url: (sel.domain || 'merchant.com') + (kStep >= 6 ? '/account/cancelled' : '/account/membership'),
@@ -2292,7 +2320,7 @@ class Component extends DCLogic {
           line: i < STEP_LABELS.length - 1 ? 'width: 2px; flex: 1 1 0; min-height: 12px; margin: 0; background: ' + (i < kStep ? 'var(--pos)' : 'var(--b2)') : 'display: none',
           dot: dot + (i < kStep ? 'background: var(--pos-bg); color: var(--pos)' : i === kStep && !k.done ? 'background: var(--acc-bg); color: var(--acc)' : 'background: var(--s3); color: var(--t3)'),
           text: i <= kStep ? 'font-weight: ' + (i === kStep && !k.done ? '600' : '400') : 'color: var(--t3)' })) } : { running: false, done: false, steps: [] },
-      ess: { dueCount: String(dueEss.length), items: essItems, showItems: S.essTab === 'items', showHistory: S.essTab === 'history', noneSel: cartT.items.length === 0,
+      ess: { linkOn: !!S.eLinkOn, dueCount: String(dueEss.length), items: essItems, showItems: S.essTab === 'items', showHistory: S.essTab === 'history', noneSel: cartT.items.length === 0,
         headLabel: cartT.items.length ? 'Reorder ' + cartT.items.length + ' item' + (cartT.items.length === 1 ? '' : 's') : 'Select items to reorder',
         headBtn: btnBase + TH.primary + (cartT.items.length ? '' : '; opacity: 0.5'),
         tabs: [['items', 'Items · ' + ESS.length], ['history', 'Order history · ' + S.orders.length]].map(([id, label]) => ({ label, on: S.essTab === id ? 'true' : 'false', pick: () => this.setState({ essTab: id }), style: 'height: 32px; padding: 0 16px; border-radius: 999px; border: 0; font-family: inherit; font-size: 13px; font-weight: 500; ' + (S.essTab === id ? 'background: var(--s3); color: var(--t1)' : 'background: transparent; color: var(--t2)') })),
@@ -2301,11 +2329,20 @@ class Component extends DCLogic {
           again: () => { const ids = {}; (o.ids || []).forEach((x) => { ids[x] = true; }); this.setState({ eSheet: ids, eRun: null }); } })) },
       reorderSel: () => { if (cartT.items.length) this.setState({ eSheet: { ...S.eSel }, eRun: null }); },
       reorderDue: () => { const ids = {}; dueEss.forEach((e) => { ids[e.id] = true; }); if (dueEss.length) this.setState({ eSheet: ids, eRun: null }); },
+      openLink: () => this.setState({ eLink: { stage: 'paste', url: '' } }),
+      closeLink: () => this.setState({ eLink: null }),
+      link: S.eLink ? (() => { const L = S.eLink; const price = L.price !== undefined ? L.price : '24.00'; const n = parseFloat(price) || 0;
+        return { open: true, built: L.stage === 'built', paste: L.stage !== 'built', url: L.url, onUrl: (e) => this.setState({ eLink: { ...this.state.eLink, url: e.target.value } }), cantBuild: !(L.url || '').trim(),
+          build: () => this.setState({ eLink: { ...this.state.eLink, stage: 'built' } }),
+          price, onPrice: (e) => { let t = String(e.target.value).replace(/[^\d.]/g, ''); const d = t.indexOf('.'); if (d >= 0) t = t.slice(0, d + 1) + t.slice(d + 1).replace(/\./g, '').slice(0, 2); this.setState({ eLink: { ...this.state.eLink, price: t.slice(0, 7) } }); },
+          img: this.webItem(n).img, title: 'Linen Napkins, set of 4', host: 'fernwoodhome.co · read from the page', pillText: L.stage === 'built' ? 'Listing ready' : 'Paste a link', pill: L.stage === 'built' ? PILL.pos : PILL.neu,
+          add: () => { if (!(n > 0)) return; const it = this.webItem(n); this.setState({ eWeb: [...(this.state.eWeb || []), it], eSel: { ...this.state.eSel, [it.id]: true }, eLink: null }); this.showToast('Added Linen napkins to Essentials', 'From fernwoodhome.co · ' + this.money(n), true, 'success', true); } };
+      })() : { open: false },
       closeSheet: () => { clearInterval(this.oTimer); this.setState({ eSheet: null, eRun: null }); },
       runOrder: () => this.runOrder(),
       sheet: sheetT ? { open: true, review: !r, running: !!r, done: !!(r && r.done),
         title: r && r.done ? 'Order placed' : r ? 'Checking out with PayPal…' : 'Your order',
-        pill: r && r.done ? PILL.pos : r ? PILL.acc : PILL.neu, pillText: r && r.done ? 'Completed' : r ? '● Store Sync' : 'Harbor & Home',
+        pill: r && r.done ? PILL.pos : r ? PILL.acc : PILL.neu, pillText: r && r.done ? 'Completed' : r ? (sheetWeb ? '● PayPal Orders' : '● Store Sync') : (sheetWeb ? 'From the web' : 'Harbor & Home'), note: sheetWeb ? 'Listing built from a product link. Paid through PayPal, with the link and photo saved on the order. The store confirms the shipment.' : 'Sold and shipped by Harbor & Home through PayPal Store Sync. Your receipt and tracking land in PayPal Activity.',
         locked: !!r,
         items: sheetT.items.map((e, i) => { const setQty = (n) => () => this.setState({ eQty: { ...this.state.eQty, [e.id]: Math.max(1, Math.min(9, n)) } });
           return { n: e.brand + ' ' + e.n, unit: this.money(e.price), qty: e.qty, total: this.money(e.price * e.qty), dec: setQty(e.qty - 1), inc: setQty(e.qty + 1), decAria: 'Fewer ' + e.short, incAria: 'More ' + e.short,
