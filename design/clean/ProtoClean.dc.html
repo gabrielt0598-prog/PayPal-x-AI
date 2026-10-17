@@ -884,7 +884,6 @@ div:has(> .m-by):nth-child(3n+2) > .m-by{animation-delay:150ms}div:has(> .m-by):
 <div style="margin-top: auto; padding-top: 12px"><button type="button" onClick="{{e.toggle}}" aria-pressed="{{e.selAria}}" style="{{e.selStyle}}">{{e.selLabel}}</button></div>
 </article>
 </sc-for>
-<sc-if value="{{ess.linkOn}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{openLink}}" aria-label="Add an item from a link" style="min-height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 14px; border-radius: var(--radius-lg); border: 1px dashed var(--b2); background: transparent; color: var(--t2); font-family: inherit; cursor: pointer"><dc-import name="Icon" icon="plus" color="var(--t2)" size="22" hint-size="22px,22px"></dc-import><span style="font-size: 15px; font-weight: 500; color: var(--t1)">Add an item</span><span style="font-size: 13px">Paste a product link</span></button></sc-if>
 </div>
 </sc-if>
 <sc-if value="{{ess.showHistory}}" hint-placeholder-val="{{false}}">
@@ -1285,9 +1284,8 @@ div:has(> .m-by):nth-child(3n+2) > .m-by{animation-delay:150ms}div:has(> .m-by):
 <div style="display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: var(--radius); background: var(--s1); border: 1px solid var(--b1)">
 <img src="{{link.img}}" alt="" style="width: 88px; height: 88px; flex-shrink: 0; border-radius: var(--radius); object-fit: cover">
 <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px"><span style="font-size: 15px; font-weight: 600; line-height: 1.3">{{link.title}}</span><span style="font-size: 12px; color: var(--t3)">{{link.host}}</span>
-<label style="display: flex; align-items: center; gap: 8px; align-self: flex-start; height: 36px; padding: 0 12px; border-radius: 10px; background: var(--s2); border: 1px solid var(--b2)"><span style="font-size: 12px; color: var(--t3)">Price</span><span style="font-size: 14px; color: var(--t2)">$</span><input type="text" inputmode="decimal" value="{{link.price}}" onChange="{{link.onPrice}}" aria-label="Price" style="width: 64px; padding: 0; background: transparent; border: 0; outline: none; color: var(--t1); font-family: inherit; font-size: 14px; font-weight: 500"></label></div>
+<span style="font-size: 18px; font-weight: 600">{{link.priceText}}</span></div>
 </div>
-<p style="margin: 0; font-size: 12px; line-height: 1.5; color: var(--t3)">The price is read from the page, so check it matches before you pay.</p>
 <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px"><button type="button" onClick="{{closeLink}}" style="{{btn.secondary}}">Cancel</button><button type="button" onClick="{{link.add}}" style="{{btn.primary}}">Add to Essentials</button></div>
 </sc-if>
 <sc-if value="{{link.paste}}" hint-placeholder-val="{{true}}">
@@ -2331,12 +2329,12 @@ class Component extends DCLogic {
       reorderDue: () => { const ids = {}; dueEss.forEach((e) => { ids[e.id] = true; }); if (dueEss.length) this.setState({ eSheet: ids, eRun: null }); },
       openLink: () => this.setState({ eLink: { stage: 'paste', url: '' } }),
       closeLink: () => this.setState({ eLink: null }),
-      link: S.eLink ? (() => { const L = S.eLink; const price = L.price !== undefined ? L.price : '24.00'; const n = parseFloat(price) || 0;
+      link: S.eLink ? (() => { const L = S.eLink; const n = 24;
         return { open: true, built: L.stage === 'built', paste: L.stage !== 'built', url: L.url, onUrl: (e) => this.setState({ eLink: { ...this.state.eLink, url: e.target.value } }), cantBuild: !(L.url || '').trim(),
           build: () => this.setState({ eLink: { ...this.state.eLink, stage: 'built' } }),
-          price, onPrice: (e) => { let t = String(e.target.value).replace(/[^\d.]/g, ''); const d = t.indexOf('.'); if (d >= 0) t = t.slice(0, d + 1) + t.slice(d + 1).replace(/\./g, '').slice(0, 2); this.setState({ eLink: { ...this.state.eLink, price: t.slice(0, 7) } }); },
+          priceText: this.money(n),
           img: this.webItem(n).img, title: 'Linen Napkins, set of 4', host: 'fernwoodhome.co · read from the page', pillText: L.stage === 'built' ? 'Listing ready' : 'Paste a link', pill: L.stage === 'built' ? PILL.pos : PILL.neu,
-          add: () => { if (!(n > 0)) return; const it = this.webItem(n); this.setState({ eWeb: [...(this.state.eWeb || []), it], eSel: { ...this.state.eSel, [it.id]: true }, eLink: null }); this.showToast('Added Linen napkins to Essentials', 'From fernwoodhome.co · ' + this.money(n), true, 'success', true); } };
+          add: () => { const it = this.webItem(n); this.setState({ eWeb: [...(this.state.eWeb || []), it], eSel: { ...this.state.eSel, [it.id]: true }, eLink: null }); this.showToast('Added Linen napkins to Essentials', 'From fernwoodhome.co · ' + this.money(n), true, 'success', true); } };
       })() : { open: false },
       closeSheet: () => { clearInterval(this.oTimer); this.setState({ eSheet: null, eRun: null }); },
       runOrder: () => this.runOrder(),
