@@ -35,6 +35,7 @@ import {
   CheckoutPaymentIntent,
   Client,
   Environment,
+  ItemCategory,
   OrdersController,
   PaypalExperienceUserAction,
   PaypalWalletContextShippingPreference,
@@ -277,20 +278,69 @@ export const paypal: PayPalService = {
     return { ok: true, channel: "local_store" };
   },
 
-  async createOrder({ amount, description, returnUrl, cancelUrl }) {
+  async createOrder({ amount, description, returnUrl, cancelUrl, details }) {
     const value = amount.toFixed(2);
+    const cents = (n: number) => Math.round(n * 100);
+    if (details) {
+      // PayPal rejects an order whose breakdown doesn't add up, so catch it here with a clear message.
+      const itemTotal = details.items.reduce((a, i) => a + cents(i.unitPrice) * i.quantity, 0);
+      if (itemTotal + cents(details.shipping) + cents(details.tax) !== cents(amount)) {
+        return { ok: false, error: "The order total doesn't match its items, shipping and tax", channel: paypalMode() === "live" ? "paypal_api" : "simulated" };
+      }
+    }
     if (paypalMode() === "live") {
       try {
+        const d = details;
         const { result } = await new OrdersController(sdk()).createOrder({
           body: {
             intent: CheckoutPaymentIntent.Capture,
-            purchaseUnits: [{ amount: { currencyCode: "USD", value }, description: description.slice(0, 127) }],
+            purchaseUnits: [
+              {
+                amount: {
+                  currencyCode: "USD",
+                  value,
+                  ...(d
+                    ? {
+                        breakdown: {
+                          itemTotal: { currencyCode: "USD", value: (d.items.reduce((a, i) => a + cents(i.unitPrice) * i.quantity, 0) / 100).toFixed(2) },
+                          shipping: { currencyCode: "USD", value: d.shipping.toFixed(2) },
+                          taxTotal: { currencyCode: "USD", value: d.tax.toFixed(2) },
+                        },
+                      }
+                    : {}),
+                },
+                description: description.slice(0, 127),
+                ...(d
+                  ? {
+                      items: d.items.map((i) => ({
+                        name: i.name.slice(0, 127),
+                        quantity: String(i.quantity),
+                        unitAmount: { currencyCode: "USD", value: i.unitPrice.toFixed(2) },
+                        category: ItemCategory.PhysicalGoods,
+                        ...(i.description ? { description: i.description.slice(0, 127) } : {}),
+                        ...(i.sku ? { sku: i.sku.slice(0, 127) } : {}),
+                        ...(i.url ? { url: i.url.slice(0, 2048) } : {}),
+                        ...(i.imageUrl ? { imageUrl: i.imageUrl.slice(0, 2048) } : {}),
+                      })),
+                      ...(d.invoiceId ? { invoiceId: d.invoiceId.slice(0, 127) } : {}),
+                      ...(d.shipTo
+                        ? {
+                            shipping: {
+                              name: { fullName: d.shipTo.name },
+                              address: { addressLine1: d.shipTo.line1, adminArea2: d.shipTo.city, adminArea1: d.shipTo.state, postalCode: d.shipTo.postalCode, countryCode: d.shipTo.country },
+                            },
+                          }
+                        : {}),
+                    }
+                  : {}),
+              },
+            ],
             paymentSource: {
               paypal: {
                 experienceContext: {
                   brandName: "Stella",
                   userAction: PaypalExperienceUserAction.PayNow,
-                  shippingPreference: PaypalWalletContextShippingPreference.NoShipping,
+                  shippingPreference: d?.shipTo ? PaypalWalletContextShippingPreference.SetProvidedAddress : PaypalWalletContextShippingPreference.NoShipping,
                   returnUrl,
                   cancelUrl,
                 },
@@ -298,6 +348,7 @@ export const paypal: PayPalService = {
             },
           },
           prefer: "return=representation",
+          ...(d?.requestId ? { paypalRequestId: d.requestId } : {}),
         });
         const link = result.links?.find((l) => l.rel === "payer-action" || l.rel === "approve");
         return { ok: true, orderId: result.id, status: result.status, approveUrl: link?.href, channel: "paypal_api" };

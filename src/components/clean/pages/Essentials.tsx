@@ -7,7 +7,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { payWithPayPal } from "../paypalOrder";
-import { Check, ChevronLeft, ChevronRight, ShoppingCart, Wallet } from "lucide-react";
+import { AddItemDialog } from "../AddItemDialog";
+import { priceOrder } from "@/lib/demo-user";
+import type { SignedListing } from "@/lib/services/linkReader";
+import { Check, ChevronLeft, ChevronRight, Package, Plus, ShoppingCart, Wallet, X } from "lucide-react";
 import { useFinance } from "@/components/state/AppProviders";
 import { useClean } from "../AppState";
 import { Product, type ProductKind } from "../Product";
@@ -16,15 +19,17 @@ import { Btn, Card, cx, money, Page, Pill } from "../ui";
 const MERCHANT = "Harbor & Home";
 
 // Unsplash photo with the drawn product art as a fallback if the image can't load.
-function Photo({ src, alt, kind }: { src: string; alt: string; kind: ProductKind }) {
+function Photo({ src, alt, kind }: { src: string; alt: string; kind?: ProductKind }) {
   const [failed, setFailed] = useState(false);
-  if (failed) return <Product kind={kind} size={170} />;
+  if (failed || !src) return kind ? <Product kind={kind} size={170} /> : <Package size={40} className="text-faint" aria-hidden="true" />;
   // eslint-disable-next-line @next/next/no-img-element
   return <img src={src} alt={alt} onError={() => setFailed(true)} className="size-full rounded-[10px] object-cover" />;
 }
 
 interface Item {
-  id: ProductKind;
+  id: string;
+  /** Set for items built from a pasted link (the server-signed listing). */
+  link?: SignedListing;
   img: string;
   brand: string;
   n: string;
@@ -68,6 +73,25 @@ const PAGE_SIZE = 10;
 const newConfirmation = () => "HH-" + String(Math.floor(10000 + Math.random() * 89999));
 const clampQty = (n: number) => Math.max(1, Math.min(9, n));
 
+// Items the user added from a link live in this browser; each carries the server-signed listing used to price its order.
+const WEB_KEY = "stella.essentials.web";
+function loadWeb(): SignedListing[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(WEB_KEY) ?? "[]");
+    return Array.isArray(raw) ? raw.filter((l) => l && typeof l.url === "string" && typeof l.sig === "string" && Number.isFinite(l.price)) : [];
+  } catch {
+    return [];
+  }
+}
+const hash = (s: string) => {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
+};
+const webId = (l: SignedListing) => "w" + hash(l.url);
+const webItem = (l: SignedListing): Item => ({ id: webId(l), link: l, img: l.imageUrl ?? "", brand: l.store, n: l.title, short: l.title.length > 28 ? l.title.slice(0, 27) + "…" : l.title, price: l.price, every: 9999, last: "Oct 7" });
+const storeOf = (e: { link?: SignedListing }) => e.link?.store ?? MERCHANT;
+
 export function EssentialsPage() {
   const { state } = useFinance();
   const { moveMoney, toast } = useClean();
@@ -78,25 +102,63 @@ export function EssentialsPage() {
   const [sheet, setSheet] = useState<Record<string, boolean> | null>(null);
   const [run, setRun] = useState<{ step: number; done?: boolean; conf?: string; orderId?: string; captureId?: string } | null>(null);
   const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
+  const [web, setWeb] = useState<SignedListing[]>(() => (typeof window === "undefined" ? [] : loadWeb()));
+  const [adding, setAdding] = useState(false);
   const [pg, setPg] = useState(0);
   // Bumped whenever the order sheet closes or a new run starts, so a late async step can't touch a stale run.
   const alive = useRef(0);
   useEffect(() => () => { alive.current += 1; }, []);
+  useEffect(() => {
+    try {
+      localStorage.setItem(WEB_KEY, JSON.stringify(web));
+    } catch {
+      /* private mode: the list just won't persist */
+    }
+  }, [web]);
 
-  const view = ITEMS.map((e) => {
+  const view = [...web.map(webItem), ...ITEMS].map((e) => {
     const l = last[e.id] ?? e.last;
     return { ...e, last: l, qty: qty[e.id] ?? 1 };
   });
   const totals = (ids: Record<string, boolean>) => {
     const items = view.filter((e) => ids[e.id]);
     const sub = items.reduce((a, e) => a + e.price * e.qty, 0);
-    const tax = Math.round(sub * 0.08625 * 100) / 100;
-    const ship = !items.length || sub >= 35 ? 0 : 5.99;
-    return { items, sub, tax, ship, total: sub + tax + ship };
+    return { items, ...priceOrder(sub) };
   };
   const cart = totals(sel);
   const sheetT = sheet ? totals(sheet) : null;
   const balance = state?.userProfile.paypalBalance;
+
+  const addLink = (l: SignedListing) => {
+    const id = webId(l);
+    const had = web.some((w) => webId(w) === id);
+    setWeb((w) => (had ? w : [l, ...w]));
+    setSel((s) => ({ ...s, [id]: true }));
+    setAdding(false);
+    setTab("items");
+    toast(`Added ${l.title} to Essentials`, `From ${l.store} · ${money(l.price)}`, {
+      undo: had
+        ? undefined
+        : () => {
+            setWeb((w) => w.filter((x) => webId(x) !== id));
+            setSel((s) => {
+              const n = { ...s };
+              delete n[id];
+              return n;
+            });
+          },
+    });
+  };
+  const removeLink = (l: SignedListing) => {
+    const id = webId(l);
+    setWeb((w) => w.filter((x) => webId(x) !== id));
+    setSel((s) => {
+      const n = { ...s };
+      delete n[id];
+      return n;
+    });
+    toast(`Removed ${l.title}`, "It's no longer in your Essentials", { undo: () => { setWeb((w) => [l, ...w]); } });
+  };
 
   const closeSheet = () => {
     alive.current += 1;
@@ -127,9 +189,13 @@ export function EssentialsPage() {
       if (!live()) return;
       setRun({ step: 3 });
       let ids = { orderId: "", captureId: "" };
+      const stores = [...new Set(t.items.map(storeOf))];
+      const merchantLabel = stores.join(" + ");
       const paidWith = await payWithPayPal({
         amount: Math.round(t.total * 100) / 100,
-        description: `${MERCHANT} · ${t.items.map((e) => e.short).join(", ")}`,
+        description: `${merchantLabel} · ${t.items.map((e) => e.short).join(", ")}`,
+        // Line items go to the Orders API: link items carry their server-signed listing, so the price is the store's, not ours.
+        lines: t.items.map((e) => (e.link ? { kind: "link" as const, listing: e.link, quantity: e.qty } : { kind: "catalog" as const, name: `${e.brand} ${e.n}`, unitPrice: e.price, quantity: e.qty, sku: e.id })),
         onOrder: (o) => {
           ids = { ...ids, orderId: o.orderId };
           if (live()) setRun({ step: 4, orderId: o.orderId });
@@ -144,7 +210,7 @@ export function EssentialsPage() {
       await wait(450);
       if (!live()) return;
       setRun({ step: 7, ...ids });
-      const ok = await moveMoney("purchase", t.total, MERCHANT);
+      const ok = await moveMoney("purchase", t.total, merchantLabel);
       if (!live()) return;
       if (!ok) {
         setRun(null);
@@ -162,11 +228,11 @@ export function EssentialsPage() {
         return n;
       });
       setOrders((o) => [
-        { date: "Oct 7", m: "H", via: "Harbor & Home · PayPal", ids: t.items.map((e) => e.id), items: t.items.map((e) => e.short + (e.qty > 1 ? " ×" + e.qty : "")).join(", "), total: t.total, conf, status: "Arriving Oct 12" },
+        { date: "Oct 7", m: "H", via: `${merchantLabel} · PayPal`, ids: t.items.map((e) => e.id), items: t.items.map((e) => e.short + (e.qty > 1 ? " ×" + e.qty : "")).join(", "), total: t.total, conf, status: "Arriving Oct 12" },
         ...o,
       ]);
       setRun({ step: 8, done: true, conf, ...ids });
-      toast(`Order placed with ${MERCHANT}`, `${money(t.total)} · paid with PayPal · arrives Oct 12`);
+      toast(`Order placed with ${merchantLabel}`, `${money(t.total)} · paid with PayPal · arrives Oct 12`);
     } catch (e) {
       if (!live()) return;
       setRun(null);
@@ -174,15 +240,17 @@ export function EssentialsPage() {
     }
   };
 
+  const sheetLabel = sheetT ? [...new Set(sheetT.items.map(storeOf))].join(" + ") : MERCHANT;
+  const sheetLinks = sheetT ? [...new Set(sheetT.items.filter((e) => e.link).map((e) => e.link!.store))] : [];
   const steps = sheetT
     ? [
-        "Found the items in Harbor & Home’s Store Sync catalog",
+        sheetLinks.length ? `Read the listing${sheetLinks.length > 1 ? "s" : ""} from ${sheetLinks.join(", ")}` : "Found the items in Harbor & Home’s Store Sync catalog",
         `Checked price and stock · ${money(sheetT.total)}`,
         `Created a cart with ${sheetT.items.length} item${sheetT.items.length === 1 ? "" : "s"} · shipping to 2211 N First St`,
         run?.orderId ? `Created PayPal order ${run.orderId}` : "Creating a PayPal order (Orders API)",
         "Approved with PayPal",
         run?.captureId ? `Captured the payment · ${run.captureId}` : "Captured the payment",
-        "Harbor & Home confirmed the order",
+        `${sheetLabel} confirmed the order`,
         "Saved the receipt to PayPal Activity",
       ]
     : [];
@@ -199,16 +267,22 @@ export function EssentialsPage() {
     <Page
       title="Essentials"
       actions={
-        <Btn kind="primary" disabled={!cart.items.length} onClick={() => cart.items.length && open({ ...sel })}>
-          <ShoppingCart size={16} />
-          {cart.items.length ? `Reorder ${cart.items.length} item${cart.items.length === 1 ? "" : "s"}` : "Select items to reorder"}
-        </Btn>
+        <>
+          <Btn onClick={() => setAdding(true)}>
+            <Plus size={16} />
+            Add item
+          </Btn>
+          <Btn kind="primary" disabled={!cart.items.length} onClick={() => cart.items.length && open({ ...sel })}>
+            <ShoppingCart size={16} />
+            {cart.items.length ? `Reorder ${cart.items.length} item${cart.items.length === 1 ? "" : "s"}` : "Select items to reorder"}
+          </Btn>
+        </>
       }
     >
       <div role="tablist" aria-label="Essentials views" className="flex gap-1 self-start rounded-full border border-border bg-surface-2 p-[3px]">
         {(
           [
-            ["items", `Items · ${ITEMS.length}`],
+            ["items", `Items · ${view.length}`],
             ["history", `Order history · ${orders.length}`],
           ] as const
         ).map(([id, label]) => (
@@ -224,8 +298,13 @@ export function EssentialsPage() {
             const on = !!sel[e.id];
             return (
               <article key={e.id} className={cx("flex h-full flex-col gap-3 rounded-[20px] bg-surface p-3.5", on && "ring-1 ring-accent")}>
-                <div className="flex aspect-square w-full shrink-0 items-center justify-center rounded-[10px] bg-surface-2">
-                  <Photo src={e.img} alt={e.n} kind={e.id} />
+                <div className="relative flex aspect-square w-full shrink-0 items-center justify-center rounded-[10px] bg-surface-2">
+                  {e.link && (
+                    <button type="button" aria-label={`Remove ${e.n}`} title="Remove" onClick={() => removeLink(e.link!)} className="absolute right-2 top-2 z-10 flex size-8 items-center justify-center rounded-full bg-black/55 text-white hover:bg-black/75">
+                      <X size={15} />
+                    </button>
+                  )}
+                  <Photo src={e.img} alt={e.n} kind={e.link ? undefined : (e.id as ProductKind)} />
                 </div>
                 <div className="flex min-w-0 flex-col gap-2">
                   <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -239,7 +318,7 @@ export function EssentialsPage() {
                   </div>
                   <div className="flex min-w-0 flex-col gap-0.5">
                     <span className="block truncate text-base leading-[22px]">{e.n}</span>
-                    <span className="block truncate text-[13px] text-faint">Sold by {MERCHANT}</span>
+                    <span className="block truncate text-[13px] text-faint">{e.link ? `From ${e.link.store}` : `Sold by ${MERCHANT}`}</span>
                   </div>
                 </div>
                 <div className="mt-auto pt-3">
@@ -296,12 +375,14 @@ export function EssentialsPage() {
         </>
       )}
 
+      {adding && <AddItemDialog onClose={() => setAdding(false)} onAdd={addLink} />}
+
       {sheetT && (
         <div className="m-fade fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6">
           <div role="dialog" aria-labelledby="ess-sheet-title" aria-live="polite" className="m-pop flex max-h-full w-full max-w-[540px] flex-col gap-3.5 overflow-y-auto rounded-[20px] border border-border-strong bg-surface p-6 pb-5 shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
             <div className="flex items-center gap-2.5">
               <h2 id="ess-sheet-title" className="flex-1 text-xl font-semibold">{done ? "Order placed" : run ? "Checking out with PayPal…" : "Your order"}</h2>
-              <Pill tone={done ? "pos" : run ? "acc" : "neu"}>{done ? "Completed" : run ? "● Store Sync" : MERCHANT}</Pill>
+              <Pill tone={done ? "pos" : run ? "acc" : "neu"}>{done ? "Completed" : run ? (sheetLinks.length ? "● PayPal Orders" : "● Store Sync") : sheetLinks.length ? "From the web" : MERCHANT}</Pill>
             </div>
             <div className="rounded-[10px] border border-border bg-surface-2 px-3.5">
               {sheetT.items.map((e, i) => (
@@ -344,7 +425,11 @@ export function EssentialsPage() {
                     <span className="block truncate text-xs text-faint">2211 N First St · arrives Mon, Oct 12</span>
                   </div>
                 </div>
-                <p className="text-xs leading-normal text-faint">Sold and shipped by {MERCHANT} through PayPal Store Sync. Your receipt and tracking land in PayPal Activity.</p>
+                <p className="text-xs leading-normal text-faint">
+                  {sheetLinks.length
+                    ? `Includes items from ${sheetLinks.join(", ")}. Paid through PayPal with each item's link and photo saved on the order; the store confirms the shipment. Your receipt lands in PayPal Activity.`
+                    : `Sold and shipped by ${MERCHANT} through PayPal Store Sync. Your receipt and tracking land in PayPal Activity.`}
+                </p>
                 <div className="flex flex-wrap justify-end gap-2">
                   <Btn onClick={closeSheet}>Not now</Btn>
                   <Btn kind="primary" onClick={runOrder}>Pay with PayPal · {money(sheetT.total)}</Btn>
@@ -381,7 +466,7 @@ export function EssentialsPage() {
                   <Check size={18} className="shrink-0 text-positive" />
                   <span className="flex flex-col">
                     <span className="text-sm font-semibold">Order placed · {money(sheetT.total)}</span>
-                    <span className="text-xs text-muted">{MERCHANT} order {run?.conf} · PayPal order {run?.orderId} · arrives Mon, Oct 12</span>
+                    <span className="text-xs text-muted">{sheetLabel} order {run?.conf} · PayPal order {run?.orderId} · arrives Mon, Oct 12</span>
                   </span>
                 </div>
                 <div className="flex justify-end">

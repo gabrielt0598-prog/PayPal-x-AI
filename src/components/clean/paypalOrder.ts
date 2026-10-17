@@ -1,6 +1,8 @@
 // Client side of PayPal Orders API payments: create the order, get the payer's approval, capture it.
 // Live mode opens PayPal's approval page in a popup (the sandbox buyer logs in there); mock mode simulates the approval.
 
+import type { SignedListing } from "@/lib/services/linkReader";
+
 export interface OrderIds {
   orderId: string;
   captureId?: string;
@@ -51,14 +53,24 @@ export async function completeOrder(input: { orderId: string; approveUrl?: strin
  * Pays `amount` USD through the Orders API. `onStage` fires as each step starts; `onOrder` fires once the order exists
  * (with its id) so the UI can show it while the payer approves.
  */
+export type OrderLine =
+  | { kind: "catalog"; name: string; unitPrice: number; quantity: number; sku?: string }
+  | { kind: "link"; listing: SignedListing; quantity: number };
+
 export async function payWithPayPal(input: {
   amount: number;
   description: string;
+  /** Line items for the Orders API (name, price, quantity, product link and photo); the server prices the order from them. */
+  lines?: OrderLine[];
   onStage?: (stage: OrderStage) => void;
   onOrder?: (ids: OrderIds) => void;
 }): Promise<OrderIds> {
   input.onStage?.("creating");
-  const order = await post<{ orderId: string; approveUrl?: string }>("/api/paypal/orders", { amount: input.amount, description: input.description });
+  const order = await post<{ orderId: string; approveUrl?: string }>(
+    "/api/paypal/orders",
+    // One id per payment attempt, so PayPal ignores a repeated request instead of creating a second order.
+    input.lines ? { lines: input.lines, description: input.description, requestId: crypto.randomUUID() } : { amount: input.amount, description: input.description },
+  );
   const simulated = !order.approveUrl;
   input.onOrder?.({ orderId: order.orderId, simulated });
   const cap = await completeOrder({ orderId: order.orderId, approveUrl: order.approveUrl, onStage: input.onStage });

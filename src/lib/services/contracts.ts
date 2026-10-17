@@ -170,6 +170,29 @@ export interface CreateOrderInput {
   /** Where PayPal sends the payer after approving / cancelling. */
   returnUrl: string;
   cancelUrl: string;
+  /** Line items, price breakdown and delivery address. Without it the order is a single amount (digital / no shipping). */
+  details?: OrderDetails;
+}
+export interface OrderLineItem {
+  name: string;
+  /** USD per unit. */
+  unitPrice: number;
+  quantity: number;
+  description?: string;
+  sku?: string;
+  /** Product page and photo; PayPal shows them in the order summary. */
+  url?: string;
+  imageUrl?: string;
+}
+export interface OrderDetails {
+  items: OrderLineItem[];
+  /** USD. Items + shipping + tax must equal `amount`, or PayPal rejects the order. */
+  shipping: number;
+  tax: number;
+  shipTo?: { name: string; line1: string; city: string; state: string; postalCode: string; country: string };
+  /** Sent as PayPal-Request-Id so a double click can't create two orders (PayPal keeps the key for 6 hours). */
+  requestId?: string;
+  invoiceId?: string;
 }
 export interface OrderResult {
   ok: boolean;
