@@ -1504,7 +1504,7 @@ class Component extends DCLogic {
       'dg-result': { page: 'subs', subSel: 'Cinebox', demo: { cinebox: 'ads' }, toast: { title: 'Cinebox switched to Ad-supported', sub: 'Saves $16.00 a month', undo: false, kind: 'success' } },
       'ai-cancel': { page: 'subs', ...mk('x1', 'Cancel my Vantage subscription', 'cancel') },
     };
-    const DK = [['home', { page: 'home' }], ['wallet', { page: 'wallet' }], ['tx', null], ['budget', null], ['subs', null], ['essentials', { page: 'essentials' }], ['offers', null], ['rewards', { page: 'rewards' }], ['insights', { page: 'insights' }], ['settings', null],
+    const DK = [['home', { page: 'home', brief: true }], ['wallet', { page: 'wallet' }], ['tx', null], ['budget', null], ['subs', null], ['essentials', { page: 'essentials' }], ['offers', null], ['rewards', { page: 'rewards' }], ['insights', { page: 'insights' }], ['settings', null],
       ['tx-detail', null], ['budget-detail', null], ['subs-panel', null], ['subs-calendar', null], ['ess-sheet', null], ['ess-history', null], ['offers-detail', null], ['wallet-method', null], ['wallet-autoreload-set', null], ['budget-add', null]];
     const out = { ...SC };
     DK.forEach(([k, o]) => { const b = o || SC[k]; if (b) out['dk-' + k] = { ...b, navDock: true, ...rail, chatId: null }; });
